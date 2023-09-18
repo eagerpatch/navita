@@ -1,5 +1,14 @@
 # @navita/vite-plugin
 
+## 0.0.8
+
+### Patch Changes
+
+- 5d03858: add description and keywords to packages
+- Updated dependencies [5d03858]
+  - @navita/core@0.0.8
+  - @navita/css@0.0.8
+
 ## 0.0.7
 
 ### Patch Changes

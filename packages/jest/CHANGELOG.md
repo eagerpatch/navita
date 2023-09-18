@@ -1,5 +1,14 @@
 # @navita/jest
 
+## 0.0.8
+
+### Patch Changes
+
+- 5d03858: add description and keywords to packages
+- Updated dependencies [5d03858]
+  - @navita/adapter@0.0.8
+  - @navita/engine@0.0.8
+
 ## 0.0.7
 
 ### Patch Changes

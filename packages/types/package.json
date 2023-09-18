@@ -1,8 +1,12 @@
 {
   "name": "@navita/types",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Shared types for Navita packages",
-  "keywords": ["types", "css-in-js", "navita"],
+  "keywords": [
+    "types",
+    "css-in-js",
+    "navita"
+  ],
   "private": false,
   "sideEffects": false,
   "types": "./src/index.ts",

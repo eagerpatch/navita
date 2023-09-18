@@ -1,8 +1,12 @@
 {
   "name": "@navita/swc",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "SWC transformers for Navita",
-  "keywords": ["swc", "css-in-js", "navita"],
+  "keywords": [
+    "swc",
+    "css-in-js",
+    "navita"
+  ],
   "private": false,
   "sideEffects": false,
   "exports": {
