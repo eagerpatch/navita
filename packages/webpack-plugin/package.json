@@ -1,8 +1,12 @@
 {
   "name": "@navita/webpack-plugin",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Navita Webpack Plugin",
-  "keywords": ["webpack", "css-in-js", "navita"],
+  "keywords": [
+    "webpack",
+    "css-in-js",
+    "navita"
+  ],
   "private": false,
   "sideEffects": false,
   "exports": {
