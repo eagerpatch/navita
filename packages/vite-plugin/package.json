@@ -1,6 +1,8 @@
 {
   "name": "@navita/vite-plugin",
   "version": "0.0.7",
+  "description": "Navita Vite Plugin",
+  "keywords": ["vite", "css-in-js", "navita"],
   "private": false,
   "sideEffects": false,
   "exports": {
