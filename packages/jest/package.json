@@ -1,6 +1,8 @@
 {
   "name": "@navita/jest",
   "version": "0.0.7",
+  "description": "Jest tools for Navita",
+  "keywords": ["jest", "css-in-js", "navita"],
   "private": false,
   "sideEffects": false,
   "exports": {

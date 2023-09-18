@@ -1,6 +1,8 @@
 {
   "name": "@navita/adapter",
   "version": "0.0.7",
+  "description": "Shared adapter for Navita",
+  "keywords": ["adapter", "css-in-js", "navita"],
   "exports": {
     ".": {
       "types": "./src/index.ts",

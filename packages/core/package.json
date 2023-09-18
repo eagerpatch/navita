@@ -1,6 +1,8 @@
 {
   "name": "@navita/core",
   "version": "0.0.7",
+  "description": "Core package for Navita. Used for creating integrations.",
+  "keywords": ["core", "integrations", "css-in-js", "navita"],
   "private": false,
   "sideEffects": false,
   "types": "./src/index.ts",
