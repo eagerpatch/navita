@@ -1,0 +1,40 @@
+{
+  "name": "@navita/css",
+  "version": "0.0.6",
+  "private": false,
+  "sideEffects": false,
+  "types": "src/index.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./src/index.ts"
+    }
+  },
+  "publishConfig": {
+    "directory": "dist",
+    "linkDirectory": false
+  },
+  "scripts": {
+    "build": "build",
+    "dev": "build --dev",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@navita/adapter": "workspace:*",
+    "deep-object-diff": "^1.1.9",
+    "cssesc": "^3.0.0",
+    "chalk": "^4.1.2"
+  },
+  "devDependencies": {
+    "@types/cssesc": "^3.0.0",
+    "@navita/types": "workspace:*"
+  },
+  "license": "MIT",
+  "author": "Eagerpatch",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eagerpatch/navita.git",
+    "directory": "packages/css"
+  }
+}

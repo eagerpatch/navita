@@ -1,0 +1,52 @@
+{
+  "name": "@navita/core",
+  "version": "0.0.6",
+  "private": false,
+  "sideEffects": false,
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./src/index.ts"
+    },
+    "./package.json": "./package.json",
+    "./createRenderer": {
+      "import": "./dist/createRenderer.mjs",
+      "require": "./dist/createRenderer.js",
+      "types": "./src/createRenderer.ts"
+    },
+    "./evaluateAndProcess": {
+      "import": "./dist/evaluateAndProcess.mjs",
+      "require": "./dist/evaluateAndProcess.js",
+      "types": "./src/evaluateAndProcess.ts"
+    }
+  },
+  "publishConfig": {
+    "directory": "dist",
+    "linkDirectory": false
+  },
+  "scripts": {
+    "build": "build",
+    "dev": "build --dev",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@navita/types": "workspace:*",
+    "@navita/adapter": "workspace:*",
+    "@navita/swc": "workspace:*",
+    "@navita/engine": "workspace:*",
+    "enhanced-resolve": "^5.15.0",
+    "outdent": "^0.8.0"
+  },
+  "devDependencies": {
+    "@navita/css": "workspace:*"
+  },
+  "license": "MIT",
+  "author": "Eagerpatch",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eagerpatch/navita.git",
+    "directory": "packages/core"
+  }
+}

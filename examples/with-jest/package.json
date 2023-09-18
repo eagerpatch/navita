@@ -1,0 +1,17 @@
+{
+  "private": true,
+  "name": "navita-example-with-jest",
+  "version": "0.0.1",
+  "scripts": {
+    "test": "jest"
+  },
+  "jest": {
+    "setupFilesAfterEnv": ["@navita/jest"]
+  },
+  "dependencies": {
+    "@navita/css": "*"
+  },
+  "devDependencies": {
+    "@navita/jest": "*"
+  }
+}

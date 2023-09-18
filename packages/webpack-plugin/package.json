@@ -1,0 +1,51 @@
+{
+  "name": "@navita/webpack-plugin",
+  "version": "0.0.6",
+  "private": false,
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "types": "./src/index.ts"
+    },
+    "./loader": {
+      "import": "./dist/loader.mjs",
+      "require": "./dist/loader.cjs",
+      "types": "./src/loader.ts"
+    },
+    "./hmr/css": {
+      "import": "./dist/hmr/css.mjs",
+      "require": "./dist/hmr/css.cjs",
+      "types": "./src/hmr/css.ts"
+    }
+  },
+  "publishConfig": {
+    "directory": "dist",
+    "linkDirectory": false
+  },
+  "scripts": {
+    "test": "jest",
+    "dev": "build --dev",
+    "build": "build"
+  },
+  "dependencies": {
+    "@navita/core": "workspace:*",
+    "@navita/css": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/webpack-sources": "^3.2.0",
+    "webpack": "5.88.0",
+    "enhanced-resolve": "^5.12.0",
+    "memfs": "^3.4.13",
+    "unionfs": "^4.4.0",
+    "tapable": "^2.2.0"
+  },
+  "license": "MIT",
+  "author": "Eagerpatch",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eagerpatch/navita.git",
+    "directory": "packages/webpack-plugin"
+  }
+}

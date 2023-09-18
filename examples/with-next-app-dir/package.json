@@ -1,0 +1,27 @@
+{
+  "private": true,
+  "name": "with-next-app-dir",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@navita/css": "workspace:*",
+    "@types/node": "20.3.3",
+    "@types/react": "18.2.14",
+    "@types/react-dom": "18.2.6",
+    "eslint": "8.44.0",
+    "eslint-config-next": "13.4.7",
+    "next": "13.4.19",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "5.1.6",
+    "@next/bundle-analyzer": "^13.4.19"
+  },
+  "devDependencies": {
+    "@navita/next-plugin": "workspace:*",
+    "@navita/core": "workspace:*"
+  }
+}

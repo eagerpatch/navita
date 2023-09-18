@@ -1,0 +1,49 @@
+{
+  "name": "@navita/next-plugin",
+  "version": "0.0.6",
+  "private": false,
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./src/index.ts"
+    },
+    "./fromServerLoader": {
+      "import": "./dist/fromServerLoader.mjs",
+      "require": "./dist/fromServerLoader.js",
+      "types": "./src/fromServerLoader.ts"
+    }
+  },
+  "publishConfig": {
+    "directory": "dist",
+    "linkDirectory": false
+  },
+  "scripts": {
+    "build": "build",
+    "dev": "build --dev",
+    "test": "jest --passWithNoTests"
+  },
+  "dependencies": {
+    "@navita/webpack-plugin": "workspace:*",
+    "browserslist": "^4.21.5"
+  },
+  "devDependencies": {
+    "next": "^13.4.13",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "webpack": "^5.88.0",
+    "mini-css-extract-plugin": "^2.7.6"
+  },
+  "peerDependencies": {
+    "next": ">=12 || >=13",
+    "webpack": "^5"
+  },
+  "license": "MIT",
+  "author": "Eagerpatch",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eagerpatch/navita.git",
+    "directory": "packages/next-plugin"
+  }
+}

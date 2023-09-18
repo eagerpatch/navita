@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "strictBindCallApply": true,
+    "target": "es2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowSyntheticDefaultImports": true,
+    "exactOptionalPropertyTypes": false,
+    "skipLibCheck": true,
+    "typeRoots": [
+      "node_modules/@types",
+      "scripts",
+    ],
+  },
+}

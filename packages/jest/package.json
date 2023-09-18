@@ -1,0 +1,36 @@
+{
+  "name": "@navita/jest",
+  "version": "0.0.6",
+  "private": false,
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./src/index.ts"
+    }
+  },
+  "publishConfig": {
+    "directory": "dist",
+    "linkDirectory": false
+  },
+  "scripts": {
+    "build": "build",
+    "dev": "build --dev",
+    "test": "jest --passWithNoTests"
+  },
+  "dependencies": {
+    "@navita/adapter": "workspace:*",
+    "@navita/engine": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.1"
+  },
+  "license": "MIT",
+  "author": "Eagerpatch",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eagerpatch/navita.git",
+    "directory": "packages/jest"
+  }
+}

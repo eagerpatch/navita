@@ -1,0 +1,15 @@
+[package]
+name = "common"
+version = "0.0.2"
+edition = "2021"
+
+[dependencies]
+serde = "1"
+serde_json = "1"
+swc_common = { version = "0.31.12", features = ["concurrent"] }
+swc_core = { version = "0.78.0", features = [
+    "common",
+    "ecma_visit",
+    "ecma_plugin_transform",
+    "ecma_utils"
+] }
