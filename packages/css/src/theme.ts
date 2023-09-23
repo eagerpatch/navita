@@ -85,9 +85,9 @@ export function createTheme<ThemeContract extends Contract>(
   tokens: MapLeafNodes<ThemeContract, string>,
 ): string;
 export function createTheme(arg1: any, arg2?: any): any {
-  const themeClassName = `.${generateIdentifier(
+  const themeClassName = generateIdentifier(
     typeof arg2 === 'object' ? arg2 : arg1,
-  )}`;
+  );
 
   const vars =
     typeof arg2 === 'object'
