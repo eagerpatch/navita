@@ -46,8 +46,7 @@ export function createRenderer({
       });
 
       for (const { start, end, value } of result.reverse()) {
-        const newValue = value === undefined ? 'undefined' : JSON.stringify(value);
-        newSource.update(start, end, newValue);
+        newSource.update(start, end, value);
       }
 
       return {

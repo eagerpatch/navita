@@ -11,7 +11,6 @@ import { setAdapter } from "./helpers/setAdapter";
 const rootDir = path.resolve(__dirname, "../../");
 const isExternal = (dependency: string) => dependency.startsWith(rootDir) || dependency.includes('node_modules');
 
-type FilePath = string;
 type FilePathWithType = string;
 type ModuleCache = Map<FilePathWithType, {
   source: string;

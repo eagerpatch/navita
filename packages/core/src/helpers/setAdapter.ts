@@ -10,7 +10,7 @@ type FilePath = string;
 export type CollectedResults = Record<FilePath, {
   start: number;
   end: number;
-  value: unknown;
+  value: string;
 }[]>;
 
 export function setAdapter({
@@ -76,7 +76,7 @@ export function setAdapter({
         collectResults[filePath][index] = {
           start,
           end,
-          value: result,
+          value: result === undefined ? "undefined" : JSON.stringify(result),
         };
       }
 

@@ -119,7 +119,7 @@ describe('evaluateAndProcess', () => {
     const result = await createEvaluateAndProcess();
 
     expect(result).toBeDefined();
-    expect(result.result).toEqual(`const $$evaluatedValues = [];`);
+    expect(result.result).toEqual(undefined);
     expect(result.dependencies).toEqual([]);
   }, 10000);
 
@@ -135,7 +135,13 @@ describe('evaluateAndProcess', () => {
       },
     });
 
-    expect(result).toEqual('const $$evaluatedValues = ["a1"];');
+    expect(result).toEqual([
+      {
+        end: 114,
+        start: 68,
+        value: '"a1"',
+      }
+    ]);
     expect(dependencies).toEqual([]);
     expect(engine.renderCssToString()).toMatchInlineSnapshot(`".a1{color:red}"`);
   }, 10000);
@@ -207,7 +213,13 @@ describe('evaluateAndProcess', () => {
 
     expect(dependencies).toHaveLength(1);
     expect(dependencies[0].endsWith('colors.ts')).toBe(true);
-    expect(result).toBe('const $$evaluatedValues = ["a1 b1"];');
+    expect(result).toEqual([
+      {
+        start: 117,
+        end: 187,
+        value: '"a1 b1"'
+      }
+    ]);
     expect(engine.renderCssToString()).toMatchInlineSnapshot(
       `".a1{color:red}.b1{background:red}"`,
     );
@@ -229,7 +241,18 @@ describe('evaluateAndProcess', () => {
 
     expect(dependencies).toHaveLength(0);
     expect(dependencies).toEqual([]);
-    expect(result).toBe('const $$evaluatedValues = ["a1","a2"];');
+    expect(result).toEqual([
+      {
+        start: 68,
+        end: 91,
+        value: '"a1"',
+      },
+      {
+        start: 113,
+        end: 137,
+        value: '"a2"'
+      }
+    ]);
     expect(engine.renderCssToString()).toMatchInlineSnapshot(
       `".a1{color:red}.a2{color:blue}"`,
     );
@@ -263,7 +286,13 @@ describe('evaluateAndProcess', () => {
     ]);
     expect(dependencies).toHaveLength(1);
     expect(Object.keys(nodeModuleCache)).toHaveLength(2);
-    expect(result).toBe('const $$evaluatedValues = ["a1"];');
+    expect(result).toEqual([
+      {
+        start: 110,
+        end: 138,
+        value: '"a1"'
+      }
+    ]);
     expect(engine.renderCssToString()).toMatchInlineSnapshot(`".a1{color:var(--color)}"`);
   });
 
