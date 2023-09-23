@@ -17,7 +17,7 @@ use swc_core::{
 use crate::collect_call_expr::CallExprCollector;
 use crate::collect_idents::collect_idents;
 
-pub(crate) struct StatementCollector {
+struct StatementCollector {
   // Import calls contains the list of call expressions that match the import_map
   import_calls: AHashSet<Id>,
 
@@ -33,7 +33,7 @@ pub(crate) struct StatementCollector {
   module_imports: Vec<ModuleItem>,
 
   // Map to convert call expressions to decl strings
-  call_expression_to_decl_str: AHashMap<CallExpr, Id>,
+  call_expr_map: AHashMap<CallExpr, Id>,
 }
 
 impl StatementCollector {
@@ -61,7 +61,7 @@ impl StatementCollector {
           // It's probably only going to be one, but we'll just loop through them.
           for call_expr in call_expr_collector.values {
             for ident in &name_idents {
-              self.call_expression_to_decl_str.insert(
+              self.call_expr_map.insert(
                 call_expr.clone(),
                 ident.clone()
               );
@@ -189,27 +189,29 @@ impl Visit for StatementCollector {
   }
 }
 
+pub(crate) struct CollectStatementResult {
+  pub(crate) items: Vec<ModuleItem>,
+  pub(crate) call_expr_map: AHashMap<CallExpr, Id>,
+  pub(crate) import_calls: AHashSet<Id>,
+}
+
 pub(crate) fn collect_statements(
   import_map: &Vec<ImportMap>,
   _file_name: &String,
   module: &Module,
-  call_expression_to_decl_str: &mut AHashMap<CallExpr, Id>,
-) -> Vec<ModuleItem> {
+) -> CollectStatementResult {
   let import_calls = convert_import_map_to_ids(import_map, module);
   let used_idents = collect_used_idents(&import_calls, module);
 
   let mut visitor = StatementCollector {
     import_calls,
     used_idents,
-    call_expression_to_decl_str: AHashMap::default(),
+    call_expr_map: AHashMap::default(),
     module_items: vec![],
     module_imports: vec![],
   };
 
   module.visit_with(&mut visitor);
-
-  // Do this better...
-  call_expression_to_decl_str.extend(visitor.call_expression_to_decl_str);
 
   // Create any leftover idents.
   for ident in visitor.used_idents {
@@ -234,5 +236,9 @@ pub(crate) fn collect_statements(
   result.extend(visitor.module_imports);
   result.extend(visitor.module_items);
 
-  result
+  CollectStatementResult {
+    items: result,
+    call_expr_map: visitor.call_expr_map,
+    import_calls: visitor.import_calls,
+  }
 }
