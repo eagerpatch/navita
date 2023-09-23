@@ -1,5 +1,13 @@
 # @navita/css
 
+## 0.0.9
+
+### Patch Changes
+
+- a52048a: Replacing SWC-pass with MagicString
+- Updated dependencies [a52048a]
+  - @navita/adapter@0.0.9
+
 ## 0.0.8
 
 ### Patch Changes

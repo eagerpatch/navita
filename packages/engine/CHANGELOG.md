@@ -1,5 +1,11 @@
 # @navita/engine
 
+## 0.0.9
+
+### Patch Changes
+
+- a52048a: Replacing SWC-pass with MagicString
+
 ## 0.0.8
 
 ### Patch Changes

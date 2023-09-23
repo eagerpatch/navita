@@ -1,5 +1,12 @@
 # @navita/next-plugin
 
+## 0.0.9
+
+### Patch Changes
+
+- Updated dependencies [a52048a]
+  - @navita/webpack-plugin@0.0.9
+
 ## 0.0.8
 
 ### Patch Changes
