@@ -109,7 +109,7 @@ export function navitaCompile() {
           parser: 'css',
           singleQuote: true,
         }), prettier.format(result, {
-        parser: 'babel',
+        parser: 'babel-ts',
         singleQuote: true,
         printWidth: 60,
       })]);
