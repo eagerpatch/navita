@@ -1,5 +1,13 @@
 # @navita/jest
 
+## 0.0.9
+
+### Patch Changes
+
+- Updated dependencies [a52048a]
+  - @navita/adapter@0.0.9
+  - @navita/engine@0.0.9
+
 ## 0.0.8
 
 ### Patch Changes
