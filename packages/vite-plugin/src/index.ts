@@ -18,10 +18,14 @@ export function navita(options?: Options) {
 
   let server: ViteDevServer;
   let lastCssContent: string | undefined;
+  let context: string;
 
   return {
     name: "navita",
     enforce: "pre",
+    configResolved(config) {
+      context = config.root;
+    },
     configureServer(_server) {
       lastCssContent = undefined;
       server = _server;
@@ -34,6 +38,7 @@ export function navita(options?: Options) {
       };
 
       renderer = createRenderer({
+        context,
         importMap,
         engineOptions: defaultEngineOptions,
         resolver: async (filepath: string, request: string) => {
@@ -64,7 +69,7 @@ export function navita(options?: Options) {
         return null;
       }
 
-      const { result } = await renderer.transformAndProcess({
+      const { result, sourceMap } = await renderer.transformAndProcess({
         content: code,
         filePath: id,
       });
@@ -84,10 +89,10 @@ export function navita(options?: Options) {
         lastCssContent = newCssContent;
       }
 
-      return `
-        ${result}
-        import "${VIRTUAL_MODULE_NAME}";
-      `;
+      return {
+        code: `${result} import "${VIRTUAL_MODULE_NAME}";`,
+        map: sourceMap,
+      };
     },
     renderChunk(_, chunk) {
       for (const id of Object.keys(chunk.modules)) {

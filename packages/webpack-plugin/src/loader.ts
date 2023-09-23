@@ -33,7 +33,7 @@ export default async function loader(
   try {
     const { resourcePath } = this;
 
-    const { result, dependencies, usedIds } = await renderer.transformAndProcess({
+    const { result, dependencies, usedIds, sourceMap } = await renderer.transformAndProcess({
       content,
       filePath: resourcePath,
     });
@@ -66,7 +66,7 @@ export default async function loader(
     callback(
       null,
       contents.filter(Boolean).join('\n').trim(),
-      // We don't generate sourceMaps.
+      sourceMap,
     );
   } catch (error) {
     callback(error as Error);

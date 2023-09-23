@@ -87,6 +87,7 @@ export class NavitaPlugin {
       const fileSystem = compiler.inputFileSystem;
 
       renderer = createRenderer({
+        context: compiler.options.context,
         engineOptions: defaultEngineOptions,
         importMap,
         async resolver(filepath: string, request: string) {

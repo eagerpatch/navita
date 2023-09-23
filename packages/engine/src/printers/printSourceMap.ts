@@ -18,7 +18,8 @@ export function printSourceMap(sourceMapReferences: SourceMapReference, content:
   }
 
   const sourceMap = new SourceMapGenerator({
-    file: "navita.css"
+    file: "navita.css",
+    skipValidation: true,
   });
 
   const references = entries
