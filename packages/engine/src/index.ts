@@ -31,6 +31,7 @@ interface Identifier {
 }
 
 export type Options = {
+  context?: string;
   enableSourceMaps?: boolean;
   enableDebugIdentifiers?: boolean;
 };
@@ -145,11 +146,13 @@ export class Engine {
       .filter(Boolean)
       .join('.');
 
-    if (index === 0 || !this.sourceMapReferences[filePath]) {
-      this.sourceMapReferences[filePath] = [];
+    const newFilePath = path.relative(this.options.context || process.cwd(), filePath);
+
+    if (index === 0 || !this.sourceMapReferences[newFilePath]) {
+      this.sourceMapReferences[newFilePath] = [];
     }
 
-    this.sourceMapReferences[filePath][index] = {
+    this.sourceMapReferences[newFilePath][index] = {
       selector,
       line,
       column,

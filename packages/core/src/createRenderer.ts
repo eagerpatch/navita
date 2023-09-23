@@ -1,17 +1,19 @@
+import path from "path";
 import { Engine } from "@navita/engine";
 import type { UsedIdCache, Options as EngineOptions } from "@navita/engine";
 import type { ImportMap } from "@navita/types";
-export type { ImportMap };
 import MagicString from "magic-string";
 import { evaluateAndProcess } from "./evaluateAndProcess";
 
 export type { Engine, UsedIdCache, EngineOptions };
+export type { ImportMap };
 
 export interface Options {
   resolver: (filepath: string, request: string) => Promise<string>;
   readFile: (filepath: string) => Promise<string>;
   importMap: ImportMap;
   engineOptions?: EngineOptions;
+  context?: string;
 }
 
 export function createRenderer({
@@ -19,8 +21,12 @@ export function createRenderer({
   readFile,
   importMap = [],
   engineOptions,
+  context,
 }: Options) {
-  const engine = new Engine(engineOptions);
+  const engine = new Engine({
+    context,
+    ...(engineOptions || {}),
+  });
 
   return {
     engine,
