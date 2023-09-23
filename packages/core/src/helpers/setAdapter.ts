@@ -5,17 +5,25 @@ import type { Static } from "@navita/engine";
 import type { Engine } from "@navita/engine";
 import type { GlobalStyleRule, StyleRule } from "@navita/types";
 
+type FilePath = string;
+
+export type CollectedResults = Record<FilePath, {
+  start: number;
+  end: number;
+  value: unknown;
+}[]>;
+
 export function setAdapter({
   engine,
   collectResults,
 }: {
   engine: Engine,
-  collectResults?: Record<string, unknown>,
+  collectResults: CollectedResults,
 }) {
   _setAdapter({
     generateIdentifier: (value) => engine.generateIdentifier(value),
-    addStaticCss: (selector, css) => engine.addStatic(selector, css),
-    addCss: (css) => engine.addStyle(css),
+    addStaticCss: (selector: string, css: StyleRule) => engine.addStatic(selector, css),
+    addCss: (css: StyleRule) => engine.addStyle(css),
     addKeyframe: (keyframe) => engine.addKeyframes(keyframe),
     addFontFace: (fontFace) => {
       const hasFontFamily = (Array.isArray(fontFace) ? fontFace : [fontFace]).some((fontFace) => 'fontFamily' in fontFace);
@@ -31,8 +39,8 @@ export function setAdapter({
       filePath,
       identifier,
       result: resultFactory,
-      line,
-      column,
+      sourceMap: { line, column },
+      position,
     }) {
       if (index === 0) {
         if (collectResults) {
@@ -64,7 +72,12 @@ export function setAdapter({
       }
 
       if (collectResults) {
-        collectResults[filePath][index] = result;
+        const [start, end] = position;
+        collectResults[filePath][index] = {
+          start,
+          end,
+          value: result,
+        };
       }
 
       return result;

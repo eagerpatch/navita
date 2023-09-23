@@ -173,8 +173,11 @@ describe('evaluateAndProcess', () => {
       result: () => 'something',
       index: 0,
       identifier: 'something',
-      line: 0,
-      column: 0,
+      position: [0, 0],
+      sourceMap: {
+        line: 0,
+        column: 0,
+      }
     });
 
     expect(result).toEqual('something');

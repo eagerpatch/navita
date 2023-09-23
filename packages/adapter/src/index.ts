@@ -46,13 +46,20 @@ export function addFontFace(fontFace: FontFaceRule | FontFaceRule[]): string {
   return getAdapter().addFontFace(fontFace) as string;
 }
 
+type Start = number;
+type End = number;
+type Position = [Start, End];
+
 export function collectResult<T>(input: {
   filePath: string,
   index: number,
   result: () => T,
-  identifier?: string,
-  line: number,
-  column: number,
+  identifier: string,
+  position: Position,
+  sourceMap: {
+    line: number,
+    column: number,
+  },
 }): T {
   return getAdapter().collectResult?.(input) as T;
 }
