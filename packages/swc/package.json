@@ -17,9 +17,6 @@
     },
     "./_extraction.wasm": {
       "default": "./target/wasm32-wasi/release/extraction.wasm"
-    },
-    "./_transformer.wasm": {
-      "default": "./target/wasm32-wasi/release/transformer.wasm"
     }
   },
   "publishConfig": {
