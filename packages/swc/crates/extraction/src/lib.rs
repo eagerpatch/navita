@@ -2,21 +2,17 @@ mod collect_idents;
 mod collect_statements;
 mod collect_used_idents;
 mod collect_call_expr;
+mod get_char_pos_from_loc;
 
-use crate::collect_statements::collect_statements;
+use crate::collect_statements::{collect_statements, CollectStatementResult};
 use common::config::ImportMap;
-use common::convert_import_map_to_id::convert_import_map_to_ids;
 use common::get_callee_ident::get_callee_ident;
 use serde::Deserialize;
 use std::sync::Arc;
-use swc_common::{SourceMapper, Spanned};
+use swc_common::{DUMMY_SP, SourceMapper, Spanned};
 use swc_common::collections::AHashMap;
 use swc_core::common::collections::AHashSet;
-use swc_core::ecma::ast::{
-  ArrowExpr, BlockStmtOrExpr, CallExpr, Callee, Expr, ExprOrSpread, Id, Ident, ImportDecl,
-  ImportNamedSpecifier, ImportSpecifier, KeyValueProp, ModuleDecl, ModuleItem, ObjectLit, Prop,
-  PropName, PropOrSpread, Str,
-};
+use swc_core::ecma::ast::{ArrowExpr, BlockStmtOrExpr, CallExpr, Callee, Expr, ExprOrSpread, Id, Ident, ImportDecl, ImportNamedSpecifier, ImportSpecifier, KeyValueProp, ModuleDecl, ModuleItem, ObjectLit, Prop, PropName, PropOrSpread, Str, ArrayLit, Lit, Number};
 use swc_core::ecma::utils::{private_ident, quote_ident, quote_str};
 use swc_core::plugin::metadata::TransformPluginMetadataContextKind;
 use swc_core::{
@@ -27,6 +23,7 @@ use swc_core::{
   plugin::plugin_transform,
   plugin::proxies::TransformPluginProgramMetadata,
 };
+use crate::get_char_pos_from_loc::get_char_pos_from_loc;
 
 struct Extractor {
   config: Config,
@@ -37,7 +34,7 @@ struct Extractor {
   collect_result_name: &'static str,
   collect_result_ident: Ident,
   collect_result_source: &'static str,
-  call_expression_to_decl_str: AHashMap<CallExpr, Id>,
+  call_expr_map: AHashMap<CallExpr, Id>,
 }
 
 impl Extractor {
@@ -55,7 +52,7 @@ impl Extractor {
       collect_result_name,
       collect_result_ident,
       collect_result_source,
-      call_expression_to_decl_str: AHashMap::default(),
+      call_expr_map: AHashMap::default(),
     }
   }
 }
@@ -76,11 +73,18 @@ impl VisitMut for Extractor {
 
     let current_index = self.index;
 
-    let line_col = self
+    let line_col_start = self
       .source_map
-      .lookup_char_pos(call_expr.callee.span().lo());
+      .lookup_char_pos(call_expr.span().lo());
 
-    let identifier = self.call_expression_to_decl_str.get(call_expr).map_or("".to_string(), |id| id.0.to_string());
+    let line_col_end = self
+      .source_map
+      .lookup_char_pos(call_expr.span().hi());
+
+    let pos_start = get_char_pos_from_loc(&line_col_start);
+    let pos_end = get_char_pos_from_loc(&line_col_end);
+
+    let identifier = self.call_expr_map.get(call_expr).map_or("".to_string(), |id| id.0.to_string());
 
     *call_expr = CallExpr {
       span: Default::default(),
@@ -88,7 +92,7 @@ impl VisitMut for Extractor {
       args: vec![ExprOrSpread {
         spread: None,
         expr: Box::new(Expr::Object(ObjectLit {
-          span: Default::default(),
+          span: DUMMY_SP,
           props: vec![
             PropOrSpread::Prop(Box::new(Prop::KeyValue(KeyValueProp {
               key: PropName::Ident(quote_ident!("filePath")),
@@ -103,12 +107,44 @@ impl VisitMut for Extractor {
               value: Box::new(Expr::Lit(quote_str!(identifier).into())),
             }))),
             PropOrSpread::Prop(Box::new(Prop::KeyValue(KeyValueProp {
-              key: PropName::Ident(quote_ident!("line")),
-              value: Box::new(Expr::Lit(line_col.line.into())),
+              key: PropName::Ident(quote_ident!("position")),
+              value: Box::new(Expr::Array(ArrayLit {
+                span: Default::default(),
+                elems: vec![
+                  Some(ExprOrSpread {
+                    spread: None,
+                    expr: Box::new(Expr::Lit(Lit::Num(Number {
+                      span: DUMMY_SP,
+                      value: pos_start as f64,
+                      raw: None,
+                    }))),
+                  }),
+                  Some(ExprOrSpread {
+                    spread: None,
+                    expr: Box::new(Expr::Lit(Lit::Num(Number {
+                      span: DUMMY_SP,
+                      value: pos_end as f64,
+                      raw: None,
+                    }))),
+                  }),
+                ],
+              })),
             }))),
             PropOrSpread::Prop(Box::new(Prop::KeyValue(KeyValueProp {
-              key: PropName::Ident(quote_ident!("column")),
-              value: Box::new(Expr::Lit(line_col.col_display.into())),
+              key: PropName::Ident(quote_ident!("sourceMap")),
+              value: Box::new(Expr::Object(ObjectLit {
+                span: DUMMY_SP,
+                props: vec![
+                  PropOrSpread::Prop(Box::new(Prop::KeyValue(KeyValueProp {
+                    key: PropName::Ident(quote_ident!("line")),
+                    value: Box::new(Expr::Lit(line_col_start.line.into())),
+                  }))),
+                  PropOrSpread::Prop(Box::new(Prop::KeyValue(KeyValueProp {
+                    key: PropName::Ident(quote_ident!("column")),
+                    value: Box::new(Expr::Lit(line_col_start.col_display.into())),
+                  }))),
+                ]
+              }))
             }))),
             PropOrSpread::Prop(Box::new(Prop::KeyValue(KeyValueProp {
               key: PropName::Ident(quote_ident!("result")),
@@ -133,13 +169,15 @@ impl VisitMut for Extractor {
   }
 
   fn visit_mut_module(&mut self, module: &mut Module) {
-    self.import_calls = convert_import_map_to_ids(&self.config.import_map, module);
-    module.body = collect_statements(
-      &self.config.import_map,
-      &self.file_name,
-      module,
-      &mut self.call_expression_to_decl_str
-    );
+    let CollectStatementResult {
+      items,
+      call_expr_map,
+      import_calls,
+    } = collect_statements(&self.config.import_map, &self.file_name, module);
+
+    self.import_calls = import_calls;
+    self.call_expr_map = call_expr_map;
+    module.body = items;
 
     module.body.insert(
       0,
@@ -247,8 +285,14 @@ mod tests {
         filePath: "super-cool-filename",
         index: 0,
         identifier: "tests",
-        line: 5,
-        column: 27,
+        position: [
+          106,
+          129
+        ],
+        sourceMap: {
+          line: 5,
+          column: 27
+        },
         result: () => style({
           color: 'red'
         })
@@ -257,8 +301,14 @@ mod tests {
         filePath: "super-cool-filename",
         index: 1,
         identifier: "something",
-        line: 6,
-        column: 24,
+        position: [
+          155,
+          180
+        ],
+        sourceMap: {
+          line: 6,
+          column: 24
+        },
         result: () => style({
           color: 'green'
         })
@@ -271,16 +321,16 @@ mod tests {
     config,
     preserves_imports_when_none_found,
     r#"
-       import { style } from "@navita/css";
-       import { someImport } from "some-other-place";
+      import { style } from "@navita/css";
+      import { someImport } from "some-other-place";
 
-       console.log(someImport);
-     "#,
+      console.log(someImport);
+    "#,
     r#"
-       import { collectResult as collectResult } from "@navita/adapter";
-       import { style } from "@navita/css";
-       import { someImport } from "some-other-place";
-     "#
+      import { collectResult as collectResult } from "@navita/adapter";
+      import { style } from "@navita/css";
+      import { someImport } from "some-other-place";
+    "#
   );
 
   test!(
@@ -288,27 +338,33 @@ mod tests {
     config,
     works_with_call_expressions,
     r#"
-       import { globalStyle } from "@navita/css";
+      import { globalStyle } from "@navita/css";
 
-       globalStyle('body', {
-         fontSize: '50px',
-       });
-     "#,
+      globalStyle('body', {
+        fontSize: '50px',
+      });
+    "#,
     r#"
-       import { collectResult as collectResult } from "@navita/adapter";
-       import { globalStyle } from "@navita/css";
+      import { collectResult as collectResult } from "@navita/adapter";
+      import { globalStyle } from "@navita/css";
 
-       collectResult({
-         filePath: "super-cool-filename",
-         index: 0,
-         identifier: "",
-         line: 4,
-         column: 7,
-         result: () => globalStyle('body', {
-           fontSize: '50px',
-         }),
-       });
-     "#
+      collectResult({
+        filePath: "super-cool-filename",
+        index: 0,
+        identifier: "",
+        position: [
+          57,
+          113
+        ],
+        sourceMap: {
+          line: 4,
+          column: 6
+        },
+        result: () => globalStyle('body', {
+          fontSize: '50px',
+        }),
+      });
+    "#
   );
 
   test!(
@@ -316,42 +372,54 @@ mod tests {
     config,
     works_with_both,
     r#"
-       import { globalStyle, style } from "@navita/css";
+      import { globalStyle, style } from "@navita/css";
 
-       globalStyle('body', {
-         color: 'purple',
-       });
+      globalStyle('body', {
+        color: 'purple',
+      });
 
-       const yellow = style({
-         background: 'yellow',
-       });
-     "#,
+      const yellow = style({
+        background: 'yellow',
+      });
+    "#,
     r#"
-       import { collectResult as collectResult } from "@navita/adapter";
-       import { globalStyle, style } from "@navita/css";
+      import { collectResult as collectResult } from "@navita/adapter";
+      import { globalStyle, style } from "@navita/css";
 
-       collectResult({
-         filePath: "super-cool-filename",
-         index: 0,
-         identifier: "",
-         line: 4,
-         column: 7,
-         result: () => globalStyle('body', {
-           color: 'purple',
-         }),
-       });
+      collectResult({
+        filePath: "super-cool-filename",
+        index: 0,
+        identifier: "",
+        position: [
+          64,
+          119
+        ],
+        sourceMap: {
+          line: 4,
+          column: 6
+        },
+        result: () => globalStyle('body', {
+          color: 'purple',
+        }),
+      });
 
-       const yellow = collectResult({
-         filePath: "super-cool-filename",
-         index: 1,
-         identifier: "yellow",
-         line: 8,
-         column: 22,
-         result: () => style({
-           background: 'yellow',
-         })
-       });
-     "#
+      const yellow = collectResult({
+        filePath: "super-cool-filename",
+        index: 1,
+        identifier: "yellow",
+        position: [
+          143,
+          189
+        ],
+        sourceMap: {
+          line: 8,
+          column: 21
+        },
+        result: () => style({
+          background: 'yellow',
+        })
+      });
+    "#
   );
 
   test!(
@@ -359,92 +427,116 @@ mod tests {
     config,
     works_with_nested_hoisting,
     r#"
-       import { globalStyle, createTheme, style as supercool } from "@navita/css";
-       const preserved = 'hello';
-       export const [vars] = createTheme({
-         color: {
-           red: 'purple',
-           value: preserved,
-           more: {
-             stuff: 'heje',
-           }
-         },
-       });
+      import { globalStyle, createTheme, style as supercool } from "@navita/css";
+      const preserved = 'hello';
+      export const [vars] = createTheme({
+       color: {
+         red: 'purple',
+         value: preserved,
+         more: {
+           stuff: 'heje',
+         }
+       },
+      });
 
-       const [hej, hejsan, tja] = [1, 2, 3];
+      const [hej, hejsan, tja] = [1, 2, 3];
 
-       globalStyle('body', {
-         color: vars.color.red,
-         hej,
-         hejsan,
-         tja,
-       });
+      globalStyle('body', {
+        color: vars.color.red,
+        hej,
+        hejsan,
+        tja,
+      });
 
-       function hoisted(argName) {
-         const wow = supercool({ color: 'blue', background: argName });
-       }
+      function hoisted(argName) {
+        const wow = supercool({ color: 'blue', background: argName });
+      }
 
-       const also = () => {
-         const hoistedAgain = supercool({ color: 'blue', background: 'red' });
-       }
-     "#,
+      const also = () => {
+        const hoistedAgain = supercool({ color: 'blue', background: 'red' });
+      }
+    "#,
     r#"
-       import { collectResult as collectResult } from "@navita/adapter";
-       import { globalStyle, createTheme, style as supercool } from "@navita/css";
-       let argName;
-       const preserved = 'hello';
-       export const [vars] = collectResult({
-         filePath: "super-cool-filename",
-         index: 0,
-         identifier: "vars",
-         line: 4,
-         column: 29,
-         result: () => createTheme({
-           color: {
-               red: 'purple',
-               value: preserved,
-               more: {
-                   stuff: 'heje'
-               }
-           }
-         })
-       });
-       const [hej, hejsan, tja] = [1, 2, 3];
-       collectResult({
-         filePath: "super-cool-filename",
-         index: 1,
-         identifier: "",
-         line: 16,
-         column: 7,
-         result: () => globalStyle('body', {
-           color: vars.color.red,
-           hej,
-           hejsan,
-           tja
-         })
-       });
-       const wow = collectResult({
-         filePath: "super-cool-filename",
-         index: 2,
-         identifier: "wow",
-         line: 24,
-         column: 21,
-         result: () => supercool({
-           color: 'blue',
-           background: argName
-         })
-       });
-       const hoistedAgain = collectResult({
-         filePath: "super-cool-filename",
-         index: 3,
-         identifier: "hoistedAgain",
-         line: 28,
-         column: 30,
-         result: () => supercool({
-           color: 'blue',
-           background: 'red'
-         })
-       });
-     "#
+      import { collectResult as collectResult } from "@navita/adapter";
+      import { globalStyle, createTheme, style as supercool } from "@navita/css";
+      let argName;
+      const preserved = 'hello';
+      export const [vars] = collectResult({
+        filePath: "super-cool-filename",
+        index: 0,
+        identifier: "vars",
+        position: [
+          144,
+          297
+        ],
+        sourceMap: {
+          line: 4,
+          column: 28
+        },
+        result: () => createTheme({
+          color: {
+            red: 'purple',
+            value: preserved,
+            more: {
+              stuff: 'heje'
+            }
+          }
+        })
+      });
+      const [hej, hejsan, tja] = [1, 2, 3];
+      collectResult({
+        filePath: "super-cool-filename",
+        index: 1,
+        identifier: "",
+        position: [
+          351,
+          454
+        ],
+        sourceMap: {
+          line: 16,
+          column: 6
+        },
+        result: () => globalStyle('body', {
+          color: vars.color.red,
+          hej,
+          hejsan,
+          tja
+        })
+      });
+      const wow = collectResult({
+        filePath: "super-cool-filename",
+        index: 2,
+        identifier: "wow",
+        position: [
+          511,
+          560
+        ],
+        sourceMap: {
+          line: 24,
+          column: 20
+        },
+        result: () => supercool({
+          color: 'blue',
+          background: argName
+        })
+      });
+      const hoistedAgain = collectResult({
+        filePath: "super-cool-filename",
+        index: 3,
+        identifier: "hoistedAgain",
+        position: [
+          627,
+          674
+        ],
+        sourceMap: {
+          line: 28,
+          column: 29
+        },
+        result: () => supercool({
+          color: 'blue',
+          background: 'red'
+        })
+      });
+    "#
   );
 }
