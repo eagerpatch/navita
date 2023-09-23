@@ -21,8 +21,12 @@ describe('adapter', () => {
     })).toThrowError();
     expect(() => collectResult({
       index: 0,
-      column: 0,
-      line: 0,
+      identifier: '',
+      sourceMap: {
+        line: 0,
+        column: 0,
+      },
+      position: [0, 0],
       filePath: "",
       result: () => undefined
     })).toThrowError();
@@ -48,9 +52,13 @@ describe('adapter', () => {
     })).toBe('something');
     expect(collectResult({
       index: 0,
-      column: 0,
-      line: 0,
       filePath: "",
+      identifier: '',
+      sourceMap: {
+        line: 0,
+        column: 0,
+      },
+      position: [0, 0],
       result: () => undefined,
     })).toBe('something');
   });

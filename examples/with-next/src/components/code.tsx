@@ -8,6 +8,7 @@ const code = style({
   borderRadius: '0.25rem',
   padding: '0.25rem',
   fontWeight: 'bold',
+  background: 'purple',
 });
 
 interface Props {

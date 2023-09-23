@@ -5,7 +5,7 @@ import type { ImportMap } from "@navita/types";
 import { createCompiledFunction } from "./helpers/createCompiledFunction";
 import type { NodeModuleCache, ResolverCache } from "./helpers/createDefineFunction";
 import { createDefineFunction } from "./helpers/createDefineFunction";
-import { formatResults } from "./helpers/formatResults";
+import type { CollectedResults } from "./helpers/setAdapter";
 import { setAdapter } from "./helpers/setAdapter";
 
 const rootDir = path.resolve(__dirname, "../../");
@@ -30,12 +30,12 @@ export interface Caches {
 const defaultNodeModuleCache: NodeModuleCache = {};
 const defaultResolverCache: ResolverCache = {};
 const defaultModuleCache: ModuleCache = new Map();
-const collectedResults: Record<FilePath, unknown[]> = {};
+const collectedResults: CollectedResults = {};
 
 type Types = 'entryPoint' | 'dependency';
 
 interface Output<Type extends Types> {
-  result: Type extends 'entryPoint' ? string : Record<string, unknown>;
+  result: Type extends 'entryPoint' ? CollectedResults[number] : Record<string, unknown>;
   dependencies: string[];
 }
 
@@ -119,7 +119,7 @@ export async function evaluateAndProcess<Type extends 'entryPoint' | 'dependency
   return compiledFn().then(({ dependencies, exports }) => {
     if (type === 'entryPoint') {
       return {
-        result: formatResults(collectedResults[filePath]),
+        result: collectedResults[filePath],
         dependencies,
       };
     }
