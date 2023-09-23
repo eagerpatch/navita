@@ -1,5 +1,6 @@
 {
   "private": true,
+  "version": "0.0.0",
   "name": "navita-with-next-example",
   "scripts": {
     "dev": "next dev --port 3001",
