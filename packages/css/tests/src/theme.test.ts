@@ -47,7 +47,7 @@ describe('theme', () => {
         },
       });
 
-      expect(className).toBe(`.${generatedIdentifier}`);
+      expect(className).toBe(generatedIdentifier);
       expect(addStaticCss).toHaveBeenCalledWith(`.${generatedIdentifier}`, {
         "--color-primary": "red",
       });

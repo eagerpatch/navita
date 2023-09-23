@@ -91,8 +91,8 @@ export function createTheme(arg1: any, arg2?: any): any {
 
   const vars =
     typeof arg2 === 'object'
-      ? createGlobalTheme(themeClassName, arg1, arg2)
-      : createGlobalTheme(themeClassName, arg1);
+      ? createGlobalTheme(`.${themeClassName}`, arg1, arg2)
+      : createGlobalTheme(`.${themeClassName}`, arg1);
 
   return vars ? [themeClassName, vars] : themeClassName;
 }
