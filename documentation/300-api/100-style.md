@@ -29,7 +29,6 @@ CSS Variables, pseudos, selectors, and media/feature queries are all supported.
 Here's an example Button component in React:
 
 ```tsx compile filename=button.tsx
-// button.tsx
 import { style } from '@navita/css';
 
 const button = style({
