@@ -1,5 +1,11 @@
 # @navita/engine
 
+## 0.0.10
+
+### Patch Changes
+
+- b02165f: normalize creation of css vars
+
 ## 0.0.9
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@navita/core",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Core package for Navita. Used for creating integrations.",
   "keywords": [
     "core",
