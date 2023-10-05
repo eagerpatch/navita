@@ -67,9 +67,7 @@ export function createGlobalTheme(
 
   const tokens = shouldCreateVars ? arg2 : arg3;
 
-  const temp = assignVars(themeVars, tokens);
-
-  addStaticCss(selector, temp);
+  addStaticCss(selector, assignVars(themeVars, tokens));
 
   if (shouldCreateVars) {
     return themeVars;

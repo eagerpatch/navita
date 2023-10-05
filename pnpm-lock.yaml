@@ -290,15 +290,15 @@ importers:
       '@navita/adapter':
         specifier: workspace:*
         version: link:../adapter
-      chalk:
-        specifier: ^4.1.2
-        version: 4.1.2
       cssesc:
         specifier: ^3.0.0
         version: 3.0.0
       deep-object-diff:
         specifier: ^1.1.9
         version: 1.1.9
+      picocolors:
+        specifier: ^1.0.0
+        version: 1.0.0
     devDependencies:
       '@navita/types':
         specifier: workspace:*
