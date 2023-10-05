@@ -15,6 +15,11 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js",
       "types": "./src/index.ts"
+    },
+    "./merge": {
+      "import": "./dist/merge.mjs",
+      "require": "./dist/merge.js",
+      "types": "./src/merge.ts"
     }
   },
   "publishConfig": {
@@ -30,7 +35,7 @@
     "@navita/adapter": "workspace:*",
     "deep-object-diff": "^1.1.9",
     "cssesc": "^3.0.0",
-    "chalk": "^4.1.2"
+    "picocolors": "^1.0.0"
   },
   "devDependencies": {
     "@types/cssesc": "^3.0.0",
