@@ -119,7 +119,7 @@ describe('evaluateAndProcess', () => {
     const result = await createEvaluateAndProcess();
 
     expect(result).toBeDefined();
-    expect(result.result).toEqual(undefined);
+    expect(result.result).toEqual([]);
     expect(result.dependencies).toEqual([]);
   }, 10000);
 

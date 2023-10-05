@@ -96,6 +96,11 @@ export function processStyles({
           newValue = value.trim().replace(/;[\n\s]*$/, "");
         }
 
+        // Check if value starts with --, if so, wrap in var()
+        if (typeof newValue === "string" && newValue.startsWith("--")) {
+          newValue = `var(${value})`;
+        }
+
         if (typeof value === "number") {
           newValue = pixelifyProperties(newProperty, value);
         }

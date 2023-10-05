@@ -23,6 +23,19 @@ export function navita(options?: Options) {
   return {
     name: "navita",
     enforce: "pre",
+    config(_, env) {
+      return {
+        optimizeDeps: {
+          include: env.command === 'serve' ? ['@navita/css'] : [],
+        },
+        ssr: {
+          external: [
+            '@navita/css',
+            '@navita/adapter',
+          ],
+        },
+      }
+    },
     configResolved(config) {
       context = config.root;
     },

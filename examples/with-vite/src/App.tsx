@@ -2,7 +2,9 @@ import { globalStyle } from "@navita/css";
 import { useCallback, useState } from "react";
 import { Button } from "@/components/button";
 import { ComicSansContainer } from "@/components/comicSansContainer.tsx";
+import { MergeExample } from "@/components/mergeExample.tsx";
 import './App.css';
+import { DynamicStyleExample } from "@/components/dynamicStyleExample.tsx";
 
 globalStyle(':root', {
   background: 'floralwhite',
@@ -21,6 +23,10 @@ function App() {
 
   return (
     <div>
+      <MergeExample />
+
+      <DynamicStyleExample />
+
       <Button onClick={handleButtonClick}>
         Clicked {counter} times
       </Button>

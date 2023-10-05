@@ -118,7 +118,7 @@ export async function evaluateAndProcess<Type extends 'entryPoint' | 'dependency
   return compiledFn().then(({ dependencies, exports }) => {
     if (type === 'entryPoint') {
       return {
-        result: collectedResults[filePath],
+        result: collectedResults[filePath] || [],
         dependencies,
       };
     }

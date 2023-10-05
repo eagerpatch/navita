@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "rimraf .contentlayer && next build",
     "start": "next start",
     "lint": "next lint",
     "postinstall": "rimraf documentation && shx ln -s ../documentation documentation"

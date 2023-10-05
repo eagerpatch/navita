@@ -46,3 +46,31 @@ const accentText = style({
   color: accentVar,
 });
 ```
+
+## Consuming CSS Variables
+
+Navita recognizes whenever you try to use CSS variables as a property or a value and adjusts correctly. 
+What this means is that you can pass in a CSS variable as a value to a property, and it will be correctly resolved.
+
+```tsx compile filename="variable-as-value.ts"
+import { style } from '@navita/css';
+
+const container = style({
+  // "--accent" might come from a library or somewhere else
+  color: '--accent',
+  background: 'var(--accent)',
+});
+```
+
+In the above example, Navita doesn't care that `--accent` is not a valid CSS property.
+If it finds something that looks like a CSS variables in the property, it'll wrap it in `var()` for you.
+
+The same goes for when you are using a CSS variable as a property, but the inverse:
+
+```tsx compile filename="variable-as-property.ts"
+import { style } from '@navita/css';
+
+const container = style({
+  'var(--accent)': 'hotpink',
+});
+```

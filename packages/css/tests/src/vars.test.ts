@@ -1,10 +1,10 @@
-import { createVar, fallbackVar } from "../../src/vars";
+import { createVar, fallbackVar } from "../../src";
 
 describe('vars', () => {
   describe('createVar', () => {
     it('should create vars', () => {
-      expect(createVar('cool-var-name')).toBe('var(--cool-var-name)');
-      expect(createVar('coolVarName')).toBe('var(--coolVarName)');
+      expect(createVar('cool-var-name')).toBe('--cool-var-name');
+      expect(createVar('coolVarName')).toBe('--coolVarName');
     });
   });
 
@@ -12,18 +12,28 @@ describe('vars', () => {
   // https://github.com/vanilla-extract-css/vanilla-extract/blob/0d0ea3909e7f952f24aafa4c9653853ac5841b8c/packages/css/src/vars.test.ts#LL3C1-L69C4
   describe('fallbackVar', () => {
     it('supports a single string fallback', () => {
+      expect(fallbackVar('--foo-bar', 'blue')).toMatchInlineSnapshot(
+        `"var(--foo-bar, blue)"`,
+      );
       expect(fallbackVar('var(--foo-bar)', 'blue')).toMatchInlineSnapshot(
         `"var(--foo-bar, blue)"`,
       );
     });
 
     it('supports a single numeric fallback', () => {
+      expect(fallbackVar('--foo-bar', '10px')).toMatchInlineSnapshot(
+        `"var(--foo-bar, 10px)"`,
+      );
       expect(fallbackVar('var(--foo-bar)', '10px')).toMatchInlineSnapshot(
         `"var(--foo-bar, 10px)"`,
       );
     });
 
     it('supports a single var fallback', () => {
+      expect(fallbackVar('--foo-bar', 'var(--baz)')).toMatchInlineSnapshot(
+        `"var(--foo-bar, var(--baz))"`,
+      );
+
       expect(fallbackVar('var(--foo-bar)', 'var(--baz)')).toMatchInlineSnapshot(
         `"var(--foo-bar, var(--baz))"`,
       );
@@ -31,17 +41,44 @@ describe('vars', () => {
 
     it('supports multiple fallbacks resolving to a string', () => {
       expect(
+        fallbackVar('--foo', 'var(--bar)', 'var(--baz)', 'blue'),
+      ).toMatchInlineSnapshot(`"var(--foo, var(--bar, var(--baz, blue)))"`);
+
+      expect(
+        fallbackVar('--foo', '--bar', 'var(--baz)', 'blue'),
+      ).toMatchInlineSnapshot(`"var(--foo, var(--bar, var(--baz, blue)))"`);
+
+      expect(
+        fallbackVar('--foo', '--bar', '--baz', 'blue'),
+      ).toMatchInlineSnapshot(`"var(--foo, var(--bar, var(--baz, blue)))"`);
+
+      expect(
         fallbackVar('var(--foo)', 'var(--bar)', 'var(--baz)', 'blue'),
       ).toMatchInlineSnapshot(`"var(--foo, var(--bar, var(--baz, blue)))"`);
     });
 
     it('supports multiple fallbacks resolving to a number', () => {
       expect(
+        fallbackVar('--foo', '--bar', '--baz', '10px'),
+      ).toMatchInlineSnapshot(`"var(--foo, var(--bar, var(--baz, 10px)))"`);
+
+      expect(
         fallbackVar('var(--foo)', 'var(--bar)', 'var(--baz)', '10px'),
       ).toMatchInlineSnapshot(`"var(--foo, var(--bar, var(--baz, 10px)))"`);
     });
 
     it('supports multiple fallbacks resolving to a var', () => {
+      expect(
+        fallbackVar(
+          '--foo',
+          '--bar',
+          '--baz',
+          '--final-fallback',
+        ),
+      ).toMatchInlineSnapshot(
+        `"var(--foo, var(--bar, var(--baz, var(--final-fallback))))"`,
+      );
+
       expect(
         fallbackVar(
           'var(--foo)',
