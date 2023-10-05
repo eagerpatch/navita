@@ -8,7 +8,7 @@ export function createThemeContract<ThemeTokens extends NullableTokens>(
   tokens: ThemeTokens,
 ): ThemeVars<ThemeTokens> {
   return walkObject(tokens, (_value, path) => {
-    return createVar(path.join('-').toLowerCase());
+    return `var(${createVar(path.join('-').toLowerCase())})`;
   });
 }
 
@@ -30,7 +30,7 @@ export function createGlobalThemeContract(
         : (value as string);
 
     const varName =
-      typeof rawVarName === 'string' ? rawVarName.replace(/^\-\-/, '') : null;
+      typeof rawVarName === 'string' ? rawVarName.replace(/^--/, '') : null;
 
     if (
       typeof varName !== 'string' ||

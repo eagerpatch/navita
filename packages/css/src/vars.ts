@@ -5,19 +5,19 @@ import { walkObject } from "./helpers/walkObject";
 import { validateContract } from "./validateContract";
 
 export function createVar(name: string) {
-  if (!name) {
-    return `var(--${generateIdentifier(undefined)})`;
-  }
-
-  return `var(--${cssesc(name, { isIdentifier: true })})`;
+  return `--${cssesc(!name ? generateIdentifier(undefined) : name, { isIdentifier: true })}`;
 }
 
 export function fallbackVar(
   ...values: [string, ...Array<string>]
-): CSSVarFunction {
+): string {
   let finalValue = '';
 
-  values.reverse().forEach((value) => {
+  for (let value of values.reverse()) {
+    if (/^--/.test(value)) {
+      value = `var(${value})`;
+    }
+
     if (finalValue === '') {
       finalValue = String(value);
     } else {
@@ -27,9 +27,9 @@ export function fallbackVar(
 
       finalValue = value.replace(/\)$/, `, ${finalValue})`);
     }
-  });
+  }
 
-  return finalValue as CSSVarFunction;
+  return finalValue;
 }
 
 export function assignVars<VarContract extends Contract>(

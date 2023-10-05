@@ -1,5 +1,5 @@
 import type { Contract } from "@navita/types";
-import chalk from 'chalk';
+import chalk from "chalk";
 import { diff } from 'deep-object-diff';
 import { walkObject } from "./helpers/walkObject";
 

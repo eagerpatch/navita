@@ -473,4 +473,70 @@ describe('processStyles', () => {
 
     warn.mockReset();
   });
+
+  it('adds a var() wrapper to values that start with --', () => {
+    const processStyles = createProcessStyles({
+      type: "rule",
+    });
+
+    const result = processStyles({
+      styles: {
+        color: "--red",
+      },
+    });
+
+    expect(result).toHaveLength(1);
+    expect(result).toEqual([
+      expect.objectContaining({
+        id: 1,
+        property: "color",
+        value: "var(--red)",
+        pseudo: '',
+      }),
+    ]);
+  });
+
+  it(`doesn't touch values that don't start with --`, () => {
+    const processStyles = createProcessStyles({
+      type: "rule",
+    });
+
+    const result = processStyles({
+      styles: {
+        color: "var(--red)",
+      },
+    });
+
+    expect(result).toHaveLength(1);
+    expect(result).toEqual([
+      expect.objectContaining({
+        id: 1,
+        property: "color",
+        value: "var(--red)",
+        pseudo: '',
+      }),
+    ]);
+  });
+
+  it('"pixelates" values that are numbers', () => {
+    const processStyles = createProcessStyles({
+      type: "rule",
+    });
+
+    const result = processStyles({
+      styles: {
+        width: 10,
+      }
+    });
+
+    expect(result).toHaveLength(1);
+    expect(result).toEqual([
+      expect.objectContaining({
+        id: 1,
+        property: "width",
+        value: "10px",
+        pseudo: '',
+      }),
+    ]);
+  });
 });
