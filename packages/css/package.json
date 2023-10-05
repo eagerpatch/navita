@@ -18,8 +18,7 @@
     },
     "./merge": {
       "import": "./dist/merge.mjs",
-      "require": "./dist/merge.js",
-      "types": "./src/merge.ts"
+      "require": "./dist/merge.js"
     }
   },
   "publishConfig": {

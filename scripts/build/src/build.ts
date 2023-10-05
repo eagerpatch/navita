@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import replace from "@rollup/plugin-replace";
-import { globSync } from 'fast-glob';
+import { glob } from "fast-glob";
 import { rimraf } from "rimraf";
 import type { OutputOptions, RollupOptions } from "rollup";
 import { rollup, watch } from "rollup";
@@ -19,10 +19,10 @@ async function clean({ outDir }: { outDir: string }) {
   return rimraf(outDir).then(() => fs.promises.mkdir(outDir));
 }
 
-async function createDeclaration({ outDir, packagePath, types: input }: {
+async function createDeclaration({ outDir, packagePath, input }: {
   outDir: string;
   packagePath: string;
-  types: Set<string>;
+  input: Set<string>;
 }) {
   const types = await rollup({
     input: [...input],
@@ -116,34 +116,8 @@ async function createPackageJson({ outDir }: {
   return fs.promises.writeFile(path.resolve(outDir, 'package.json'), content);
 }
 
-async function copyFiles({ outDir, cwd }: {
-  outDir: string;
-  cwd: string;
-}, files: string[]) {
-  if (!files) {
-    return;
-  }
-
-  return Promise.all(
-    files.map(
-      (file) => fs.promises.cp(
-        path.resolve(cwd, file),
-        // Hacky, but remove potential ./src from the path.
-        path.resolve(outDir, file.replace(/^\.\/src\//, './')),
-        { recursive: true }
-      )
-    )
-  );
-}
-
 const isDevMode = process.argv.includes("--dev");
 const cwd = process.cwd();
-
-const isEsmTarget = (fileName: string) => fileName.endsWith('.mjs');
-const isCjsTarget = (fileName: string) => fileName.endsWith('.js') || fileName.endsWith('.cjs');
-const resolveAndReplaceExtension = (fileName: string, newExt: string) => (
-  path.resolve(cwd, 'src', fileName.replace(/^\.\/dist\//, '').replace(/\.[^.]+$/, newExt))
-);
 
 async function main() {
   const packagePath = path.resolve(cwd, "package.json");
@@ -153,62 +127,34 @@ async function main() {
     throw new Error("Field \"exports\" is missing in package.json");
   }
 
-  const types = new Set<string>();
-  const cjs = new Set<string>();
-  const esm = new Set<string>();
-  const copy = new Set<string>([...packageJson.files || []]);
-
-  let cjsExtension = '.js';
-
-  for (const exportEntry of Object.values(packageJson.exports)) {
-    if (typeof exportEntry === 'string') {
-      continue;
-    }
-
-    const { types: exportTypes, ...rest } = exportEntry as Record<string, string>;
-
-    if (exportTypes) {
-      (exportTypes.includes('*') ?
-        globSync(exportTypes, { cwd, absolute: true }) :
-        [path.resolve(cwd, exportTypes)])
-        .filter((x) => !x.endsWith('.json'))
-        .forEach((x) => types.add(x));
-    }
-
-    for (const value of Object.values(rest)) {
-      const isEsm = isEsmTarget(value);
-      const isCjs = isCjsTarget(value);
-
-      if (isEsm || isCjs) {
-        const source = resolveAndReplaceExtension(value, '.ts');
-
-        if (isEsm) {
-          esm.add(source);
-        }
-
-        if (isCjs) {
-          if (path.extname(value) === '.cjs') {
-            cjsExtension = '.cjs';
-          }
-
-          cjs.add(source);
-        }
-      } else {
-        // A copy needs to be relative to the cwd, not the package root.
-        // Replace ./dist with ./src
-        const source = value.replace(/^\.\/dist\//, './src/');
-        copy.add(source);
-      }
-    }
-  }
-
+  const sourceDir = path.resolve(cwd, "src");
   const outDir = path.resolve(cwd, "dist");
 
+  // Always clean
   await clean({ outDir });
 
-  const promises: Promise<unknown>[] = [
-    copyFiles({ outDir, cwd }, [...copy]),
+  // Input
+  const input = new Set(await glob("src/**/*.{ts,tsx}", { cwd, absolute: true }));
+
+  const copy = [
+    ...(packageJson.buildConfig.copy || []).map((file: string) => ({
+      from: path.resolve(cwd, file),
+      to: path.resolve(outDir, file),
+    })),
+    {
+      from: "../../README.md",
+      to: "README.md"
+    },
   ];
+
+  const promises: Promise<unknown>[] = [];
+
+  for (const { from, to } of copy) {
+    console.log({
+      src: from,
+      dest: to,
+    });
+  }
 
   const transpileConfig = {
     outDir,
@@ -216,35 +162,27 @@ async function main() {
     devMode: isDevMode,
   }
 
-  if (esm.size > 0) {
-    promises.push(
-      transpile({
-        ...transpileConfig,
-        format: 'esm',
-        extension: '.mjs',
-        input: esm
-      })
-    );
-  }
+  promises.push(
+    transpile({
+      ...transpileConfig,
+      format: 'esm',
+      extension: '.mjs',
+      input,
+    })
+  );
 
-  if (cjs.size > 0) {
-    promises.push(
-      transpile({
-        ...transpileConfig,
-        format: 'cjs',
-        extension: cjsExtension,
-        input: cjs
-      })
-    );
-  }
+  promises.push(
+    transpile({
+      ...transpileConfig,
+      format: 'cjs',
+      extension: '.js',
+      input
+    })
+  );
 
   if (!isDevMode) {
     promises.push(
-      fs.promises.cp(
-        path.resolve(cwd, "../../README.md"),
-        path.resolve(outDir, "README.md")
-      ),
-      createDeclaration({ outDir, packagePath, types }),
+      createDeclaration({ outDir, packagePath, input }),
       createPackageJson({ outDir }, createPackageJsonString(packageJson)),
     );
   }
