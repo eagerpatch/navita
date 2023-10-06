@@ -88,15 +88,16 @@ async function main() {
 
     promises.push(
       createDeclaration({ outDir, packagePath, input: new Set(exportedTypes) }),
-      createPackageJsonString(outDir, packageJson),
     );
   }
 
   console.log(`Building ${packageJson.name}.`);
 
-  return Promise.all(promises.filter(Boolean));
+  return Promise.all(promises.filter(Boolean)).then(() => createPackageJsonString(outDir, packageJson));
 }
 
-main().catch((error) => {
+main().then(() => {
+  console.log("Done!");
+}).catch((error) => {
   throw error;
 });
