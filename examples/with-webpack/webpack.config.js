@@ -42,7 +42,7 @@ export default {
     path: path.resolve('dist'),
     clean: true,
   },
-  devtool: 'eval-source-map',
+  devtool: isDevelopment ? 'eval-source-map' : false,
   devServer: {
     hot: true,
     devMiddleware: {

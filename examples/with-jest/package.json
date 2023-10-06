@@ -9,9 +9,9 @@
     "setupFilesAfterEnv": ["@navita/jest"]
   },
   "dependencies": {
-    "@navita/css": "*"
+    "@navita/css": "workspace:*"
   },
   "devDependencies": {
-    "@navita/jest": "*"
+    "@navita/jest": "workspace:*"
   }
 }
