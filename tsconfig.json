@@ -12,4 +12,7 @@
       "scripts",
     ],
   },
+  "exclude": [
+    "**/dist"
+  ]
 }
