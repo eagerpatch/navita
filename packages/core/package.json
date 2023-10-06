@@ -12,20 +12,15 @@
   "sideEffects": false,
   "types": "./src/index.ts",
   "exports": {
-    ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./src/index.ts"
-    },
     "./package.json": "./package.json",
     "./createRenderer": {
       "import": "./dist/createRenderer.mjs",
-      "require": "./dist/createRenderer.js",
+      "require": "./dist/createRenderer.cjs",
       "types": "./src/createRenderer.ts"
     },
     "./evaluateAndProcess": {
       "import": "./dist/evaluateAndProcess.mjs",
-      "require": "./dist/evaluateAndProcess.js",
+      "require": "./dist/evaluateAndProcess.cjs",
       "types": "./src/evaluateAndProcess.ts"
     }
   },
