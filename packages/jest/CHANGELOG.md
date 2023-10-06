@@ -1,5 +1,14 @@
 # @navita/jest
 
+## 0.0.12
+
+### Patch Changes
+
+- 4dbddc0: fix build script so tree shaking actually works when consuming packages
+- Updated dependencies [4dbddc0]
+  - @navita/adapter@0.0.11
+  - @navita/engine@0.0.12
+
 ## 0.0.11
 
 ### Patch Changes
