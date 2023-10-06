@@ -1,5 +1,11 @@
 # @navita/types
 
+## 0.0.9
+
+### Patch Changes
+
+- 974766e: Prevent library from being bundled to facilitate better tree shaking
+
 ## 0.0.8
 
 ### Patch Changes

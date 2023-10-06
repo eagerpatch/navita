@@ -1,5 +1,13 @@
 # @navita/next-plugin
 
+## 0.0.11
+
+### Patch Changes
+
+- 974766e: Prevent library from being bundled to facilitate better tree shaking
+- Updated dependencies [974766e]
+  - @navita/webpack-plugin@0.0.11
+
 ## 0.0.10
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@navita/vite-plugin",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Navita Vite Plugin",
   "keywords": [
     "vite",

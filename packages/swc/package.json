@@ -1,6 +1,6 @@
 {
   "name": "@navita/swc",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "SWC transformers for Navita",
   "keywords": [
     "swc",
