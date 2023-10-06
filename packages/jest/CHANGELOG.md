@@ -1,5 +1,14 @@
 # @navita/jest
 
+## 0.0.11
+
+### Patch Changes
+
+- 974766e: Prevent library from being bundled to facilitate better tree shaking
+- Updated dependencies [974766e]
+  - @navita/engine@0.0.11
+  - @navita/adapter@0.0.10
+
 ## 0.0.10
 
 ### Patch Changes

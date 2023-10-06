@@ -1,6 +1,6 @@
 {
   "name": "@navita/engine",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Navitas CSS-in-JS engine",
   "keywords": [
     "css-in-js",

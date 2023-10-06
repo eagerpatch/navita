@@ -1,5 +1,11 @@
 # @navita/engine
 
+## 0.0.11
+
+### Patch Changes
+
+- 974766e: Prevent library from being bundled to facilitate better tree shaking
+
 ## 0.0.10
 
 ### Patch Changes
