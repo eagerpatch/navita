@@ -8,7 +8,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@navita/css": "*",
+    "@navita/css": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -17,7 +17,7 @@
     "@babel/preset-env": "^7.22.5",
     "@babel/preset-react": "^7.22.5",
     "@babel/preset-typescript": "^7.22.5",
-    "@navita/webpack-plugin": "*",
+    "@navita/webpack-plugin": "workspace:*",
     "@types/node": "^18.14.0",
     "@types/react": "^18.2.18",
     "babel-loader": "^9.1.2",
