@@ -20,6 +20,7 @@ export async function transpile({ input, format, extension, outDir, packagePath,
     output: [{
       dir: outDir,
       format,
+      preserveModules: true,
       entryFileNames: `[name]${extension}`,
       chunkFileNames: `[name]${extension}`,
     }],
