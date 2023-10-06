@@ -1,5 +1,11 @@
 # @navita/types
 
+## 0.0.10
+
+### Patch Changes
+
+- 4dbddc0: fix build script so tree shaking actually works when consuming packages
+
 ## 0.0.9
 
 ### Patch Changes
