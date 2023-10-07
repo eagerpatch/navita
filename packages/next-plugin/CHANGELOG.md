@@ -1,5 +1,11 @@
 # @navita/next-plugin
 
+## 0.0.13
+
+### Patch Changes
+
+- @navita/webpack-plugin@0.0.13
+
 ## 0.0.12
 
 ### Patch Changes
