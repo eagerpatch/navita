@@ -64,6 +64,10 @@ export type CSSProperties = {
   | RawCSSVarFunction
 };
 
+export interface CSSKeyframes {
+  [time: string]: CSSProperties;
+}
+
 interface MediaQueries<StyleType> {
   [string: `@media${string}`]: StyleType;
 }
