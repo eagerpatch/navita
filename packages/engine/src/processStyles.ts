@@ -11,6 +11,7 @@ import { normalizeNestedProperty } from "./helpers/normalizeNestedProperty";
 import { pixelifyProperties } from "./helpers/pixelifyProperties";
 import { transformContentProperty } from "./helpers/transformContentProperty";
 import type { StyleBlock } from "./types";
+import { normalizeCSSVarsValue } from "./helpers/normalizeCSSVarsValue";
 
 const transformValuePropertyMap = {
   content: transformContentProperty,
@@ -94,11 +95,7 @@ export function processStyles({
 
         if (typeof value === "string") {
           newValue = value.trim().replace(/;[\n\s]*$/, "");
-        }
-
-        // Check if value starts with --, if so, wrap in var()
-        if (typeof newValue === "string" && newValue.startsWith("--")) {
-          newValue = `var(${value})`;
+          newValue = normalizeCSSVarsValue(newValue);
         }
 
         if (typeof value === "number") {

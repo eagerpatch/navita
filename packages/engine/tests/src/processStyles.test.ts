@@ -474,7 +474,7 @@ describe('processStyles', () => {
     warn.mockReset();
   });
 
-  it('adds a var() wrapper to values that start with --', () => {
+  it('adds a var()-func to naked css vars', () => {
     const processStyles = createProcessStyles({
       type: "rule",
     });
@@ -482,10 +482,11 @@ describe('processStyles', () => {
     const result = processStyles({
       styles: {
         color: "--red",
+        boxShadow: "0px 2px 0px --box-shadow-color",
       },
     });
 
-    expect(result).toHaveLength(1);
+    expect(result).toHaveLength(2);
     expect(result).toEqual([
       expect.objectContaining({
         id: 1,
@@ -493,10 +494,16 @@ describe('processStyles', () => {
         value: "var(--red)",
         pseudo: '',
       }),
+      expect.objectContaining({
+        id: 2,
+        property: "box-shadow",
+        value: "0px 2px 0px var(--box-shadow-color)",
+        pseudo: '',
+      }),
     ]);
   });
 
-  it(`doesn't touch values that don't start with --`, () => {
+  it(`doesn't touch values that already have var()-func`, () => {
     const processStyles = createProcessStyles({
       type: "rule",
     });
@@ -504,15 +511,22 @@ describe('processStyles', () => {
     const result = processStyles({
       styles: {
         color: "var(--red)",
+        boxShadow: "0px 2px 0px var(--box-shadow-color)",
       },
     });
 
-    expect(result).toHaveLength(1);
+    expect(result).toHaveLength(2);
     expect(result).toEqual([
       expect.objectContaining({
         id: 1,
         property: "color",
         value: "var(--red)",
+        pseudo: '',
+      }),
+      expect.objectContaining({
+        id: 2,
+        property: "box-shadow",
+        value: "0px 2px 0px var(--box-shadow-color)",
         pseudo: '',
       }),
     ]);
