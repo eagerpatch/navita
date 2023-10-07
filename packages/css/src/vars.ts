@@ -4,8 +4,8 @@ import cssesc from 'cssesc';
 import { walkObject } from "./helpers/walkObject";
 import { validateContract } from "./validateContract";
 
-export function createVar(name: string) {
-  return `--${cssesc(!name ? generateIdentifier(undefined) : name, { isIdentifier: true })}`;
+export function createVar<T extends string>(name?: T): `--${T}` {
+  return `--${cssesc(!name ? generateIdentifier(undefined) : name, { isIdentifier: true }) as T}`;
 }
 
 export function fallbackVar(
