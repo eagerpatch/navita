@@ -1,6 +1,6 @@
 {
   "name": "@navita/types",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Shared types for Navita packages",
   "keywords": [
     "types",

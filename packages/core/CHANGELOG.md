@@ -1,5 +1,15 @@
 # @navita/core
 
+## 0.0.13
+
+### Patch Changes
+
+- Updated dependencies [d52050b]
+  - @navita/engine@0.0.13
+  - @navita/types@0.0.11
+  - @navita/adapter@0.0.11
+  - @navita/swc@0.0.11
+
 ## 0.0.12
 
 ### Patch Changes

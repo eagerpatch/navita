@@ -1,5 +1,12 @@
 # @navita/css
 
+## 0.0.13
+
+### Patch Changes
+
+- d52050b: Relax TypeScript types a touch
+  - @navita/adapter@0.0.11
+
 ## 0.0.12
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@navita/jest",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Jest tools for Navita",
   "keywords": [
     "jest",
