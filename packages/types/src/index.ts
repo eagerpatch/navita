@@ -6,6 +6,8 @@ export type ImportMap = {
   source: string;
 }[];
 
+export type RawCSSVarFunction = `--${string}`;
+
 export type CSSVarFunction =
   | `var(--${string})`
   | `var(--${string}, ${string | number})`;
@@ -59,11 +61,8 @@ export type CSSProperties = {
   [Property in keyof CSSTypeProperties]:
   | CSSTypeProperties[Property]
   | CSSVarFunction
+  | RawCSSVarFunction
 };
-
-export interface CSSKeyframes {
-  [time: string]: CSSProperties;
-}
 
 interface MediaQueries<StyleType> {
   [string: `@media${string}`]: StyleType;
@@ -94,16 +93,15 @@ export type WithQueries<StyleType> = MediaQueries<
   >;
 
 interface WithDirectDescendants<StyleType> {
-  [string: `> ${string}`]: StyleType;
+  [string: `>${string}`]: StyleType;
 }
 
-interface WithNestedSelectors<StyleType> {
-  [string: `& ${string}`]: StyleType;
+interface WithNestedSelectors<StyleRule> {
+  [string: `&${string}`]: StyleRule;
 }
 
-type WithPseudoSelectors<StyleType> = {
-  // Todo: fix this properly
-  [key in SimplePseudos | `${SimplePseudos},${SimplePseudos}` | `${SimplePseudos}, ${SimplePseudos}`]?: StyleType;
+type WithSimplePseudoSelectors<StyleType> = {
+  [key in `${SimplePseudos}${string}`]?: StyleType;
 }
 
 type WithAdvancedPseudoSelectors<StyleType> = {
@@ -113,9 +111,11 @@ type WithAdvancedPseudoSelectors<StyleType> = {
 export interface StyleRule extends
   CSSProperties,
   WithQueries<StyleRule>,
-  WithPseudoSelectors<StyleRule>,
+  WithSimplePseudoSelectors<StyleRule>,
   WithAdvancedPseudoSelectors<StyleRule>,
   WithDirectDescendants<StyleRule>,
-  WithNestedSelectors<StyleRule> {}
+  WithNestedSelectors<StyleRule> {
+  [string: `--${string}`]: string | number;
+}
 
 export type GlobalStyleRule = StyleRule;
