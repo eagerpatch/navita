@@ -23,6 +23,10 @@ function createNavitaDependency(webpack: Compiler['webpack']) {
       super();
     }
 
+    get request() {
+      return this.issuerPath;
+    }
+
     getResourceIdentifier() {
       return `css-module-${this.issuerPath}-${this.cssHash}`;
     }
