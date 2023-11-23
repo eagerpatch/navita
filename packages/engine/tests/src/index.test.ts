@@ -117,34 +117,53 @@ describe('Engine', () => {
     );
   });
 
-  it('should only store same keyframes once', () => {
-    const engine = new Engine();
+  describe('keyframes', () => {
+    it('should only store same keyframes once', () => {
+      const engine = new Engine();
 
-    engine.setFilePath('file1.ts');
+      engine.setFilePath('file1.ts');
 
-    // We run this a few times to make sure it's not stored multiple times
-    expect(
-      engine.addKeyframes({
-        from: { color: 'red' },
-        to: { color: 'blue' },
-      }),
-    ).toEqual('a');
-    expect(
-      engine.addKeyframes({
-        from: { color: 'red' },
-        to: { color: 'blue' },
-      }),
-    ).toEqual('a');
-    expect(
-      engine.addKeyframes({
-        from: { color: 'red' },
-        to: { color: 'blue' },
-      }),
-    ).toEqual('a');
+      // We run this a few times to make sure it's not stored multiple times
+      expect(
+        engine.addKeyframes({
+          from: { color: 'red' },
+          to: { color: 'blue' },
+        }),
+      ).toEqual('a');
+      expect(
+        engine.addKeyframes({
+          from: { color: 'red' },
+          to: { color: 'blue' },
+        }),
+      ).toEqual('a');
+      expect(
+        engine.addKeyframes({
+          from: { color: 'red' },
+          to: { color: 'blue' },
+        }),
+      ).toEqual('a');
 
-    expect(engine.renderCssToString()).toEqual(
-      '@keyframes a{from{color:red}to{color:blue}}',
-    );
+      expect(engine.renderCssToString()).toEqual(
+        '@keyframes a{from{color:red}to{color:blue}}',
+      );
+    });
+
+    it('should run transformContentProperty on keyframes', () => {
+      const engine = new Engine();
+
+      engine.setFilePath('file1.ts');
+
+      expect(
+        engine.addKeyframes({
+          '0%': { content: 'red' },
+          '100%': { content: 'blue' },
+        }),
+      ).toEqual('a');
+
+      expect(engine.renderCssToString()).toMatchInlineSnapshot(
+        `"@keyframes a{0%{content:"red"}100%{content:"blue"}}"`,
+      );
+    });
   });
 
   it('should only store same font-face once', () => {

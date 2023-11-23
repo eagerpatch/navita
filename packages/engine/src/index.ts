@@ -17,6 +17,7 @@ import { processStyles } from "./processStyles";
 import type { FontFaceBlock, KeyframesBlock, StyleBlock } from "./types";
 import { ClassList } from "./wrappers/classList";
 import { Static } from "./wrappers/static";
+import { processKeyframes } from "./processKeyframes";
 
 export { ClassList } from "./wrappers/classList";
 export { Static } from "./wrappers/static";
@@ -110,7 +111,7 @@ export class Engine {
   addKeyframes(keyframes: CSSKeyframes) {
     const { id } = this.caches.keyframes.getOrStore({
       type: "keyframes",
-      rule: keyframes
+      rule: processKeyframes(keyframes),
     });
 
     this.addUsedIds("keyframes", [id]);
