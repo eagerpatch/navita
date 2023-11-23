@@ -355,4 +355,17 @@ describe('Engine', () => {
       expect(engine.generateIdentifier('background')).toEqual('_b');
     });
   });
+
+  describe('issue #21', () => {
+    it('should generate correct css', () => {
+      const engine = new Engine();
+      engine.setFilePath('file1.ts');
+      engine.addStyle({
+        color: 'rgba(--color, 0.15)',
+      });
+      expect(engine.renderCssToString()).toEqual(
+        `.a1{color:rgba(var(--color), 0.15)}`,
+      );
+    });
+  });
 });

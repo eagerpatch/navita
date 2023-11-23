@@ -20,4 +20,9 @@ describe('normalizeCSSVarsValue', () => {
     expect(normalizeCSSVarsValue('var(--my-var, --this-is-wrong)')).toBe('var(--my-var, var(--this-is-wrong))');
     expect(normalizeCSSVarsValue('var(--my-var,--this-is-wrong)')).toBe('var(--my-var,var(--this-is-wrong))');
   });
+
+  it('should cover https://github.com/eagerpatch/navita/issues/21#issue-1992454530', () => {
+    expect(normalizeCSSVarsValue('rgba(--color, 0.15)')).toBe('rgba(var(--color), 0.15)');
+    expect(normalizeCSSVarsValue('rgba(--color,0.15)')).toBe('rgba(var(--color),0.15)');
+  });
 });
