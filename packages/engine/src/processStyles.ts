@@ -7,11 +7,11 @@ import { isNestedSelector } from "./helpers/isNestedSelector";
 import { isObject } from "./helpers/isObject";
 import { isSupportsQuery } from "./helpers/isSupportsQuery";
 import { normalizeCSSVarsProperty } from "./helpers/normalizeCSSVarsProperty";
+import { normalizeCSSVarsValue } from "./helpers/normalizeCSSVarsValue";
 import { normalizeNestedProperty } from "./helpers/normalizeNestedProperty";
 import { pixelifyProperties } from "./helpers/pixelifyProperties";
 import { transformContentProperty } from "./helpers/transformContentProperty";
 import type { StyleBlock } from "./types";
-import { normalizeCSSVarsValue } from "./helpers/normalizeCSSVarsValue";
 
 const transformValuePropertyMap = {
   content: transformContentProperty,
