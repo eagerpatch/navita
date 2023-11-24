@@ -5,7 +5,7 @@ import type { ImportMap } from "@navita/types";
 import { createCompiledFunction } from "./helpers/createCompiledFunction";
 import type { NodeModuleCache, ResolverCache } from "./helpers/createDefineFunction";
 import { createDefineFunction } from "./helpers/createDefineFunction";
-import type { CollectedResults } from "./helpers/setAdapter";
+import type { ResultCache } from "./helpers/setAdapter";
 import { setAdapter } from "./helpers/setAdapter";
 
 const rootDir = path.resolve(__dirname, "../../");
@@ -24,17 +24,18 @@ export interface Caches {
   nodeModuleCache?: NodeModuleCache;
   resolverCache?: ResolverCache;
   moduleCache?: ModuleCache;
+  resultCache?: ResultCache;
 }
 
 const defaultNodeModuleCache: NodeModuleCache = {};
 const defaultResolverCache: ResolverCache = {};
 const defaultModuleCache: ModuleCache = new Map();
-const collectedResults: CollectedResults = {};
+const defaultResultCache: ResultCache = {};
 
 type Types = 'entryPoint' | 'dependency';
 
 interface Output<Type extends Types> {
-  result: Type extends 'entryPoint' ? CollectedResults[number] : Record<string, unknown>;
+  result: Type extends 'entryPoint' ? ResultCache[number] : Record<string, unknown>;
   dependencies: string[];
 }
 
@@ -49,6 +50,7 @@ export async function evaluateAndProcess<Type extends 'entryPoint' | 'dependency
   nodeModuleCache = defaultNodeModuleCache,
   resolverCache = defaultResolverCache,
   moduleCache = defaultModuleCache,
+  resultCache = defaultResultCache,
 }: {
   source: string;
   filePath: string;
@@ -82,7 +84,7 @@ export async function evaluateAndProcess<Type extends 'entryPoint' | 'dependency
       nodeModuleCache,
       setAdapter: () => setAdapter({
         engine,
-        collectResults: collectedResults,
+        resultCache: resultCache,
       })
     }, (dependency) => (
       readFile(dependency)
@@ -118,7 +120,7 @@ export async function evaluateAndProcess<Type extends 'entryPoint' | 'dependency
   return compiledFn().then(({ dependencies, exports }) => {
     if (type === 'entryPoint') {
       return {
-        result: collectedResults[filePath] || [],
+        result: resultCache[filePath] || [],
         dependencies,
       };
     }

@@ -125,7 +125,7 @@ export class NavitaPlugin {
       compiler.hooks.afterEmit.tapPromise(NavitaPlugin.pluginName, async (compilation) => {
         await compilation
           .getCache(NavitaPlugin.pluginName)
-          .storePromise(NavitaPlugin.pluginName, cacheKey, renderer.engine.serialize());
+          .storePromise(NavitaPlugin.pluginName, cacheKey, Buffer.from(renderer.engine.serialize()));
       });
     });
 

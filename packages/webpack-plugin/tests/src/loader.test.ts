@@ -5,12 +5,14 @@ import loader from '../../src/loader';
 
 describe('loader.tests.ts', () => {
   let callback: jest.Mock;
+  let clearCacheFn: jest.Mock;
 
   let doneHook: AsyncSeriesHook<void>;
   let watchCloseHook: SyncHook<void>;
 
   beforeEach(() => {
     callback = jest.fn();
+    clearCacheFn = jest.fn();
     doneHook = new AsyncSeriesHook();
     watchCloseHook = new SyncHook();
   });
@@ -21,7 +23,9 @@ describe('loader.tests.ts', () => {
       cacheable: () => undefined,
       getOptions: () => ({
         importMap: [...(options.importMap || [])],
-        renderer: undefined,
+        renderer: {
+          clearCache: clearCacheFn,
+        },
       }),
       resourcePath: options.fileName || undefined,
       _module: {
@@ -53,6 +57,7 @@ describe('loader.tests.ts', () => {
 
     await loader.call(context, input, sourceMap);
     expect(callback).toHaveBeenCalledWith(null, input, sourceMap);
+    expect(clearCacheFn).toHaveBeenCalledWith(undefined);
   });
 
   it('should bail if no callExpressions', async () => {
@@ -61,6 +66,7 @@ describe('loader.tests.ts', () => {
 
     await loader.call(createLoaderContext(), input, sourceMap);
     expect(callback).toHaveBeenCalledWith(null, input, sourceMap);
+    expect(clearCacheFn).toHaveBeenCalledWith(undefined);
   });
 
   it('should bail if no import found', async () => {
@@ -72,6 +78,7 @@ describe('loader.tests.ts', () => {
 
     await loader.call(createLoaderContext(), input, sourceMap);
     expect(callback).toHaveBeenCalledWith(null, input, sourceMap);
+    expect(clearCacheFn).toHaveBeenCalledWith(undefined);
   });
 
   it('should callback with errors on errors', async () => {

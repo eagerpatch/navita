@@ -7,7 +7,7 @@ import type { GlobalStyleRule, StyleRule } from "@navita/types";
 
 type FilePath = string;
 
-export type CollectedResults = Record<FilePath, {
+export type ResultCache = Record<FilePath, {
   start: number;
   end: number;
   value: string;
@@ -15,10 +15,10 @@ export type CollectedResults = Record<FilePath, {
 
 export function setAdapter({
   engine,
-  collectResults,
+  resultCache,
 }: {
   engine: Engine,
-  collectResults: CollectedResults,
+  resultCache: ResultCache,
 }) {
   _setAdapter({
     generateIdentifier: (value) => engine.generateIdentifier(value),
@@ -42,13 +42,6 @@ export function setAdapter({
       sourceMap: { line, column },
       position,
     }) {
-      if (index === 0) {
-        if (collectResults) {
-          collectResults[filePath] = [];
-        }
-        engine.clearUsedIds(filePath);
-      }
-
       engine.setFilePath(filePath);
       let result = resultFactory();
       engine.setFilePath(undefined);
@@ -71,9 +64,13 @@ export function setAdapter({
         }
       }
 
-      if (collectResults) {
+      if (resultCache) {
+        if (!resultCache[filePath]) {
+          resultCache[filePath] = [];
+        }
+
         const [start, end] = position;
-        collectResults[filePath][index] = {
+        resultCache[filePath][index] = {
           start,
           end,
           value: result === undefined ? "undefined" : JSON.stringify(result),
