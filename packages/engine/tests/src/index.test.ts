@@ -234,7 +234,7 @@ describe('Engine', () => {
       expect(
         engine.renderCssToString({ opinionatedLayers: true }),
       ).toMatchInlineSnapshot(
-        `"@layer static,rules,at;@layer static{.foo{background:royalblue;}}@layer rules{.a1{color:red}}@layer at{@supports (display: grid){.b1{color:green}}}"`,
+        `"@layer s,lpr,r,at;@layer s{.foo{background:royalblue;}}@layer r{.a1{color:red}}@layer at{@supports (display: grid){.b1{color:green}}}"`,
       );
     });
 
@@ -254,7 +254,7 @@ describe('Engine', () => {
       expect(
         engine.renderCssToString({ opinionatedLayers: true }),
       ).toMatchInlineSnapshot(
-        `"@layer static,rules,at;@keyframes a{from{color:red}to{color:blue}}@font-face{font-family:a;src:local("Gentium")}"`,
+        `"@layer s,lpr,r,at;@keyframes a{from{color:red}to{color:blue}}@font-face{font-family:a;src:local("Gentium")}"`,
       );
 
       engine.addStatic('.foo', {
@@ -264,7 +264,7 @@ describe('Engine', () => {
       expect(
         engine.renderCssToString({ opinionatedLayers: true }),
       ).toMatchInlineSnapshot(
-        `"@layer static,rules,at;@keyframes a{from{color:red}to{color:blue}}@font-face{font-family:a;src:local("Gentium")}@layer static{.foo{background:royalblue;}}"`,
+        `"@layer s,lpr,r,at;@keyframes a{from{color:red}to{color:blue}}@font-face{font-family:a;src:local("Gentium")}@layer s{.foo{background:royalblue;}}"`,
       );
 
       engine.addStyle({
@@ -274,7 +274,7 @@ describe('Engine', () => {
       expect(
         engine.renderCssToString({ opinionatedLayers: true }),
       ).toMatchInlineSnapshot(
-        `"@layer static,rules,at;@keyframes a{from{color:red}to{color:blue}}@font-face{font-family:a;src:local("Gentium")}@layer static{.foo{background:royalblue;}}@layer rules{.a1{color:red}}"`,
+        `"@layer s,lpr,r,at;@keyframes a{from{color:red}to{color:blue}}@font-face{font-family:a;src:local("Gentium")}@layer s{.foo{background:royalblue;}}@layer r{.a1{color:red}}"`,
       );
 
       engine.addStyle({
@@ -286,7 +286,7 @@ describe('Engine', () => {
       expect(
         engine.renderCssToString({ opinionatedLayers: true }),
       ).toMatchInlineSnapshot(
-        `"@layer static,rules,at;@keyframes a{from{color:red}to{color:blue}}@font-face{font-family:a;src:local("Gentium")}@layer static{.foo{background:royalblue;}}@layer rules{.a1{color:red}}@layer at{@supports (display: grid){.b1{color:green}}}"`,
+        `"@layer s,lpr,r,at;@keyframes a{from{color:red}to{color:blue}}@font-face{font-family:a;src:local("Gentium")}@layer s{.foo{background:royalblue;}}@layer r{.a1{color:red}}@layer at{@supports (display: grid){.b1{color:green}}}"`,
       );
     });
   });
@@ -385,6 +385,32 @@ describe('Engine', () => {
       expect(engine.renderCssToString()).toEqual(
         `.a1{color:rgba(var(--color), 0.15)}`,
       );
+    });
+  });
+
+  describe('issue #22', () => {
+    it('should generate correct css without layers', () => {
+      const engine = new Engine();
+      engine.setFilePath('file1.ts');
+      engine.addStyle({
+        display: 'block',
+        all: 'unset',
+      });
+      expect(engine.renderCssToString()).toEqual(
+        `.b1{all:unset}.a1{display:block}`,
+      );
+    });
+
+    it('should generate correct css with layers', () => {
+      const engine = new Engine();
+      engine.setFilePath('file1.ts');
+      engine.addStyle({
+        display: 'block',
+        all: 'unset',
+      });
+      expect(
+        engine.renderCssToString({ opinionatedLayers: true }),
+      ).toEqual(`@layer s,lpr,r,at;@layer lpr{.b1{all:unset}}@layer r{.a1{display:block}}`);
     });
   });
 });
