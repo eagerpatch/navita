@@ -209,30 +209,43 @@ export class Engine {
       rule: ruleCache
     } = usedIds ?? this.getUsedCacheIds(filePaths ?? Object.keys(this.usedIds));
 
-    const { atRules, rules } = splitStyleBlocks(this.caches.rule.items(ruleCache));
+    const { atRules, lowPrioRules, rules } = splitStyleBlocks(this.caches.rule.items(ruleCache));
 
     const keyFrameCss = printKeyFrames(this.caches.keyframes.items(keyframesCache));
     const fontFaceCss = printFontFaces(this.caches.fontFace.items(fontFaceCache));
     const staticCss = printStyleBlocks(this.caches.static.items(staticCache));
     const atRulesCss = printStyleBlocks(sortAtRules(atRules));
+    const lowPrioRulesCss = printStyleBlocks(lowPrioRules);
     const rulesCss = printStyleBlocks(rules);
 
     if (opinionatedLayers) {
       const result = (
         `${keyFrameCss}${fontFaceCss}` +
-        (staticCss.length > 0 ? `@layer static{${staticCss}}` : '') +
-        (rulesCss.length > 0 ? `@layer rules{${rulesCss}}` : '') +
+        (staticCss.length > 0 ? `@layer s{${staticCss}}` : '') +
+        (lowPrioRulesCss.length > 0 ? `@layer lpr{${lowPrioRulesCss}}` : '') +
+        (rulesCss.length > 0 ? `@layer r{${rulesCss}}` : '') +
         (atRulesCss.length > 0 ? `@layer at{${atRulesCss}}` : '')
       );
 
       if (result.length > 0) {
-        return `@layer static,rules,at;${result}`;
+        // s - static
+        // lpr - low priority rules
+        // r - rules
+        // at - at rules
+        return `@layer s,lpr,r,at;${result}`;
       }
 
       return '';
     }
 
-    const content = keyFrameCss + fontFaceCss + staticCss + rulesCss + atRulesCss;
+    const content = (
+      keyFrameCss +
+      fontFaceCss +
+      staticCss +
+      lowPrioRulesCss +
+      rulesCss +
+      atRulesCss
+    );
 
     if (this.options.enableSourceMaps) {
       return printSourceMap(

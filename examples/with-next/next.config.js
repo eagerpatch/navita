@@ -10,6 +10,4 @@ const nextConfig = {
   },
 };
 
-module.exports = createNavitaStylePlugin({
-  mergeWithMiniCssExtractPlugin: false,
-})(nextConfig);
+module.exports = createNavitaStylePlugin()(nextConfig);

@@ -1,9 +1,10 @@
 import { style } from "@navita/css";
 
-const x = style({
-  background: "floralwhite",
+const button = style({
+  all: 'unset',
+  background: 'orange',
 });
 
 export default function Temp() {
-  return <div>Temp</div>;
+  return <button className={button}>Temp</button>;
 }
