@@ -2,9 +2,9 @@ import { globalStyle } from "@navita/css";
 import { useCallback, useState } from "react";
 import { Button } from "@/components/button";
 import { ComicSansContainer } from "@/components/comicSansContainer.tsx";
+import { DynamicStyleExample } from "@/components/dynamicStyleExample.tsx";
 import { MergeExample } from "@/components/mergeExample.tsx";
 import './App.css';
-import { DynamicStyleExample } from "@/components/dynamicStyleExample.tsx";
 
 globalStyle(':root', {
   background: 'floralwhite',

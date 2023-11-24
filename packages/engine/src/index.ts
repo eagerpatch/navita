@@ -13,11 +13,11 @@ import type { SourceMapReference } from "./printers/printSourceMap";
 import { printSourceMap } from "./printers/printSourceMap";
 import { printStyleBlocks } from "./printers/printStyleBlocks";
 import { sortAtRules } from "./printers/sortAtRules";
+import { processKeyframes } from "./processKeyframes";
 import { processStyles } from "./processStyles";
 import type { FontFaceBlock, KeyframesBlock, StyleBlock } from "./types";
 import { ClassList } from "./wrappers/classList";
 import { Static } from "./wrappers/static";
-import { processKeyframes } from "./processKeyframes";
 
 export { ClassList } from "./wrappers/classList";
 export { Static } from "./wrappers/static";
@@ -162,6 +162,16 @@ export class Engine {
     return extraClass;
   }
 
+  private clearSourceMapReferences(filePath: string) {
+    const newFilePath = path.relative(this.options.context || process.cwd(), filePath);
+    this.sourceMapReferences[newFilePath] = [];
+  }
+
+  clearCache(filePath: string) {
+    this.clearUsedIds(filePath);
+    this.clearSourceMapReferences(filePath);
+  }
+
   generateIdentifier(value: unknown) {
     if (typeof value === 'undefined') {
       let identifier = hash((this.identifierCount++).toString(36));
@@ -222,10 +232,16 @@ export class Engine {
       return '';
     }
 
-    return printSourceMap(
-      this.sourceMapReferences,
-      keyFrameCss + fontFaceCss + staticCss + rulesCss + atRulesCss
-    );
+    const content = keyFrameCss + fontFaceCss + staticCss + rulesCss + atRulesCss;
+
+    if (this.options.enableSourceMaps) {
+      return printSourceMap(
+        this.sourceMapReferences,
+        content,
+      );
+    }
+
+    return content;
   }
 
   serialize() {

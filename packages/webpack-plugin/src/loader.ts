@@ -19,6 +19,7 @@ export default async function loader(
   sourceMap: LoaderParams[1],
 ) {
   const callback = this.async();
+  const { resourcePath } = this;
   const { importMap, renderer, NavitaDependency, outputCss } = this.getOptions();
 
   // Bail as early as we can.
@@ -27,12 +28,11 @@ export default async function loader(
     !importMap.map((x) => x.source).some(
       (value) => content.indexOf(value) !== -1
     )) {
+    renderer.clearCache(resourcePath);
     return callback(null, content, sourceMap);
   }
 
   try {
-    const { resourcePath } = this;
-
     const { result, dependencies, usedIds, sourceMap } = await renderer.transformAndProcess({
       content,
       filePath: resourcePath,

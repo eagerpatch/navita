@@ -1,9 +1,9 @@
-import path from "path";
 import { Engine } from "@navita/engine";
 import type { UsedIdCache, Options as EngineOptions } from "@navita/engine";
 import type { ImportMap } from "@navita/types";
 import MagicString from "magic-string";
 import { evaluateAndProcess } from "./evaluateAndProcess";
+import type { ResultCache } from "./helpers/setAdapter";
 
 export type { Engine, UsedIdCache, EngineOptions };
 export type { ImportMap };
@@ -15,6 +15,8 @@ export interface Options {
   engineOptions?: EngineOptions;
   context?: string;
 }
+
+const resultCache: ResultCache = {};
 
 export function createRenderer({
   resolver,
@@ -28,8 +30,14 @@ export function createRenderer({
     ...(engineOptions || {}),
   });
 
+  const clearCache = (filePath: string) => {
+    engine.clearCache(filePath);
+    resultCache[filePath] = [];
+  };
+
   return {
     engine,
+    clearCache,
     async transformAndProcess({
       content,
       filePath,
@@ -37,6 +45,8 @@ export function createRenderer({
       content: string;
       filePath: string;
     }) {
+      clearCache(filePath);
+
       const { result, dependencies } = await evaluateAndProcess({
         type: 'entryPoint',
         source: content,
@@ -45,6 +55,7 @@ export function createRenderer({
         readFile,
         importMap,
         engine,
+        resultCache
       });
 
       const newSource = new MagicString(content, {

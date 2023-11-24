@@ -19,6 +19,7 @@ describe('evaluateAndProcess', () => {
   let moduleCache: Caches['moduleCache'];
   let resolverCache: Caches['resolverCache'];
   let nodeModuleCache: Caches['nodeModuleCache'];
+  let resultCache: Caches['resultCache'];
 
   beforeAll(() => {
     jest.setTimeout(10000);
@@ -30,6 +31,7 @@ describe('evaluateAndProcess', () => {
     moduleCache = new Map();
     resolverCache = {};
     nodeModuleCache = {};
+    resultCache = {};
     setAdapter(undefined);
   });
 
@@ -62,14 +64,20 @@ describe('evaluateAndProcess', () => {
     const [filePath] = Object.keys(files || {});
     const source = files?.[filePath] || '';
 
+    const usedFilePath = path.resolve(basePath, filePath || '');
+
+    resultCache[usedFilePath] = [];
+    engine.clearCache(usedFilePath);
+
     return evaluateAndProcess({
       type: 'entryPoint',
-      filePath: path.resolve(basePath, filePath || ''),
+      filePath: usedFilePath,
       source,
       engine,
       moduleCache,
       resolverCache,
       nodeModuleCache,
+      resultCache,
       importMap: [
         {
           source: '@navita/css',
@@ -187,7 +195,6 @@ describe('evaluateAndProcess', () => {
     });
 
     expect(result).toEqual('something');
-    expect(engine.clearUsedIds).toHaveBeenCalledWith('cool-filePath');
     expect(engine.setFilePath).toHaveBeenNthCalledWith(1, 'cool-filePath');
     expect(engine.setFilePath).toHaveBeenNthCalledWith(2, undefined);
     expect(engine.setFilePath).toHaveBeenCalledTimes(2);

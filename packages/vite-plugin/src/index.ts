@@ -79,6 +79,7 @@ export function navita(options?: Options) {
     async transform(code, id) {
       // Bail as early as we can
       if (!importMap.map((x) => x.source).some((value) => code.indexOf(value) !== -1)) {
+        renderer.clearCache(id);
         return null;
       }
 
