@@ -1,0 +1,43 @@
+{
+  "name": "navita",
+  "version": "0.0.2",
+  "description": "Navita CLI",
+  "keywords": [
+    "navita",
+    "cli",
+    "shadcn"
+  ],
+  "private": false,
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "types": "./src/index.ts"
+    }
+  },
+  "bin": "./dist/index.mjs",
+  "publishConfig": {
+    "directory": "dist",
+    "linkDirectory": false
+  },
+  "scripts": {
+    "test": "jest",
+    "dev": "build --dev",
+    "build": "build"
+  },
+  "devDependencies": {
+    "type-fest": "4.8.2",
+    "@types/node": "^20.10.0"
+  },
+  "dependencies": {
+    "commander": "^11.1.0",
+    "shadcn-ui": "^0.4.1"
+  },
+  "license": "MIT",
+  "author": "Eagerpatch",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eagerpatch/navita.git",
+    "directory": "packages/cli"
+  }
+}
