@@ -13,7 +13,7 @@ describe("hypenateProperty", () => {
     expect(hyphenateProperty('msBackground')).toBe('-ms-background');
   });
 
-  it(`it doesn't hyphenate css vars`, () => {
+  it(`doesn't hyphenate css vars`, () => {
     expect(hyphenateProperty('--myVar')).toBe('--myVar');
   });
 });
