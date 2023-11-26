@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "build": "turbo --filter=./packages/* build",
-    "dev": "turbo --filter=./packages/* dev --concurrency 11",
+    "dev": "turbo --filter=./packages/* dev --concurrency 12",
     "lint": "turbo run lint --filter=./packages/*",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "test": "FORCE_COLOR=1 turbo --filter=./packages/* test --log-prefix=none --color",

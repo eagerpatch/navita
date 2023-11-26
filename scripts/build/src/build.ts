@@ -7,6 +7,7 @@ import { createDeclaration } from "./createDeclaration";
 import { createPackageJson as createPackageJsonString } from "./createPackageJson";
 import { extractPathsFromExports } from "./extractPathsFromExports";
 import { transpile } from "./transpile";
+import { checkFileExists } from "./checkFileExists";
 
 const isDevMode = process.argv.includes("--dev");
 const cwd = process.cwd();
@@ -35,14 +36,13 @@ async function main() {
   const isCjs = files.find((file) => file.endsWith(".cjs"));
 
   const promises: Promise<unknown>[] = [];
-
   const excludedFiles = ['package.json'];
 
   promises.push(
     copyFiles([
       {
-        from: "../../README.md",
-        to: path.resolve(outDir, "README.md"),
+        from: await checkFileExists("./README.md") ? "./README.md" : '../../README.md',
+        to: path.resolve(outDir, "README.md")
       },
       ...files
         .filter((file) => !file.match(/\.([cm])?js|ts$/))
