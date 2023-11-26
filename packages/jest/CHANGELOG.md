@@ -1,5 +1,21 @@
 # @navita/jest
 
+## 0.1.0
+
+### Minor Changes
+
+- a09e673: better cache handling when navita is used
+
+### Patch Changes
+
+- Updated dependencies [5661932]
+- Updated dependencies [a09e673]
+- Updated dependencies [dd728cc]
+- Updated dependencies [02d1384]
+- Updated dependencies [d069351]
+  - @navita/engine@0.1.0
+  - @navita/adapter@0.1.0
+
 ## 0.0.13
 
 ### Patch Changes

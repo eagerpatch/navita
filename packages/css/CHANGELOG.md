@@ -1,5 +1,16 @@
 # @navita/css
 
+## 0.1.0
+
+### Minor Changes
+
+- a09e673: better cache handling when navita is used
+
+### Patch Changes
+
+- Updated dependencies [a09e673]
+  - @navita/adapter@0.1.0
+
 ## 0.0.13
 
 ### Patch Changes
