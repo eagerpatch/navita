@@ -40,6 +40,11 @@ async function main() {
 
   promises.push(
     copyFiles([
+      // Try with the local README.md first, then the root README.md
+      {
+        from: "./README.md",
+        to: path.resolve(outDir, "README.md"),
+      },
       {
         from: "../../README.md",
         to: path.resolve(outDir, "README.md"),
