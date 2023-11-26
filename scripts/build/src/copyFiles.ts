@@ -8,8 +8,7 @@ export async function copyFiles(files: { from: string; to: string }[]) {
     promises.push(
       fs.promises
         .mkdir(path.dirname(to), { recursive: true })
-        .then(() => fs.promises.copyFile(from, to, fs.constants.COPYFILE_EXCL))
-        .catch(() => undefined)
+        .then(() => fs.promises.copyFile(from, to))
     );
   }
 
