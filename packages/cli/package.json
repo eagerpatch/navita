@@ -21,7 +21,7 @@
     "linkDirectory": false
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "dev": "build --dev",
     "build": "build"
   },
