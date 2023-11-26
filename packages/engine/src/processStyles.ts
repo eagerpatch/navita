@@ -1,7 +1,7 @@
 import type { StyleRule } from "@navita/types";
 import type { Cache } from "./cache";
 import { generateCombinedAtRules } from "./helpers/generateCombinedAtRules";
-import { hyphenateProperty } from "./helpers/hypenateProperty";
+import { hyphenateProperty } from "./helpers/hyphenateProperty";
 import { isMediaQuery } from "./helpers/isMediaQuery";
 import { isNestedSelector } from "./helpers/isNestedSelector";
 import { isObject } from "./helpers/isObject";

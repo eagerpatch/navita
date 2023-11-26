@@ -1,4 +1,4 @@
-import { hyphenateProperty } from "../../../src/helpers/hypenateProperty";
+import { hyphenateProperty } from "../../../src/helpers/hyphenateProperty";
 
 describe("hypenateProperty", () => {
   it("should return the same value if it is already hyphenated", () => {
@@ -11,5 +11,9 @@ describe("hypenateProperty", () => {
 
   it('ms- prefix should be lowercase', () => {
     expect(hyphenateProperty('msBackground')).toBe('-ms-background');
+  });
+
+  it(`it doesn't hyphenate css vars`, () => {
+    expect(hyphenateProperty('--myVar')).toBe('--myVar');
   });
 });
