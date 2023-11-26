@@ -1,5 +1,18 @@
 # @navita/webpack-plugin
 
+## 0.1.0
+
+### Minor Changes
+
+- a09e673: better cache handling when navita is used
+- 1f09b35: fix request property on navita dependency
+
+### Patch Changes
+
+- Updated dependencies [a09e673]
+  - @navita/core@0.1.0
+  - @navita/css@0.1.0
+
 ## 0.0.13
 
 ### Patch Changes

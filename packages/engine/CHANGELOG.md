@@ -1,5 +1,15 @@
 # @navita/engine
 
+## 0.1.0
+
+### Minor Changes
+
+- 5661932: change css specificity for certain properties
+- a09e673: better cache handling when navita is used
+- dd728cc: automatically enclose "content" properties in keyframes
+- 02d1384: css vars will not be automatically hyphenated
+- d069351: ease check for running normalize css vars
+
 ## 0.0.13
 
 ### Patch Changes

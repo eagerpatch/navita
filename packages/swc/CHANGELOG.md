@@ -1,5 +1,11 @@
 # @navita/swc
 
+## 0.1.0
+
+### Minor Changes
+
+- a09e673: better cache handling when navita is used
+
 ## 0.0.11
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @navita/next-plugin
 
+## 0.1.0
+
+### Minor Changes
+
+- a09e673: better cache handling when navita is used
+
+### Patch Changes
+
+- Updated dependencies [a09e673]
+- Updated dependencies [1f09b35]
+  - @navita/webpack-plugin@0.1.0
+
 ## 0.0.13
 
 ### Patch Changes
