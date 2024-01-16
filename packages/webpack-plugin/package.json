@@ -1,6 +1,6 @@
 {
   "name": "@navita/webpack-plugin",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Navita Webpack Plugin",
   "keywords": [
     "webpack",
