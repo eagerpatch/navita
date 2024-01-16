@@ -139,7 +139,7 @@ describe('printStyleBlock', () => {
     const result = printStyleBlocks(blocks);
 
     expect(result).toMatchInlineSnapshot(
-      `"@container (min-width: 100px){.a1{background:green}}@container named (min-width: 100px){.b1{color:green}}@container named (min-width: 100px) and (min-width: 200px){.b2{color:red}}"`,
+      `"@container (min-width: 100px){.a1{background:green}}@container named (min-width: 100px){.b1{color:green}}@container named (min-width: 100px) and (min-width: 200px){.c1{color:red}}"`,
     );
   });
 
@@ -174,7 +174,7 @@ describe('printStyleBlock', () => {
     const result = printStyleBlocks(blocks);
 
     expect(result).toMatchInlineSnapshot(
-      `"@media (min-width: 100px){.a1{background:green}@container (min-width: 100px){.d1{color:green}@supports (display: grid){.b1{color:green}}}.c1{background:green}}"`,
+      `"@media (min-width: 100px){.a1{background:green}@container (min-width: 100px){.c1{color:green}@supports (display: grid){.b1{color:green}}}.a1{background:green}}"`,
     );
   });
 });
