@@ -9,9 +9,11 @@ describe('sortAtRules', () => {
       selector: '',
       declaration: 'some:declaration',
       property: '',
+      value: '',
       pseudo: '',
       media: '',
       support: '',
+      container: '',
       ...data,
     }) as const;
   }
@@ -22,8 +24,11 @@ describe('sortAtRules', () => {
       createBlock({ id: 'b', media: '(min-width: 300px)' }),
       createBlock({ id: 'c', media: '(min-width: 100px)', support: 'y' }),
       createBlock({ id: 'd', media: '(min-width: 100px)', support: 'x' }),
+      createBlock({ id: 'e', media: '', support: '', container: 'x' }),
+      createBlock({ id: 'f', media: '(min-width: 400px)', container: '(min-width: 400px)' }),
+      createBlock({ id: 'g', media: '(min-width: 500px)', container: '(min-width: 500px)', support: 'x' }),
     ];
 
-    expect(sortAtRules(blocks).map(x => x.id)).toEqual(['d', 'c', 'a', 'b']);
+    expect(sortAtRules(blocks).map(x => x.id)).toEqual(['d', 'c', 'a', 'b', 'f', 'g', 'e']);
   });
 });
