@@ -1,5 +1,12 @@
 # @navita/core
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [38702de]
+  - @navita/engine@0.1.3
+
 ## 0.1.2
 
 ### Patch Changes
