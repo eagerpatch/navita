@@ -174,7 +174,7 @@ describe('printStyleBlock', () => {
     const result = printStyleBlocks(blocks);
 
     expect(result).toMatchInlineSnapshot(
-      `"@media (min-width: 100px){.a1{background:green}@container (min-width: 100px){.c1{color:green}@supports (display: grid){.b1{color:green}}}.a1{background:green}}"`,
+      `"@media (min-width: 100px){@container (min-width: 100px){.d1{color:green}@supports (display: grid){.b1{color:green}}}.a1{background:green}}@container (min-width: 100px){.c1{background:green}}"`,
     );
   });
 });

@@ -10,7 +10,7 @@ export class PropertyValueIDGenerator implements IdentifierGenerator<StyleBlock>
   }> = {};
 
   next({ property, media = '', support = '', container = '', pseudo = '', value }: StyleBlock) {
-    const propertyKey = `${media}${support}${container}${pseudo}${property}`;
+    const propertyKey = `m${media}s${support}c${container}ps${pseudo}p${property}`;
 
     if (this.cache[propertyKey] === undefined) {
       this.cache[propertyKey] = {
