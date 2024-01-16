@@ -391,6 +391,7 @@ describe('processStyles', () => {
         pseudo: '::after',
         media: '(min-width: 400px)',
         support: '(display: grid)',
+        container: '',
       }),
       expect.objectContaining({
         id: 2,
@@ -399,6 +400,7 @@ describe('processStyles', () => {
         pseudo: '::before',
         media: '(min-width: 400px)',
         support: '(display: grid)',
+        container: '',
       }),
     ]);
   });
@@ -550,6 +552,34 @@ describe('processStyles', () => {
         property: "width",
         value: "10px",
         pseudo: '',
+      }),
+    ]);
+  });
+
+  it('should handle container queries', () => {
+    const processStyles = createProcessStyles({
+      type: "rule",
+    });
+
+    const result = processStyles({
+      styles: {
+        "@container (min-width: 500px)": {
+          background: "blue",
+        },
+      },
+    });
+
+    expect(result).toHaveLength(1);
+    expect(result).toEqual([
+      expect.objectContaining({
+        id: 1,
+        property: "background",
+        value: "blue",
+        pseudo: '',
+        selector: '',
+        media: '',
+        support: '',
+        container: '(min-width: 500px)',
       }),
     ]);
   });
