@@ -1,5 +1,11 @@
 # @navita/engine
 
+## 0.1.2
+
+### Patch Changes
+
+- addd59f: fix container cache name
+
 ## 0.1.1
 
 ### Patch Changes
