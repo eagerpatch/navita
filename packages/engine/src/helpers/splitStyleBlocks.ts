@@ -8,7 +8,7 @@ export function splitStyleBlocks(blocks: StyleBlock[]) {
   const lowPrioRules: StyleBlock[] = [];
 
   for (const block of blocks) {
-    if (block.media || block.support) {
+    if (block.media || block.support || block.container) {
       atRules.push(block);
       continue;
     }

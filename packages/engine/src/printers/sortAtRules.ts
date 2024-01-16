@@ -6,6 +6,10 @@ const sortCSSMediaQueries = createSort() as typeof sortCSSmq;
 
 export function sortAtRules(blocks: StyleBlock[]) {
   return blocks.sort(
-    (a, b) => sortCSSMediaQueries(a.media, b.media) || a.support.localeCompare(b.support)
+    (a, b) => (
+      sortCSSMediaQueries(a.media, b.media) ||
+      sortCSSMediaQueries(a.container, b.container) ||
+      a.support.localeCompare(b.support)
+    )
   );
 }
