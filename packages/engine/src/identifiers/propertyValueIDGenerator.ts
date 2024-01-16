@@ -9,8 +9,8 @@ export class PropertyValueIDGenerator implements IdentifierGenerator<StyleBlock>
     cache: Record<string, number>;
   }> = {};
 
-  next({ property, media = '', support = '', pseudo = '', value }: StyleBlock) {
-    const propertyKey = `${media}${support}${pseudo}${property}`;
+  next({ property, media = '', support = '', container = '', pseudo = '', value }: StyleBlock) {
+    const propertyKey = `${media}${support}${container}${pseudo}${property}`;
 
     if (this.cache[propertyKey] === undefined) {
       this.cache[propertyKey] = {
