@@ -8,6 +8,7 @@ export interface StyleBlock {
   pseudo: string;
   media: string;
   support: string;
+  container: string;
   id: string | number;
 }
 

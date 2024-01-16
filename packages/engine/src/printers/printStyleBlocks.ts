@@ -1,5 +1,5 @@
-import type { StyleBlock } from "../types";
 import { getPropertyPriority } from "../helpers/getPropertyPriority";
+import type { StyleBlock } from "../types";
 
 export function printStyleBlocks(blocks: StyleBlock[]) {
   let stylesheet = '';
@@ -13,9 +13,17 @@ export function printStyleBlocks(blocks: StyleBlock[]) {
         (previousStyle.selector !== style.selector) ||
         (previousStyle.pseudo !== style.pseudo) ||
         (previousStyle.media !== style.media) ||
-        (previousStyle.support !== style.support)
+        (previousStyle.support !== style.support) ||
+        (previousStyle.container !== style.container)
       )
     ) {
+      stylesheet += '}';
+    }
+
+    // Close container queries:
+    // 1. When the current style is not a container query, and the previous style was container query
+    // 2. When the current style is a container query and the previous style was a container query with a different container query
+    if (previousStyle && previousStyle.container && (!style.container || (style.container !== previousStyle.container))) {
       stylesheet += '}';
     }
 
@@ -43,6 +51,11 @@ export function printStyleBlocks(blocks: StyleBlock[]) {
       stylesheet += `@supports ${style.support}{`;
     }
 
+    // Only add container queries if the previous style was not the same container query
+    if (style.container && (previousStyle?.container !== style.container)) {
+      stylesheet += `@container ${style.container}{`;
+    }
+
     if (style.type === 'rule') {
       const className = `.${style.id}`.repeat(getPropertyPriority(style.property));
       stylesheet += `${className}${style.pseudo}{`;
@@ -52,7 +65,8 @@ export function printStyleBlocks(blocks: StyleBlock[]) {
         (previousStyle?.selector !== style.selector) ||
         (previousStyle?.pseudo !== style.pseudo) ||
         (previousStyle?.media !== style.media) ||
-        (previousStyle?.support !== style.support)
+        (previousStyle?.support !== style.support) ||
+        (previousStyle?.container !== style.container)
       )
     ) {
       // If static, we don't add pseudo selectors currently
@@ -70,6 +84,10 @@ export function printStyleBlocks(blocks: StyleBlock[]) {
     }
 
     previousStyle = style;
+  }
+
+  if (previousStyle?.container) {
+    stylesheet += '}';
   }
 
   if (previousStyle?.support) {

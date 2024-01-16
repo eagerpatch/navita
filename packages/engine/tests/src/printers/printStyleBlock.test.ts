@@ -115,4 +115,66 @@ describe('printStyleBlock', () => {
       `".a1{margin:10px}.b1.b1{margin-top:10px}"`,
     );
   });
+
+  it('should handle container queries', () => {
+    const renderer = new Engine();
+
+    renderer.addStyle({
+      '@container (min-width: 100px)': {
+        background: 'green',
+      },
+    });
+
+    renderer.addStyle({
+      '@container named (min-width: 100px)': {
+        color: 'green',
+        '@container (min-width: 200px)': {
+          color: 'red',
+        },
+      },
+    });
+
+    // printStyleBlock assumes a sorted array of blocks.
+    const blocks = sortAtRules(renderer['caches'].rule.items());
+    const result = printStyleBlocks(blocks);
+
+    expect(result).toMatchInlineSnapshot(
+      `"@container (min-width: 100px){.a1{background:green}}@container named (min-width: 100px){.b1{color:green}}@container named (min-width: 100px) and (min-width: 200px){.b2{color:red}}"`,
+    );
+  });
+
+  it('should handle all types of at-rules', () => {
+    const renderer = new Engine();
+
+    renderer.addStyle({
+      '@media (min-width: 100px)': {
+        background: 'green',
+        '@supports (display: grid)': {
+          '@container (min-width: 100px)': {
+            color: 'green',
+          },
+        },
+      },
+    });
+
+    renderer.addStyle({
+      '@container (min-width: 100px)': {
+        background: 'green',
+        '@media (min-width: 100px)': {
+          color: 'green',
+          '@supports (display: grid)': {
+            color: 'green',
+          },
+        },
+      },
+    });
+
+    // printStyleBlock assumes a sorted array of blocks.
+    const blocks = sortAtRules(renderer['caches'].rule.items());
+    const result = printStyleBlocks(blocks);
+
+    expect(result).toMatchInlineSnapshot(
+      `"@media (min-width: 100px){.a1{background:green}@container (min-width: 100px){.d1{color:green}@supports (display: grid){.b1{color:green}}}.c1{background:green}}"`,
+    );
+  });
 });
