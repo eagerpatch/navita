@@ -3,7 +3,7 @@
   "name": "with-next-app-dir",
   "version": "0.0.0",
   "scripts": {
-    "dev": "next dev",
+    "dev": "rimraf .next && next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -15,7 +15,7 @@
     "@types/react-dom": "18.2.6",
     "eslint": "8.44.0",
     "eslint-config-next": "13.4.7",
-    "next": "13.4.19",
+    "next": "14.1.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "typescript": "5.1.6",
@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@navita/next-plugin": "workspace:*",
-    "@navita/core": "workspace:*"
+    "@navita/core": "workspace:*",
+    "rimraf": "^5.0.5"
   }
 }

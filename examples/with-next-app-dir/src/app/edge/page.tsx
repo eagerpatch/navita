@@ -1,13 +1,19 @@
-import { style } from '@navita/css';
+import { style } from "@navita/css";
+import x from './page.module.css';
 
-const x = style({
-  background: 'purple',
+const y = style({
+  background: 'yellow',
 });
 
 export default function Edge() {
   return (
     <main>
-      <div className={x}>Edge.</div>
+      <div className={x.something}>
+        Edges
+      </div>
+      <div className={y}>
+        Edge hejsasss
+      </div>
     </main>
   );
 }

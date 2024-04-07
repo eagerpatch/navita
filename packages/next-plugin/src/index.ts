@@ -24,6 +24,12 @@ export const createNavitaStylePlugin = (navitaConfig: Config = {}) =>
         webpack(config: Configuration, options) {
           const { dir, config: resolvedNextConfig, dev } = options;
 
+          console.log('options.runtime', options.nextRuntime);
+
+          if (options.nextRuntime === 'edge') {
+            // return config;
+          }
+
           config.plugins?.push(
             {
               apply(compiler) {
@@ -57,7 +63,7 @@ export const createNavitaStylePlugin = (navitaConfig: Config = {}) =>
             loader: require.resolve("@navita/next-plugin/fromServerLoader"),
           });
 
-          const findPagesDirResult = findPagesDir(dir, !!resolvedNextConfig.experimental.appDir);
+          const findPagesDirResult = findPagesDir(dir);
           const hasAppDir = !!(findPagesDirResult && findPagesDirResult.appDir);
           const isServer = options.isServer && !(options.nextRuntime === 'edge')
           const outputCss = !isServer || hasAppDir;
