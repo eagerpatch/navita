@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "rimraf .next && next dev",
-    "build": "next build",
+    "build": "rimraf .next && next build",
     "start": "next start",
     "lint": "next lint"
   },

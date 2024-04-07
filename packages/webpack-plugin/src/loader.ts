@@ -33,8 +33,6 @@ export default async function loader(
   }
 
   try {
-    console.log('layer inside real loader', this._module.layer);
-
     const { result, dependencies, usedIds, sourceMap } = await renderer.transformAndProcess({
       content,
       filePath: resourcePath,

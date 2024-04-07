@@ -2,7 +2,7 @@ import { style } from "@navita/css";
 import x from './page.module.css';
 
 const y = style({
-  background: 'yellow',
+  background: 'orange',
 });
 
 export default function Edge() {
@@ -12,7 +12,7 @@ export default function Edge() {
         Edges
       </div>
       <div className={y}>
-        Edge hejsasss
+        Edgesred
       </div>
     </main>
   );

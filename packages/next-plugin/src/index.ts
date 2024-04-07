@@ -24,12 +24,6 @@ export const createNavitaStylePlugin = (navitaConfig: Config = {}) =>
         webpack(config: Configuration, options) {
           const { dir, config: resolvedNextConfig, dev } = options;
 
-          console.log('options.runtime', options.nextRuntime);
-
-          if (options.nextRuntime === 'edge') {
-            // return config;
-          }
-
           config.plugins?.push(
             {
               apply(compiler) {
@@ -45,6 +39,10 @@ export const createNavitaStylePlugin = (navitaConfig: Config = {}) =>
                       issuerPath,
                     }).toString(),
                   },
+
+                  // https://github.com/vercel/next.js/blob/42f8ac16c6ff497f297198e42fc2abb113bf4a7b/packages/next/src/build/webpack/plugins/flight-manifest-plugin.ts#L404
+                  layer: 'anything',
+
                   // We set the resource to ".css"
                   // to trick next.js into thinking this is a css module:
                   // https://github.com/vercel/next.js/blob/f3132354285fb18c290bf9aad7f8dc7e0550105d/packages/next/src/build/webpack/loaders/utils.ts#L24
