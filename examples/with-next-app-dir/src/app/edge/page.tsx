@@ -1,18 +1,14 @@
 import { style } from "@navita/css";
-import x from './page.module.css';
 
 const y = style({
-  background: 'orange',
+  background: 'dimgray',
 });
 
 export default function Edge() {
   return (
     <main>
-      <div className={x.something}>
-        Edges
-      </div>
       <div className={y}>
-        Edgesred
+        Edge
       </div>
     </main>
   );

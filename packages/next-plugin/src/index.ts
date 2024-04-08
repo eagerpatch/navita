@@ -2,12 +2,13 @@ import type { Options } from "@navita/webpack-plugin";
 import { getNavitaModule, NavitaPlugin, NAVITA_MODULE_TYPE } from "@navita/webpack-plugin";
 import type MiniCssExtractPluginType from "mini-css-extract-plugin";
 import type { NextConfig } from "next";
-import NextMiniCssExtractPlugin from 'next/dist/build/webpack/plugins/mini-css-extract-plugin';
+import NextMiniCssExtractPluginDefault from 'next/dist/build/webpack/plugins/mini-css-extract-plugin';
+
 import { findPagesDir } from "next/dist/lib/find-pages-dir";
 import type { Configuration } from "webpack";
 import { optimizeCSSOutput } from "./optimizeCSSOutput";
 
-const MiniCssExtractPlugin = NextMiniCssExtractPlugin['default'] as typeof MiniCssExtractPluginType;
+const MiniCssExtractPlugin = NextMiniCssExtractPluginDefault['default'] as typeof MiniCssExtractPluginType;
 
 type WebpackOptions = Options;
 
@@ -22,7 +23,7 @@ export const createNavitaStylePlugin = (navitaConfig: Config = {}) =>
       nextConfig,
       {
         webpack(config: Configuration, options) {
-          const { dir, config: resolvedNextConfig, dev } = options;
+          const { dir, dev } = options;
 
           config.plugins?.push(
             {
@@ -39,9 +40,6 @@ export const createNavitaStylePlugin = (navitaConfig: Config = {}) =>
                       issuerPath,
                     }).toString(),
                   },
-
-                  // https://github.com/vercel/next.js/blob/42f8ac16c6ff497f297198e42fc2abb113bf4a7b/packages/next/src/build/webpack/plugins/flight-manifest-plugin.ts#L404
-                  layer: 'anything',
 
                   // We set the resource to ".css"
                   // to trick next.js into thinking this is a css module:
