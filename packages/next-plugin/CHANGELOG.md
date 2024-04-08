@@ -1,5 +1,16 @@
 # @navita/next-plugin
 
+## 0.2.0
+
+### Minor Changes
+
+- 9d3109a: Improve support for the next.js plugin. This ensures that we don't add bytes to the page manifest when it's not needed, and differentiates navita caches between builds.
+
+### Patch Changes
+
+- Updated dependencies [9d3109a]
+  - @navita/webpack-plugin@0.2.0
+
 ## 0.1.3
 
 ### Patch Changes
