@@ -24,7 +24,7 @@ function createNavitaDependency(webpack: Compiler['webpack']) {
     }
 
     get request() {
-      return '.css'; // this.issuerPath; // `${this.issuerPath}.css`;
+      return '.css';
     }
 
     getResourceIdentifier() {
