@@ -1,6 +1,6 @@
 {
   "name": "@navita/next-plugin",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "Next.js integration for Navita",
   "keywords": [
     "next",
