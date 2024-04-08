@@ -38,7 +38,7 @@
     "@navita/adapter": "workspace:*",
     "@navita/swc": "workspace:*",
     "@navita/engine": "workspace:*",
-    "enhanced-resolve": "^5.15.0",
+    "enhanced-resolve": "5.15.0",
     "outdent": "^0.8.0",
     "magic-string": "^0.30.3"
   },

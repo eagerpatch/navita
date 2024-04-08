@@ -2,12 +2,13 @@ import type { Options } from "@navita/webpack-plugin";
 import { getNavitaModule, NavitaPlugin, NAVITA_MODULE_TYPE } from "@navita/webpack-plugin";
 import type MiniCssExtractPluginType from "mini-css-extract-plugin";
 import type { NextConfig } from "next";
-import NextMiniCssExtractPlugin from 'next/dist/build/webpack/plugins/mini-css-extract-plugin';
+import NextMiniCssExtractPluginDefault from 'next/dist/build/webpack/plugins/mini-css-extract-plugin';
+
 import { findPagesDir } from "next/dist/lib/find-pages-dir";
 import type { Configuration } from "webpack";
 import { optimizeCSSOutput } from "./optimizeCSSOutput";
 
-const MiniCssExtractPlugin = NextMiniCssExtractPlugin['default'] as typeof MiniCssExtractPluginType;
+const MiniCssExtractPlugin = NextMiniCssExtractPluginDefault['default'] as typeof MiniCssExtractPluginType;
 
 type WebpackOptions = Options;
 
@@ -22,7 +23,7 @@ export const createNavitaStylePlugin = (navitaConfig: Config = {}) =>
       nextConfig,
       {
         webpack(config: Configuration, options) {
-          const { dir, config: resolvedNextConfig, dev } = options;
+          const { dir, dev } = options;
 
           config.plugins?.push(
             {
@@ -39,6 +40,7 @@ export const createNavitaStylePlugin = (navitaConfig: Config = {}) =>
                       issuerPath,
                     }).toString(),
                   },
+
                   // We set the resource to ".css"
                   // to trick next.js into thinking this is a css module:
                   // https://github.com/vercel/next.js/blob/f3132354285fb18c290bf9aad7f8dc7e0550105d/packages/next/src/build/webpack/loaders/utils.ts#L24
@@ -57,7 +59,7 @@ export const createNavitaStylePlugin = (navitaConfig: Config = {}) =>
             loader: require.resolve("@navita/next-plugin/fromServerLoader"),
           });
 
-          const findPagesDirResult = findPagesDir(dir, !!resolvedNextConfig.experimental.appDir);
+          const findPagesDirResult = findPagesDir(dir);
           const hasAppDir = !!(findPagesDirResult && findPagesDirResult.appDir);
           const isServer = options.isServer && !(options.nextRuntime === 'edge')
           const outputCss = !isServer || hasAppDir;

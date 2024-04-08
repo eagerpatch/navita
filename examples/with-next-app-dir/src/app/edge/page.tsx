@@ -1,13 +1,15 @@
-import { style } from '@navita/css';
+import { style } from "@navita/css";
 
-const x = style({
-  background: 'purple',
+const y = style({
+  background: 'dimgray',
 });
 
 export default function Edge() {
   return (
     <main>
-      <div className={x}>Edge.</div>
+      <div className={y}>
+        Edge
+      </div>
     </main>
   );
 }

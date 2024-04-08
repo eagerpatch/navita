@@ -72,6 +72,8 @@ export class NavitaPlugin {
 
     const dev = compiler.options.mode !== "production";
 
+    const cacheName = `${NavitaPlugin.pluginName}-${compiler.options.mode}`;
+
     const defaultEngineOptions = {
       enableSourceMaps: dev,
       enableDebugIdentifiers: dev,
@@ -115,7 +117,7 @@ export class NavitaPlugin {
       });
 
       const result = await compilation
-        .getCache(NavitaPlugin.pluginName)
+        .getCache(cacheName)
         .getPromise<Buffer>(NavitaPlugin.pluginName, cacheKey);
 
       if (result) {
@@ -124,7 +126,7 @@ export class NavitaPlugin {
 
       compiler.hooks.afterEmit.tapPromise(NavitaPlugin.pluginName, async (compilation) => {
         await compilation
-          .getCache(NavitaPlugin.pluginName)
+          .getCache(cacheName)
           .storePromise(NavitaPlugin.pluginName, cacheKey, Buffer.from(renderer.engine.serialize()));
       });
     });
