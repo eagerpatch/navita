@@ -1,7 +1,7 @@
 import { style } from "@navita/css";
 
 const container = style({
-  background: 'black',
+  background: 'hotpink',
   color: 'red',
   fontSize: '2rem',
   padding: '1rem',

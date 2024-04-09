@@ -9,7 +9,7 @@ export class AlphaIDGenerator implements IdentifierGenerator<undefined> {
   constructor(private blacklist = ['ad']) {}
 
   next() {
-    const nextString = (id, className = '') => {
+    const nextString = (id: number, className = '') => {
       if (id <= charLength) {
         return chars[id - 1] + className;
       }

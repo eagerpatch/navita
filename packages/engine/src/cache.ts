@@ -40,7 +40,7 @@ export function createCache<T>(
   const idGenerator = new IdGenerator();
   const cachePath = cacheDirectory ? resolve(`${cacheDirectory}/${name}.txt`) : undefined;
 
-  // Todo: ensure that the directory exists.
+  // Todo: ensure that the directory exists if we have a cacheDirectory.
   const items: Record<string, T & { id: string | number }> = {};
 
   const persist = createPersist(cachePath);
@@ -56,6 +56,9 @@ export function createCache<T>(
         }
 
         const { id, ...rest } = JSON.parse(line);
+
+        // We'll use the id-generator the same way we did when we first created the cache.
+        idGenerator.next(rest as T);
 
         items[JSON.stringify(rest)] = {
           id,
@@ -81,9 +84,7 @@ export function createCache<T>(
       } as T & { id: string | number };
 
       if (persist) {
-        console.time('x');
         await persist(cacheKey, cached.id);
-        console.timeEnd('x');
       }
 
       return cached;

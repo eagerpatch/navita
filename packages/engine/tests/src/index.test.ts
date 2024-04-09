@@ -18,29 +18,6 @@ describe('Engine', () => {
     });
   });
 
-  describe('serialize/deserialize', () => {
-    it('should serialize/deserialize', () => {
-      const engine = new Engine();
-      engine.setFilePath('file1.ts');
-      engine.addStyle({ color: 'red' });
-      engine.addStyle({ background: 'red' });
-      expect(engine.renderCssToString({ filePaths: ['file1.ts'] })).toEqual(
-        `.a1{color:red}.b1{background:red}`,
-      );
-
-      const buffer = engine.serialize();
-
-      const newEngine = new Engine();
-      newEngine.deserialize(buffer);
-      newEngine.setFilePath('file1.ts');
-      newEngine.addStyle({ color: 'green' });
-
-      expect(newEngine.renderCssToString({ filePaths: ['file1.ts'] })).toEqual(
-        `.a1{color:red}.b1{background:red}.a2{color:green}`,
-      );
-    });
-  });
-
   it('should return classNames for styles', () => {
     const engine = new Engine();
 

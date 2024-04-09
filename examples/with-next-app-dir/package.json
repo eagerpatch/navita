@@ -3,7 +3,7 @@
   "name": "with-next-app-dir",
   "version": "0.0.0",
   "scripts": {
-    "dev": "rimraf .next && next dev",
+    "dev": "next dev",
     "build": "rimraf .next && next build",
     "start": "next start",
     "lint": "next lint"

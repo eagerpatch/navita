@@ -34,8 +34,10 @@ const defaultResultCache: ResultCache = {};
 
 type Types = 'entryPoint' | 'dependency';
 
+type EntryPointResult = Awaited<ReturnType<ResultCache[string][number]>>[];
+
 interface Output<Type extends Types> {
-  result: Type extends 'entryPoint' ? ResultCache[number] : Record<string, unknown>;
+  result: Type extends 'entryPoint' ? EntryPointResult : Record<string, unknown>;
   dependencies: string[];
 }
 

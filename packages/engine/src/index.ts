@@ -263,29 +263,6 @@ export class Engine {
     return content;
   }
 
-  serialize() {
-    const { caches, usedIds, identifierCount, sourceMapReferences } = this;
-    return JSON.stringify({ caches, usedIds, identifierCount, sourceMapReferences });
-  }
-
-  async deserialize(buffer: Buffer | string) {
-    const data = JSON.parse(buffer.toString());
-
-    function assign(target: Engine, source: Engine) {
-      for (const key in source) {
-        if (isObject(target[key]) && isObject(source[key])) {
-          assign(target[key], source[key]);
-        } else {
-          target[key] = source[key];
-        }
-      }
-
-      return target;
-    }
-
-    assign(this, data);
-  }
-
   setFilePath(filePath: string | undefined) {
     this.filePath = filePath;
   }
