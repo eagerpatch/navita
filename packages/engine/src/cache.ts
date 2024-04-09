@@ -1,32 +1,77 @@
+import fs from "fs";
+import { resolve } from "node:path";
 import type { IdentifierGenerator } from "./types";
 
-export class Cache<T> {
-  private _items: Record<string, T & { id: string | number }> = {};
+async function createHydrate() {
+  // Do stuff
+}
 
-  constructor(
-    private _idGenerator: IdentifierGenerator<T>
-  ) {}
-
-  getOrStore(value: Omit<T, 'id'>) {
-    const cacheKey = JSON.stringify(value);
-
-    if (this._items[cacheKey]) {
-      return this._items[cacheKey];
-    }
-
-    return this._items[cacheKey] = {
-      id: this._idGenerator.next(value as T),
-      ...value,
-    } as T & { id: string | number };
+function createPersist(cachePath?: string) {
+  if (!cachePath) {
+    return undefined;
   }
 
-  public items(ids: (string | number)[] = undefined) {
-    const items = Object.values(this._items);
+  const stream = fs.createWriteStream(cachePath, { flags: 'a' });
 
-    if (ids === undefined) {
-      return items;
+  return (data: string, id: string | number) => new Promise<void>((resolve, reject) => {
+    // Add "id" to the JSON data without parsing it.
+    const newData = `{"id":${JSON.stringify(id)},${data.substring(1)}` + "\n";
+
+    stream.write(newData, (err) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+
+      resolve();
+    });
+
+    // It's also important to handle the 'error' event on the stream
+    // to catch any errors that occur during the stream operations.
+    stream.on('error', reject);
+  });
+}
+
+export async function createCache<T>(
+  name: string,
+  IdGenerator: new () => IdentifierGenerator<T>,
+  cacheDirectory?: string,
+) {
+  const idGenerator = new IdGenerator();
+  const cachePath = cacheDirectory ? resolve(`${cacheDirectory}/${name}.txt`) : undefined;
+
+  // Todo: ensure that the directory exists.
+  const items: Record<string, T & { id: string | number }> = {};
+
+  const persist = createPersist(cachePath);
+
+  return {
+    async getOrStore(value: Omit<T, 'id'>) {
+      const cacheKey = JSON.stringify(value);
+
+      if (items[cacheKey]) {
+        return items[cacheKey];
+      }
+
+      const cached = items[cacheKey] = {
+        id: idGenerator.next(value as T),
+        ...value,
+      } as T & { id: string | number };
+
+      if (persist) {
+        await persist(cacheKey, cached.id);
+      }
+
+      return cached;
+    },
+    items(ids?: (string | number)[]) {
+      const result = Object.values(items);
+
+      if (ids === undefined) {
+        return result;
+      }
+
+      return result.filter((item) => ids.includes(item.id));
     }
-
-    return items.filter((item) => ids.includes(item.id));
   }
 }

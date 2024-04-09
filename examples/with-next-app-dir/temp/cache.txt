@@ -1,0 +1,6 @@
+{"type":"rule","selector":"","property":"background","value":"dimgray","pseudo":"","media":"","support":"","container":""}
+{"type":"rule","selector":"","property":"background","value":"royalblue","pseudo":"","media":"","support":"","container":""}
+{"type":"rule","selector":"","property":"font-size","value":"2rem","pseudo":"","media":"","support":"","container":""}
+{"type":"rule","selector":"","property":"padding","value":"1rem","pseudo":"","media":"","support":"","container":""}
+{"type":"rule","selector":"","property":"color","value":"white","pseudo":"","media":"","support":"","container":""}
+{"type":"rule","selector":"","property":"background","value":"dimgray","pseudo":"","media":"","support":"","container":""}

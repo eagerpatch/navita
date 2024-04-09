@@ -32,6 +32,7 @@ interface Identifier {
 }
 
 export type Options = {
+  cacheDirectory?: string;
   context?: string;
   enableSourceMaps?: boolean;
   enableDebugIdentifiers?: boolean;
@@ -42,18 +43,33 @@ const defaultOptions: Options = {
   enableDebugIdentifiers: false,
 };
 
+const createOptions = (options: Options) => ({
+  ...defaultOptions,
+  ...Object.keys(options).reduce((acc, key) => {
+    if (options[key] !== undefined) {
+      acc[key] = options[key];
+    }
+
+    return acc;
+  }, {} as Options),
+});
+
+export async function createEngine(options?: Options) {
+  const newOptions = createOptions(options || {});
+}
+
 export class Engine {
+  private readonly options: Options = {};
   private readonly caches = {
-    rule: new Cache<StyleBlock>(new PropertyValueIDGenerator()),
-    static: new Cache<StyleBlock>(new IDGenerator()),
-    keyframes: new Cache<KeyframesBlock>(new AlphaIDGenerator()),
-    fontFace: new Cache<FontFaceBlock>(new AlphaIDGenerator()),
-    identifiers: new Cache<Identifier>(new AlphaIDGenerator()),
+    rule: new Cache<StyleBlock>(this.options.cacheDirectory, new PropertyValueIDGenerator()),
+    static: new Cache<StyleBlock>(this.options.cacheDirectory, new IDGenerator()),
+    keyframes: new Cache<KeyframesBlock>(this.options.cacheDirectory, new AlphaIDGenerator()),
+    fontFace: new Cache<FontFaceBlock>(this.options.cacheDirectory, new AlphaIDGenerator()),
+    identifiers: new Cache<Identifier>(this.options.cacheDirectory, new AlphaIDGenerator()),
   };
   private readonly usedIds: Record<FilePath, UsedIdCache> = {};
   private filePath: string | undefined;
   private identifierCount = 0;
-  private readonly options: Options = {};
   private sourceMapReferences: SourceMapReference = {};
 
   constructor(options: Options = {}) {
