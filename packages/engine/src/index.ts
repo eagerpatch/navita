@@ -2,7 +2,6 @@ import path from "path";
 import hash from '@emotion/hash';
 import type { CSSKeyframes, FontFaceRule, StyleRule } from "@navita/types";
 import { createCache } from "./cache";
-import { isObject } from "./helpers/isObject";
 import { splitStyleBlocks } from "./helpers/splitStyleBlocks";
 import { IDGenerator } from "./identifiers/IDGenerator";
 import { AlphaIDGenerator } from "./identifiers/alphaIDGenerator";
@@ -72,6 +71,10 @@ export class Engine {
       fontFace: createCache<FontFaceBlock>('fontFace', AlphaIDGenerator, this.options.cacheDirectory),
       identifiers: createCache<Identifier>('identifiers', AlphaIDGenerator, this.options.cacheDirectory),
     };
+  }
+
+  setFilePath(filePath: string | undefined) {
+    this.filePath = filePath;
   }
 
   async addStatic(selector: string, styles: StyleRule) {
@@ -263,10 +266,6 @@ export class Engine {
     return content;
   }
 
-  setFilePath(filePath: string | undefined) {
-    this.filePath = filePath;
-  }
-
   clearUsedIds(filePath: string) {
     if (filePath === undefined) {
       return;
@@ -302,6 +301,8 @@ export class Engine {
   }
 
   getUsedCacheIds(filePaths: string[] = []) {
+    console.log(this.usedIds);
+
     return filePaths.reduce((acc, filePath) => ({
       ...acc,
       ...Object.keys(this.usedIds[filePath] || []).reduce((cache, key) => ({
