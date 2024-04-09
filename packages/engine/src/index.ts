@@ -56,28 +56,21 @@ const createOptions = (options: Options) => ({
 
 export class Engine {
   private readonly options: Options = {};
-  private readonly caches = {
-    rule: createCache<StyleBlock>('rule', PropertyValueIDGenerator, this.options.cacheDirectory),
-    static: createCache<StyleBlock>('static', IDGenerator, this.options.cacheDirectory),
-    keyframes: createCache<KeyframesBlock>('keyframes', AlphaIDGenerator, this.options.cacheDirectory),
-    fontFace: createCache<FontFaceBlock>('fontFace', AlphaIDGenerator, this.options.cacheDirectory),
-    identifiers: createCache<Identifier>('identifiers', AlphaIDGenerator, this.options.cacheDirectory),
-  };
+  private caches;
   private readonly usedIds: Record<FilePath, UsedIdCache> = {};
   private filePath: string | undefined;
   private identifierCount = 0;
   private sourceMapReferences: SourceMapReference = {};
 
   constructor(options: Options = {}) {
-    this.options = {
-      ...defaultOptions,
-      ...Object.keys(options).reduce((acc, key) => {
-        if (options[key] !== undefined) {
-          acc[key] = options[key];
-        }
+    this.options = createOptions(options);
 
-        return acc;
-      }, {} as Options),
+    this.caches = {
+      rule: createCache<StyleBlock>('rule', PropertyValueIDGenerator, this.options.cacheDirectory),
+      static: createCache<StyleBlock>('static', IDGenerator, this.options.cacheDirectory),
+      keyframes: createCache<KeyframesBlock>('keyframes', AlphaIDGenerator, this.options.cacheDirectory),
+      fontFace: createCache<FontFaceBlock>('fontFace', AlphaIDGenerator, this.options.cacheDirectory),
+      identifiers: createCache<Identifier>('identifiers', AlphaIDGenerator, this.options.cacheDirectory),
     };
   }
 

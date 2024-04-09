@@ -35,7 +35,12 @@ export function setAdapter({
       return engine.addFontFace(fontFace);
     },
     collectResult({
-      index, filePath, identifier, result: resultFactory, sourceMap: { line, column }, position
+      index,
+      filePath,
+      identifier,
+      result: resultFactory,
+      sourceMap: { line, column },
+      position
     }) {
       if (resultCache) {
         if (!resultCache[filePath]) {

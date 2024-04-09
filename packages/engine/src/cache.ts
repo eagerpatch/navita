@@ -7,9 +7,12 @@ function createPersist(cachePath?: string) {
     return undefined;
   }
 
-  const stream = fs.createWriteStream(cachePath, { flags: 'a' });
+  // Todo: fix this...
+  fs.mkdirSync(resolve(cachePath, '..'), { recursive: true });
 
   return (data: string, id: string | number) => new Promise<void>((resolve, reject) => {
+    const stream = fs.createWriteStream(cachePath, { flags: 'a' });
+
     // Add "id" to the JSON data without parsing it.
     const newData = `{"id":${JSON.stringify(id)},${data.substring(1)}` + "\n";
 
@@ -20,6 +23,7 @@ function createPersist(cachePath?: string) {
       }
 
       resolve();
+      stream.end();
     });
 
     // It's also important to handle the 'error' event on the stream
@@ -42,24 +46,25 @@ export function createCache<T>(
   const persist = createPersist(cachePath);
 
   if (cachePath) {
-    /*
-    const data = await fs.promises.readFile(cachePath, 'utf8');
-    const lines = data.split('\n');
+    try {
+      const data = fs.readFileSync(cachePath, 'utf8');
+      const lines = data.split('\n');
 
-    for (const line of lines) {
-      if (!line) {
-        continue;
+      for (const line of lines) {
+        if (!line) {
+          continue;
+        }
+
+        const { id, ...rest } = JSON.parse(line);
+
+        items[JSON.stringify(rest)] = {
+          id,
+          ...rest,
+        };
       }
+    } catch (e) {
 
-      const { id, ...rest } = JSON.parse(line);
-
-      items[JSON.stringify(rest)] = {
-        id,
-        ...rest,
-      };
     }
-
-     */
   }
 
   return {
@@ -76,7 +81,9 @@ export function createCache<T>(
       } as T & { id: string | number };
 
       if (persist) {
+        console.time('x');
         await persist(cacheKey, cached.id);
+        console.timeEnd('x');
       }
 
       return cached;

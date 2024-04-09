@@ -37,7 +37,6 @@ const defaultOptions: Options = {
 };
 
 let renderer: Renderer;
-const cacheKey = "navita";
 const MINI_CSS_EXTRACT_MODULE_TYPE = "css/mini-extract";
 
 export class NavitaPlugin {
@@ -52,7 +51,7 @@ export class NavitaPlugin {
   }
 
   apply(compiler: Compiler) {
-    const { webpack } = compiler;
+    const { webpack, options: { cache } } = compiler;
 
     const NavitaDependency = getNavitaDependency(compiler.webpack);
     const NavitaModule = getNavitaModule(compiler.webpack);
@@ -72,11 +71,16 @@ export class NavitaPlugin {
 
     const dev = compiler.options.mode !== "production";
 
-    const cacheName = `${NavitaPlugin.pluginName}-${compiler.options.mode}`;
+    const cacheDirectory = (
+      typeof cache !== "boolean" && cache.type === "filesystem" ?
+        path.resolve(cache.cacheDirectory, '.navita', compiler.options.mode) :
+        undefined
+    );
 
     const defaultEngineOptions = {
       enableSourceMaps: dev,
       enableDebugIdentifiers: dev,
+      cacheDirectory,
       ...(engineOptions || {}),
     };
 
@@ -115,23 +119,6 @@ export class NavitaPlugin {
           });
         }
       });
-
-      /*
-      const result = await compilation
-        .getCache(cacheName)
-        .getPromise<Buffer>(NavitaPlugin.pluginName, cacheKey);
-
-      if (result) {
-        await renderer.engine.deserialize(result);
-      }
-
-      compiler.hooks.afterEmit.tapPromise(NavitaPlugin.pluginName, async (compilation) => {
-        await compilation
-          .getCache(cacheName)
-          .storePromise(NavitaPlugin.pluginName, cacheKey, Buffer.from(renderer.engine.serialize()));
-      });
-
-       */
     });
 
     compiler.options.module?.rules.push({
