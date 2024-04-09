@@ -117,10 +117,12 @@ export async function evaluateAndProcess<Type extends 'entryPoint' | 'dependency
     return compiledFn;
   })();
 
-  return compiledFn().then(({ dependencies, exports }) => {
+  return compiledFn().then(async ({ dependencies, exports }) => {
     if (type === 'entryPoint') {
+      const result = await Promise.all(resultCache[filePath].map((fn) => fn()));
+
       return {
-        result: resultCache[filePath] || [],
+        result,
         dependencies,
       };
     }

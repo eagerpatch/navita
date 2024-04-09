@@ -1,7 +1,7 @@
 import path from "path";
 import hash from '@emotion/hash';
 import type { CSSKeyframes, FontFaceRule, StyleRule } from "@navita/types";
-import { Cache } from "./cache";
+import { createCache } from "./cache";
 import { isObject } from "./helpers/isObject";
 import { splitStyleBlocks } from "./helpers/splitStyleBlocks";
 import { IDGenerator } from "./identifiers/IDGenerator";
@@ -54,18 +54,14 @@ const createOptions = (options: Options) => ({
   }, {} as Options),
 });
 
-export async function createEngine(options?: Options) {
-  const newOptions = createOptions(options || {});
-}
-
 export class Engine {
   private readonly options: Options = {};
   private readonly caches = {
-    rule: new Cache<StyleBlock>(this.options.cacheDirectory, new PropertyValueIDGenerator()),
-    static: new Cache<StyleBlock>(this.options.cacheDirectory, new IDGenerator()),
-    keyframes: new Cache<KeyframesBlock>(this.options.cacheDirectory, new AlphaIDGenerator()),
-    fontFace: new Cache<FontFaceBlock>(this.options.cacheDirectory, new AlphaIDGenerator()),
-    identifiers: new Cache<Identifier>(this.options.cacheDirectory, new AlphaIDGenerator()),
+    rule: createCache<StyleBlock>('rule', PropertyValueIDGenerator, this.options.cacheDirectory),
+    static: createCache<StyleBlock>('static', IDGenerator, this.options.cacheDirectory),
+    keyframes: createCache<KeyframesBlock>('keyframes', AlphaIDGenerator, this.options.cacheDirectory),
+    fontFace: createCache<FontFaceBlock>('fontFace', AlphaIDGenerator, this.options.cacheDirectory),
+    identifiers: createCache<Identifier>('identifiers', AlphaIDGenerator, this.options.cacheDirectory),
   };
   private readonly usedIds: Record<FilePath, UsedIdCache> = {};
   private filePath: string | undefined;
@@ -85,23 +81,24 @@ export class Engine {
     };
   }
 
-  addStatic(selector: string, styles: StyleRule) {
-    this.addUsedIds(
-      "static",
-      processStyles({
-        type: "static",
-        cache: this.caches.static
-      })({
-        styles,
-        selector,
-      }).map((style) => style.id)
-    );
+  async addStatic(selector: string, styles: StyleRule) {
+    const rules = await processStyles({
+      type: "static",
+      cache: this.caches.static
+    })({
+      styles,
+      selector,
+    });
+
+    const ids = rules.map((rule) => rule.id);
+
+    this.addUsedIds("static", ids);
 
     return new Static();
   }
 
-  addStyle(styles: StyleRule) {
-    const rules = processStyles({
+  async addStyle(styles: StyleRule) {
+    const rules = await processStyles({
       type: "rule",
       cache: this.caches.rule
     })({ styles });
@@ -113,8 +110,8 @@ export class Engine {
     return new ClassList(ids.join(" "));
   }
 
-  addFontFace(fontFace: FontFaceRule | FontFaceRule[]) {
-    const { id } = this.caches.fontFace.getOrStore({
+  async addFontFace(fontFace: FontFaceRule | FontFaceRule[]) {
+    const { id } = await this.caches.fontFace.getOrStore({
       type: "fontFace",
       rule: Array.isArray(fontFace) ? fontFace : [fontFace],
     });
@@ -124,8 +121,8 @@ export class Engine {
     return id;
   }
 
-  addKeyframes(keyframes: CSSKeyframes) {
-    const { id } = this.caches.keyframes.getOrStore({
+  async addKeyframes(keyframes: CSSKeyframes) {
+    const { id } = await this.caches.keyframes.getOrStore({
       type: "keyframes",
       rule: processKeyframes(keyframes),
     });
@@ -133,6 +130,28 @@ export class Engine {
     this.addUsedIds("keyframes", [id]);
 
     return id;
+  }
+
+  async generateIdentifier(value: unknown) {
+    if (typeof value === 'undefined') {
+      let identifier = hash((this.identifierCount++).toString(36));
+
+      if (identifier.match(/^\d/)) {
+        identifier = `_${identifier}`;
+      }
+
+      return identifier;
+    }
+
+    const newValue = JSON.stringify(value);
+
+    const { id } = await this.caches.identifiers.getOrStore({
+      value: newValue
+    });
+
+    this.addUsedIds("identifiers", [id]);
+
+    return `_${id}`;
   }
 
   addSourceMapReference({
@@ -186,28 +205,6 @@ export class Engine {
   clearCache(filePath: string) {
     this.clearUsedIds(filePath);
     this.clearSourceMapReferences(filePath);
-  }
-
-  generateIdentifier(value: unknown) {
-    if (typeof value === 'undefined') {
-      let identifier = hash((this.identifierCount++).toString(36));
-
-      if (identifier.match(/^\d/)) {
-        identifier = `_${identifier}`;
-      }
-
-      return identifier;
-    }
-
-    const newValue = JSON.stringify(value);
-
-    const { id } = this.caches.identifiers.getOrStore({
-      value: newValue
-    });
-
-    this.addUsedIds("identifiers", [id]);
-
-    return `_${id}`;
   }
 
   renderCssToString(options?: {

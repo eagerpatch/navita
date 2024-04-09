@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "strict": true,
+    "strict": false,
     "strictBindCallApply": true,
     "target": "es2022",
     "module": "ESNext",

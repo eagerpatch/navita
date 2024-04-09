@@ -24,7 +24,7 @@ Object.getOwnPropertyNames(global).forEach((name) => {
 
 export function createCompiledFunction<Return>(
   source: string,
-  define: (deps: string[], handlerFn: (...args) => void) => Return,
+  define: (deps: string[], handlerFn: (...args: unknown[]) => void) => Return,
 ) {
   // This looks a bit weird, but it's much quicker to do it this way than to
   // run vm.runInContext. There's a bit more information in this issue:

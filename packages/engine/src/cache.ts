@@ -2,10 +2,6 @@ import fs from "fs";
 import { resolve } from "node:path";
 import type { IdentifierGenerator } from "./types";
 
-async function createHydrate() {
-  // Do stuff
-}
-
 function createPersist(cachePath?: string) {
   if (!cachePath) {
     return undefined;
@@ -32,7 +28,7 @@ function createPersist(cachePath?: string) {
   });
 }
 
-export async function createCache<T>(
+export function createCache<T>(
   name: string,
   IdGenerator: new () => IdentifierGenerator<T>,
   cacheDirectory?: string,
@@ -44,6 +40,27 @@ export async function createCache<T>(
   const items: Record<string, T & { id: string | number }> = {};
 
   const persist = createPersist(cachePath);
+
+  if (cachePath) {
+    /*
+    const data = await fs.promises.readFile(cachePath, 'utf8');
+    const lines = data.split('\n');
+
+    for (const line of lines) {
+      if (!line) {
+        continue;
+      }
+
+      const { id, ...rest } = JSON.parse(line);
+
+      items[JSON.stringify(rest)] = {
+        id,
+        ...rest,
+      };
+    }
+
+     */
+  }
 
   return {
     async getOrStore(value: Omit<T, 'id'>) {
@@ -75,3 +92,5 @@ export async function createCache<T>(
     }
   }
 }
+
+export type Cache<T> = ReturnType<typeof createCache<T>>;

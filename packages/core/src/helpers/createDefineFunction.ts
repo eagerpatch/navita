@@ -47,7 +47,7 @@ export function createDefineFunction({
 }: Params, resolveDependency: (dependency: string) => Promise<Record<string, unknown>>) {
   const filepathDirectory = path.dirname(filePath);
 
-  return async function define(dependencies: string[], factoryFn: (...args) => void) {
+  return async function define(dependencies: string[], factoryFn: (...args: unknown[]) => void) {
     const exports: Record<string, unknown> = {};
 
     const dependencyMap = {

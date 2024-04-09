@@ -116,6 +116,7 @@ export class NavitaPlugin {
         }
       });
 
+      /*
       const result = await compilation
         .getCache(cacheName)
         .getPromise<Buffer>(NavitaPlugin.pluginName, cacheKey);
@@ -129,6 +130,8 @@ export class NavitaPlugin {
           .getCache(cacheName)
           .storePromise(NavitaPlugin.pluginName, cacheKey, Buffer.from(renderer.engine.serialize()));
       });
+
+       */
     });
 
     compiler.options.module?.rules.push({

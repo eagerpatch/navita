@@ -1,8 +1,8 @@
 import { style } from "@navita/css";
 
 const container = style({
-  background: 'royalblue',
-  color: 'white',
+  background: 'moccasin',
+  color: 'orange',
   fontSize: '2rem',
   padding: '1rem',
 });

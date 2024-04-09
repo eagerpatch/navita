@@ -25,7 +25,7 @@ export function processStyles({
   cache: Cache<StyleBlock>;
   type: StyleBlock["type"];
 }) {
-  return function process({
+  return async function process({
     styles,
     pseudo = "",
     media = "",
@@ -51,7 +51,7 @@ export function processStyles({
           );
 
           result.push(
-            ...process({
+            ...await process({
               styles: value,
               pseudo,
               media: combinedMedia,
@@ -71,7 +71,7 @@ export function processStyles({
           );
 
           result.push(
-            ...process({
+            ...await process({
               styles: value,
               pseudo,
               media,
@@ -91,7 +91,7 @@ export function processStyles({
           );
 
           result.push(
-            ...process({
+            ...await process({
               styles: value,
               pseudo,
               media,
@@ -110,7 +110,7 @@ export function processStyles({
 
           for (const copy of copies) {
             result.push(
-              ...process({
+              ...await process({
                 styles: value,
                 pseudo: pseudo + normalizeNestedProperty(copy),
                 media,
@@ -148,7 +148,7 @@ export function processStyles({
       newProperty = hyphenateProperty(newProperty);
 
       // Remove trailing semicolon and new lines with regex
-      result.push(cache.getOrStore({
+      result.push(await cache.getOrStore({
         type,
         selector,
         property: newProperty,

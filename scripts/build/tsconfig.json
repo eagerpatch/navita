@@ -5,7 +5,7 @@
     "transpileOnly": true,
     "esm": true,
     "compilerOptions": {
-      "module": "CommonJS",
+      "module": "Node16",
       "moduleResolution": "Node16"
     }
   }
