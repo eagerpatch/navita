@@ -14,6 +14,7 @@ import { prepareCssOutput } from "./prepareCssOutput";
 
 export { getNavitaDependency, getNavitaModule, NAVITA_MODULE_TYPE };
 export { CSSOutput, Engine, Compilation, UsedIdCache };
+export type { Renderer };
 
 type MiniCSSExtractPlugin = {
   options: {
@@ -28,10 +29,19 @@ export interface Options {
   importMap?: ImportMap;
   optimizeCSSOutput?: (output: CSSOutput, compilation?: Compilation, engine?: Engine) => CSSOutput;
   engineOptions?: EngineOptions;
+  onRenderInitialized?: (renderer: Renderer) => Promise<void>;
+  /**
+   * This uses webpacks cache to store the engine state between builds.
+   * If you have more than one webpack instance running at the same time,
+   * you should disable this option, and instead do something similar to
+   * what is done in the `next-plugin` package.
+   */
+  useWebpackCache?: boolean;
 }
 
 const defaultOptions: Options = {
   outputCss: true,
+  useWebpackCache: true,
   exclude: /node_modules/,
   importMap: [],
 };
@@ -63,6 +73,8 @@ export class NavitaPlugin {
       outputCss,
       optimizeCSSOutput,
       engineOptions,
+      useWebpackCache,
+      onRenderInitialized,
     } = this.options;
 
     const importMap = [
@@ -71,8 +83,6 @@ export class NavitaPlugin {
     ];
 
     const dev = compiler.options.mode !== "production";
-
-    const cacheName = `${NavitaPlugin.pluginName}-${compiler.options.mode}`;
 
     const defaultEngineOptions = {
       enableSourceMaps: dev,
@@ -115,6 +125,16 @@ export class NavitaPlugin {
           });
         }
       });
+
+      if (onRenderInitialized) {
+        await onRenderInitialized(renderer);
+      }
+
+      if (!useWebpackCache) {
+        return;
+      }
+
+      const cacheName = `${NavitaPlugin.pluginName}-${compiler.options.mode}`;
 
       const result = await compilation
         .getCache(cacheName)
