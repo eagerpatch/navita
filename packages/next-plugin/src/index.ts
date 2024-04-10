@@ -1,4 +1,6 @@
-import type { Options } from "@navita/webpack-plugin";
+import * as fs from "fs";
+import path from "node:path";
+import type { Options, Renderer } from "@navita/webpack-plugin";
 import { getNavitaModule, NavitaPlugin, NAVITA_MODULE_TYPE } from "@navita/webpack-plugin";
 import type MiniCssExtractPluginType from "mini-css-extract-plugin";
 import type { NextConfig } from "next";
@@ -8,11 +10,12 @@ import { findPagesDir } from "next/dist/lib/find-pages-dir";
 import type { Configuration } from "webpack";
 import { optimizeCSSOutput } from "./optimizeCSSOutput";
 
+let renderer: Renderer;
+let lastCache: string;
+
 const MiniCssExtractPlugin = NextMiniCssExtractPluginDefault['default'] as typeof MiniCssExtractPluginType;
 
-type WebpackOptions = Options;
-
-interface Config extends WebpackOptions {
+interface Config extends Omit<Options, 'useWebpackCache' | 'onRenderInitialized'> {
   singleCssFile?: boolean;
 }
 
@@ -94,8 +97,59 @@ export const createNavitaStylePlugin = (navitaConfig: Config = {}) =>
             };
           }
 
+          // Next.js creates at least three webpack instances. We can't rely on the webpack cache.
+          const { cache, mode } = config;
+
+          const cacheDirectory = (
+            typeof cache !== "boolean" && cache.type === "filesystem" ?
+              path.resolve(cache.cacheDirectory, `navita-${mode}`) :
+              undefined
+          );
+
+          const cacheDestination = path.resolve(cacheDirectory, 'data.txt');
+
+          const onRenderInitialized = async (createdRenderer: Renderer) => {
+            renderer = createdRenderer;
+
+            try {
+              // Ensure the cache directory exists:
+              await fs.promises.mkdir(cacheDirectory, { recursive: true });
+
+              const content = await fs.promises.readFile(cacheDestination, 'utf-8');
+
+              await renderer.engine.deserialize(content);
+
+              lastCache = renderer.engine.serialize();
+            } catch {
+              // This will happen if the user doesn't have write access to the cache directory.
+              // But the same should happen with the webpack cache.
+            }
+          };
+
+          config.plugins?.push({
+            apply(compiler) {
+              compiler.hooks.afterEmit.tapPromise(`${NavitaPlugin.pluginName}-nextjs-custom-cache`, async () => {
+                if (!renderer) {
+                  return;
+                }
+
+                const newCache = renderer.engine.serialize();
+
+                if (newCache === lastCache) {
+                  return;
+                }
+
+                lastCache = newCache;
+
+                await fs.promises.writeFile(cacheDestination, newCache);
+              });
+            }
+          });
+
           config.plugins?.push(
             new NavitaPlugin({
+              useWebpackCache: false,
+              onRenderInitialized,
               outputCss,
               ...navitaConfig,
               optimizeCSSOutput,
