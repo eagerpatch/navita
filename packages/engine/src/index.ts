@@ -15,6 +15,7 @@ import { sortAtRules } from "./printers/sortAtRules";
 import { processKeyframes } from "./processKeyframes";
 import { processStyles } from "./processStyles";
 import type { FontFaceBlock, KeyframesBlock, StyleBlock } from "./types";
+import { createUsedIdCache } from "./usedIdCache";
 import { ClassList } from "./wrappers/classList";
 import { Static } from "./wrappers/static";
 
@@ -53,28 +54,47 @@ const createOptions = (options: Options) => ({
   }, {} as Options),
 });
 
+export async function createEngine(options: Options = {}) {
+  return new Engine(options);
+}
+
 export class Engine {
-  private readonly options: Options = {};
+  private options: Options = {};
   private caches;
   private readonly usedIds: Record<FilePath, UsedIdCache> = {};
   private filePath: string | undefined;
   private identifierCount = 0;
   private sourceMapReferences: SourceMapReference = {};
 
-  constructor(options: Options = {}) {
-    this.options = createOptions(options);
+  private newUsedIds: Awaited<ReturnType<typeof createUsedIdCache>>;
 
-    this.caches = {
-      rule: createCache<StyleBlock>('rule', PropertyValueIDGenerator, this.options.cacheDirectory),
-      static: createCache<StyleBlock>('static', IDGenerator, this.options.cacheDirectory),
-      keyframes: createCache<KeyframesBlock>('keyframes', AlphaIDGenerator, this.options.cacheDirectory),
-      fontFace: createCache<FontFaceBlock>('fontFace', AlphaIDGenerator, this.options.cacheDirectory),
-      identifiers: createCache<Identifier>('identifiers', AlphaIDGenerator, this.options.cacheDirectory),
-    };
+  constructor(options: Options = {}) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return Promise.resolve().then(async () => {
+      this.options = createOptions(options);
+      const { cacheDirectory } = this.options;
+
+      this.caches = {
+        rule: createCache<StyleBlock>('rule', PropertyValueIDGenerator, cacheDirectory),
+        static: createCache<StyleBlock>('static', IDGenerator, cacheDirectory),
+        keyframes: createCache<KeyframesBlock>('keyframes', AlphaIDGenerator, cacheDirectory),
+        fontFace: createCache<FontFaceBlock>('fontFace', AlphaIDGenerator, cacheDirectory),
+        identifiers: createCache<Identifier>('identifiers', AlphaIDGenerator, cacheDirectory),
+      };
+
+      this.newUsedIds = await createUsedIdCache(this, cacheDirectory);
+
+      return this;
+    });
   }
 
   setFilePath(filePath: string | undefined) {
     this.filePath = filePath;
+  }
+
+  getFilePath() {
+    return this.filePath;
   }
 
   async addStatic(selector: string, styles: StyleRule) {
@@ -89,6 +109,7 @@ export class Engine {
     const ids = rules.map((rule) => rule.id);
 
     this.addUsedIds("static", ids);
+    this.newUsedIds.add("static", ids);
 
     return new Static();
   }
@@ -102,6 +123,8 @@ export class Engine {
     const ids = rules.map((rule) => rule.id);
 
     this.addUsedIds("rule", ids);
+    this.newUsedIds.add("rule", ids);
+
 
     return new ClassList(ids.join(" "));
   }

@@ -40,6 +40,9 @@ export function createCache<T>(
   const idGenerator = new IdGenerator();
   const cachePath = cacheDirectory ? resolve(`${cacheDirectory}/${name}.txt`) : undefined;
 
+  // Todo: use this instead?
+  // https://github.com/npm/cacache
+
   // Todo: ensure that the directory exists if we have a cacheDirectory.
   const items: Record<string, T & { id: string | number }> = {};
 

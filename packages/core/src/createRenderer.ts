@@ -1,4 +1,4 @@
-import { Engine } from "@navita/engine";
+import { createEngine, Engine } from "@navita/engine";
 import type { UsedIdCache, Options as EngineOptions } from "@navita/engine";
 import type { ImportMap } from "@navita/types";
 import MagicString from "magic-string";
@@ -18,14 +18,14 @@ export interface Options {
 
 const resultCache: ResultCache = {};
 
-export function createRenderer({
+export async function createRenderer({
   resolver,
   readFile,
   importMap = [],
   engineOptions,
   context,
 }: Options) {
-  const engine = new Engine({
+  const engine = await createEngine({
     context,
     ...(engineOptions || {}),
   });
@@ -76,4 +76,4 @@ export function createRenderer({
   };
 }
 
-export type Renderer = ReturnType<typeof createRenderer>;
+export type Renderer = Awaited<ReturnType<typeof createRenderer>>;

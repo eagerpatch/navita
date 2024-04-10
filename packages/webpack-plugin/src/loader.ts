@@ -1,4 +1,4 @@
-import type { createRenderer, ImportMap } from "@navita/core/createRenderer";
+import type { ImportMap, Renderer } from "@navita/core/createRenderer";
 import type { LoaderContext } from "webpack";
 import type { LoaderDefinitionFunction } from "webpack";
 import { createHashFunction } from "./createHashFunction";
@@ -6,7 +6,7 @@ import type { NavitaDependency } from "./getNavitaDependency";
 
 interface Options {
   importMap: ImportMap;
-  renderer: ReturnType<typeof createRenderer>;
+  renderer: Renderer;
   outputCss: boolean;
   NavitaDependency: NavitaDependency;
 }

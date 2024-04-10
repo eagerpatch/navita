@@ -1,104 +1,42 @@
-import fs from "fs";
 import { resolve } from "node:path";
-import type { IdentifierGenerator } from "./types";
+import { caching } from "cache-manager";
+import type { Engine } from "./index";
 
-function createPersist(cachePath?: string) {
-  if (!cachePath) {
-    return undefined;
-  }
-
-  // Todo: fix this...
-  fs.mkdirSync(resolve(cachePath, '..'), { recursive: true });
-
-  return (data: string, id: string | number) => new Promise<void>((resolve, reject) => {
-    const stream = fs.createWriteStream(cachePath, { flags: 'a' });
-
-    // Add "id" to the JSON data without parsing it.
-    const newData = `{"id":${JSON.stringify(id)},${data.substring(1)}` + "\n";
-
-    stream.write(newData, (err) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-
-      resolve();
-      stream.end();
-    });
-
-    // It's also important to handle the 'error' event on the stream
-    // to catch any errors that occur during the stream operations.
-    stream.on('error', reject);
-  });
-}
-
-export function createCache<T>(
-  name: string,
-  IdGenerator: new () => IdentifierGenerator<T>,
+export async function createUsedIdCache<T>(
+  engine: Engine,
   cacheDirectory?: string,
 ) {
-  const idGenerator = new IdGenerator();
-  const cachePath = cacheDirectory ? resolve(`${cacheDirectory}/${name}.txt`) : undefined;
+  const usedIds: Record<string, any> = {};
 
-  // Todo: ensure that the directory exists if we have a cacheDirectory.
-  const items: Record<string, T & { id: string | number }> = {};
+  const memoryCache = await caching('memory');
 
-  const persist = createPersist(cachePath);
+  const ttl = 5 * 1000; /*milliseconds*/
 
-  if (cachePath) {
-    try {
-      const data = fs.readFileSync(cachePath, 'utf8');
-      const lines = data.split('\n');
+  console.time('x');
+  await memoryCache.set('foo', 'bar', ttl);
+  const x = await memoryCache.get('foo');
+  console.timeEnd('x');
 
-      for (const line of lines) {
-        if (!line) {
-          continue;
-        }
+  console.log('memoryCache', memoryCache);
 
-        const { id, ...rest } = JSON.parse(line);
+  console.time('y');
+  const y = await memoryCache.get('foo');
+  console.timeEnd('y');
 
-        // We'll use the id-generator the same way we did when we first created the cache.
-        idGenerator.next(rest as T);
+  console.log('y', y);
 
-        items[JSON.stringify(rest)] = {
-          id,
-          ...rest,
-        };
-      }
-    } catch (e) {
+  const cachePath = cacheDirectory ? resolve(cacheDirectory, 'usedIds') : undefined;
 
-    }
-  }
+  // https://github.com/npm/cacache
 
   return {
-    async getOrStore(value: Omit<T, 'id'>) {
-      const cacheKey = JSON.stringify(value);
-
-      if (items[cacheKey]) {
-        return items[cacheKey];
-      }
-
-      const cached = items[cacheKey] = {
-        id: idGenerator.next(value as T),
-        ...value,
-      } as T & { id: string | number };
-
-      if (persist) {
-        await persist(cacheKey, cached.id);
-      }
-
-      return cached;
+    async add(cache: string, value: T) {
+      const x = memoryCache.set(cache, value, ttl);
     },
-    items(ids?: (string | number)[]) {
-      const result = Object.values(items);
+    get: (cache: string) => {
 
-      if (ids === undefined) {
-        return result;
-      }
-
-      return result.filter((item) => ids.includes(item.id));
-    }
+    },
   }
 }
 
-export type Cache<T> = ReturnType<typeof createCache<T>>;
+export type Cache<T> = ReturnType<typeof createUsedIdCache<T>>;

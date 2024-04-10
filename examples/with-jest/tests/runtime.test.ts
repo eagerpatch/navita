@@ -1,11 +1,13 @@
 import { style } from '@navita/css';
 
 describe('runtime', () => {
-  it('should inject renderer during runtime', () => {
+  it('should inject renderer during runtime', async () => {
     const className = style({
       background: 'red',
       color: 'green',
     });
+
+    console.log('className', className);
 
     expect(className).toBe('a1 b1');
   });

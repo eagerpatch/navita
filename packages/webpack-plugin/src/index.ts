@@ -92,7 +92,7 @@ export class NavitaPlugin {
       const resolverFactory = compilation.resolverFactory.get("normal", {});
       const fileSystem = compiler.inputFileSystem;
 
-      renderer = createRenderer({
+      renderer = await createRenderer({
         context: compiler.options.context,
         engineOptions: defaultEngineOptions,
         importMap,

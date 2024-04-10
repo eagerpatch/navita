@@ -28,10 +28,13 @@
   "dependencies": {
     "sort-css-media-queries": "^2.2.0",
     "@emotion/hash": "^0.9.1",
-    "source-map": "^0.7.4"
+    "source-map": "^0.7.4",
+    "cacache": "^18.0.2",
+    "cache-manager": "^5.5.1"
   },
   "devDependencies": {
-    "@navita/types": "workspace:*"
+    "@navita/types": "workspace:*",
+    "@types/cacache": "^17.0.2"
   },
   "license": "MIT",
   "author": "Eagerpatch",
