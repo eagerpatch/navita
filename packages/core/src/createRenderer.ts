@@ -1,5 +1,5 @@
-import { createEngine, Engine } from "@navita/engine";
-import type { UsedIdCache, Options as EngineOptions } from "@navita/engine";
+import { createAsyncEngine } from "@navita/engine";
+import type { UsedIdCache, Options as EngineOptions , Engine } from "@navita/engine";
 import type { ImportMap } from "@navita/types";
 import MagicString from "magic-string";
 import { evaluateAndProcess } from "./evaluateAndProcess";
@@ -25,7 +25,7 @@ export async function createRenderer({
   engineOptions,
   context,
 }: Options) {
-  const engine = await createEngine({
+  const engine = await createAsyncEngine({
     context,
     ...(engineOptions || {}),
   });

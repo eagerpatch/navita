@@ -1,5 +1,5 @@
 import path from "path";
-import hash from '@emotion/hash';
+import hash from "@emotion/hash";
 import type { CSSKeyframes, FontFaceRule, StyleRule } from "@navita/types";
 import { createCache } from "./cache";
 import { splitStyleBlocks } from "./helpers/splitStyleBlocks";
@@ -15,7 +15,7 @@ import { sortAtRules } from "./printers/sortAtRules";
 import { processKeyframes } from "./processKeyframes";
 import { processStyles } from "./processStyles";
 import type { FontFaceBlock, KeyframesBlock, StyleBlock } from "./types";
-import { createUsedIdCache } from "./usedIdCache";
+import type { createUsedIdCache } from "./usedIdCache";
 import { ClassList } from "./wrappers/classList";
 import { Static } from "./wrappers/static";
 
@@ -54,8 +54,12 @@ const createOptions = (options: Options) => ({
   }, {} as Options),
 });
 
-export async function createEngine(options: Options = {}) {
-  return new Engine(options);
+export function createEngine(options: Options = {}) {
+  return new Engine(options, false);
+}
+
+export async function createAsyncEngine(options: Options = {}) {
+  return new Engine(options, true);
 }
 
 export class Engine {
@@ -68,7 +72,7 @@ export class Engine {
 
   private newUsedIds: Awaited<ReturnType<typeof createUsedIdCache>>;
 
-  constructor(options: Options = {}) {
+  constructor(options: Options = {}, private isAsync = false) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return Promise.resolve().then(async () => {
@@ -83,7 +87,7 @@ export class Engine {
         identifiers: createCache<Identifier>('identifiers', AlphaIDGenerator, cacheDirectory),
       };
 
-      this.newUsedIds = await createUsedIdCache(this, cacheDirectory);
+      // this.newUsedIds = await createUsedIdCache(this, cacheDirectory);
 
       return this;
     });
@@ -98,10 +102,7 @@ export class Engine {
   }
 
   async addStatic(selector: string, styles: StyleRule) {
-    const rules = await processStyles({
-      type: "static",
-      cache: this.caches.static
-    })({
+    const rules = processStyles({
       styles,
       selector,
     });
@@ -114,19 +115,42 @@ export class Engine {
     return new Static();
   }
 
-  async addStyle(styles: StyleRule) {
-    const rules = await processStyles({
-      type: "rule",
-      cache: this.caches.rule
-    })({ styles });
+  addStyle(styles: StyleRule) {
+    const rules = processStyles({ styles });
 
-    const ids = rules.map((rule) => rule.id);
+    let test = 'hejsan';
 
-    this.addUsedIds("rule", ids);
-    this.newUsedIds.add("rule", ids);
+    (async () => {
+      const ids = await Promise.all(
+        rules.map(async (rule) => this.caches.rule.getOrStore(rule.id))
+      );
+
+      console.log('ids', ids);
+
+      this.addUsedIds("rule", ids);
+
+      test = new ClassList(ids.join(" "));
+    })();
+
+    console.log(test);
 
 
-    return new ClassList(ids.join(" "));
+    return test;
+
+    /*
+    if (this.isAsync) {
+      return Promise.resolve().then(async () => {
+        console.log('rules', rules);
+
+
+        console.log('ids', ids);
+
+        this.addUsedIds("rule", ids);
+
+        return new ClassList(ids.join(" "));
+      });
+
+     */
   }
 
   async addFontFace(fontFace: FontFaceRule | FontFaceRule[]) {

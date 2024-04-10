@@ -74,7 +74,7 @@ export function createCache<T>(
   }
 
   return {
-    async getOrStore(value: Omit<T, 'id'>) {
+    getOrStore(value: Omit<T, 'id'>) {
       const cacheKey = JSON.stringify(value);
 
       if (items[cacheKey]) {
@@ -87,7 +87,7 @@ export function createCache<T>(
       } as T & { id: string | number };
 
       if (persist) {
-        await persist(cacheKey, cached.id);
+        // await persist(cacheKey, cached.id);
       }
 
       return cached;

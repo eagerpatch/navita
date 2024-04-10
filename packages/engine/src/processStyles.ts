@@ -1,5 +1,4 @@
 import type { StyleRule } from "@navita/types";
-import type { Cache } from "./cache";
 import { generateCombinedAtRules } from "./helpers/generateCombinedAtRules";
 import { hyphenateProperty } from "./helpers/hyphenateProperty";
 import { isContainerQuery } from "./helpers/isContainerQuery";
@@ -18,28 +17,24 @@ const transformValuePropertyMap = {
   content: transformContentProperty,
 };
 
-export function processStyles({
-  cache,
-  type
-}: {
-  cache: Cache<StyleBlock>;
-  type: StyleBlock["type"];
-}) {
-  return async function process({
+interface Input {
+  styles: StyleRule;
+  pseudo?: string;
+  media?: string;
+  support?: string;
+  container?: string;
+  selector?: string;
+}
+
+export function processStyles(input: Input) {
+  function process({
     styles,
     pseudo = "",
     media = "",
     support = "",
     container = "",
     selector = ""
-  }: {
-    styles: StyleRule;
-    pseudo?: string;
-    media?: string;
-    support?: string;
-    container?: string;
-    selector?: string;
-  }) {
+  }: Input) {
     const result = [];
 
     for (const [property, value] of Object.entries(styles)) {
@@ -51,7 +46,7 @@ export function processStyles({
           );
 
           result.push(
-            ...await process({
+            ...process({
               styles: value,
               pseudo,
               media: combinedMedia,
@@ -71,7 +66,7 @@ export function processStyles({
           );
 
           result.push(
-            ...await process({
+            ...process({
               styles: value,
               pseudo,
               media,
@@ -91,7 +86,7 @@ export function processStyles({
           );
 
           result.push(
-            ...await process({
+            ...process({
               styles: value,
               pseudo,
               media,
@@ -110,7 +105,7 @@ export function processStyles({
 
           for (const copy of copies) {
             result.push(
-              ...await process({
+              ...process({
                 styles: value,
                 pseudo: pseudo + normalizeNestedProperty(copy),
                 media,
@@ -148,8 +143,7 @@ export function processStyles({
       newProperty = hyphenateProperty(newProperty);
 
       // Remove trailing semicolon and new lines with regex
-      result.push(await cache.getOrStore({
-        type,
+      result.push({
         selector,
         property: newProperty,
         value: newValue,
@@ -157,9 +151,11 @@ export function processStyles({
         media,
         support,
         container,
-      }));
+      });
     }
 
     return result as StyleBlock[];
-  };
+  }
+
+  return process(input);
 }

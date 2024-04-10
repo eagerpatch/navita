@@ -1,5 +1,5 @@
 import { setAdapter } from "@navita/adapter";
-import { createEngine } from "@navita/engine";
+import { createAsyncEngine, createEngine } from "@navita/engine";
 
 
 beforeEach(async () => {
