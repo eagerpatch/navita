@@ -300,7 +300,9 @@ export class Engine {
     return Object.keys(caches).reduce((acc, key) => ({
       ...acc,
       [key]: this.caches[key as CacheKeys].items(caches[key as CacheKeys]),
-    }), {});
+    }), {} as {
+      [K in CacheKeys]?: ReturnType<Engine['caches'][K]['items']>;
+    });
   }
 
   clearUsedIds(filePath: string) {
