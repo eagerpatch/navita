@@ -1,5 +1,11 @@
 # @navita/engine
 
+## 0.2.1
+
+### Patch Changes
+
+- 8e3a53a: fix getItems type
+
 ## 0.2.0
 
 ### Minor Changes
