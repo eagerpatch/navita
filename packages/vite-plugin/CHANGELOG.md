@@ -1,5 +1,12 @@
 # @navita/vite-plugin
 
+## 0.1.4
+
+### Patch Changes
+
+- Updated dependencies [b0976b2]
+  - @navita/core@0.2.0
+
 ## 0.1.3
 
 ### Patch Changes

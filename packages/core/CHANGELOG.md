@@ -1,5 +1,16 @@
 # @navita/core
 
+## 0.2.0
+
+### Minor Changes
+
+- b0976b2: This enables more usage of the caches in the rendering engine. It allows external tooling to hook into the navita process to do analysis or extraction for other tools
+
+### Patch Changes
+
+- Updated dependencies [b0976b2]
+  - @navita/engine@0.2.0
+
 ## 0.1.3
 
 ### Patch Changes
