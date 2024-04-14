@@ -69,7 +69,7 @@ export function createRenderer({
       return {
         result: newSource.toString(),
         dependencies,
-        usedIds: engine.getUsedCacheIds([filePath]),
+        usedIds: engine.getCacheIds([filePath]),
         sourceMap: newSource.generateMap(),
       };
     }

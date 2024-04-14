@@ -328,6 +328,8 @@ describe('Engine', () => {
         static: [1],
       },
     });
+
+    expect(engine.getUsedFilePaths()).toEqual(['file1.ts']);
   });
 
   it('unsets usedIds on clearUsedIds', () => {
@@ -351,11 +353,17 @@ describe('Engine', () => {
       },
     });
 
+    expect(engine.getItems(engine.getCacheIds(engine.getUsedFilePaths()))).toEqual({
+      rule: ['a1'],
+    });
+
     engine.clearUsedIds('file1.ts');
 
     expect(engine['usedIds']).toEqual({
       'file1.ts': {},
     });
+
+    expect(engine.getItems(engine.getCacheIds(engine.getUsedFilePaths()))).toEqual({});
   });
 
   describe('identifiers', () => {

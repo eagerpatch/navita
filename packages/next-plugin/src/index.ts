@@ -6,6 +6,7 @@ import type MiniCssExtractPluginType from "mini-css-extract-plugin";
 import type { NextConfig } from "next";
 import NextMiniCssExtractPluginDefault from 'next/dist/build/webpack/plugins/mini-css-extract-plugin';
 
+export type { Renderer };
 import { findPagesDir } from "next/dist/lib/find-pages-dir";
 import type { Configuration } from "webpack";
 import { optimizeCSSOutput } from "./optimizeCSSOutput";
@@ -15,7 +16,7 @@ let lastCache: string;
 
 const MiniCssExtractPlugin = NextMiniCssExtractPluginDefault['default'] as typeof MiniCssExtractPluginType;
 
-interface Config extends Omit<Options, 'useWebpackCache' | 'onRenderInitialized'> {
+interface Config extends Omit<Options, 'useWebpackCache'> {
   singleCssFile?: boolean;
 }
 
@@ -124,6 +125,10 @@ export const createNavitaStylePlugin = (navitaConfig: Config = {}) =>
               // This will happen if the user doesn't have write access to the cache directory.
               // But the same should happen with the webpack cache.
             }
+
+            // If the user has provided their own onRenderInitialized function,
+            // we'll do it after the cache is loaded.
+            return navitaConfig.onRenderInitialized?.(renderer);
           };
 
           config.plugins?.push({
@@ -149,9 +154,9 @@ export const createNavitaStylePlugin = (navitaConfig: Config = {}) =>
           config.plugins?.push(
             new NavitaPlugin({
               useWebpackCache: false,
-              onRenderInitialized,
               outputCss,
               ...navitaConfig,
+              onRenderInitialized,
               optimizeCSSOutput,
             })
           );

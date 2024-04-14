@@ -103,7 +103,7 @@ export function prepareCssOutput({
   }
 
   for (const [chunk, value] of map) {
-    value.usedIds = engine.getUsedCacheIds(value.filePaths);
+    value.usedIds = engine.getCacheIds(value.filePaths);
     value.parents = Array.from(chunk.groupsIterable)
       .flatMap((x) => x.getParents())
       .flatMap((x) => x.chunks)
