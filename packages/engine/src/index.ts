@@ -207,7 +207,7 @@ export class Engine {
       fontFace: fontFaceCache,
       static: staticCache,
       rule: ruleCache
-    } = usedIds ?? this.getUsedCacheIds(filePaths ?? Object.keys(this.usedIds));
+    } = usedIds ?? this.getCacheIds(filePaths ?? Object.keys(this.usedIds));
 
     const { atRules, lowPrioRules, rules } = splitStyleBlocks(this.caches.rule.items(ruleCache));
 
@@ -258,8 +258,16 @@ export class Engine {
   }
 
   serialize() {
-    const { caches, usedIds, identifierCount, sourceMapReferences } = this;
-    return JSON.stringify({ caches, usedIds, identifierCount, sourceMapReferences });
+    const { caches, usedIds, identifierCount, sourceMapReferences: sourceMapReferencesData } = this;
+
+    const sourceMapReferences = this.options.enableSourceMaps ? sourceMapReferencesData : undefined;
+
+    return JSON.stringify({
+      caches,
+      usedIds,
+      identifierCount,
+      sourceMapReferences,
+    });
   }
 
   async deserialize(buffer: Buffer | string) {
@@ -282,6 +290,17 @@ export class Engine {
 
   setFilePath(filePath: string | undefined) {
     this.filePath = filePath;
+  }
+
+  getUsedFilePaths() {
+    return Object.keys(this.usedIds);
+  }
+
+  getItems(caches: UsedIdCache) {
+    return Object.keys(caches).reduce((acc, key) => ({
+      ...acc,
+      [key]: this.caches[key as CacheKeys].items(caches[key as CacheKeys]),
+    }), {});
   }
 
   clearUsedIds(filePath: string) {
@@ -318,7 +337,7 @@ export class Engine {
     ];
   }
 
-  getUsedCacheIds(filePaths: string[] = []) {
+  getCacheIds(filePaths: string[] = []) {
     return filePaths.reduce((acc, filePath) => ({
       ...acc,
       ...Object.keys(this.usedIds[filePath] || []).reduce((cache, key) => ({
