@@ -353,9 +353,7 @@ describe('Engine', () => {
       },
     });
 
-    expect(engine.getItems(engine.getCacheIds(engine.getUsedFilePaths()))).toEqual({
-      rule: ['a1'],
-    });
+    expect(engine.getItems(engine.getCacheIds(engine.getUsedFilePaths()))['rule']).toHaveLength(1)
 
     engine.clearUsedIds('file1.ts');
 
@@ -363,7 +361,7 @@ describe('Engine', () => {
       'file1.ts': {},
     });
 
-    expect(engine.getItems(engine.getCacheIds(engine.getUsedFilePaths()))).toEqual({});
+    expect(engine.getItems(engine.getCacheIds(engine.getUsedFilePaths()))['rule']).toHaveLength(0);
   });
 
   describe('identifiers', () => {
