@@ -1,5 +1,11 @@
 # @navita/core
 
+## 1.0.0
+
+### Major Changes
+
+- c03767b: fix proper remix support in the vite plugin
+
 ## 0.2.1
 
 ### Patch Changes
