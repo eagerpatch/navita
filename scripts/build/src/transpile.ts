@@ -2,7 +2,7 @@ import nodeResolve from "@rollup/plugin-node-resolve";
 import replace from "@rollup/plugin-replace";
 import type { OutputOptions, RollupOptions} from "rollup";
 import { rollup, watch } from "rollup";
-import multiInput from "rollup-plugin-multi-input";
+// import multiInput from "rollup-plugin-multi-input";
 import externals from "rollup-plugin-node-externals";
 import { swc } from "rollup-plugin-swc3";
 import { esmShim } from "./plugins/esmShim";
@@ -25,7 +25,7 @@ export async function transpile({ input, format, extension, outDir, packagePath,
       chunkFileNames: `[name]${extension}`,
     }],
     plugins: [
-      multiInput({ relative: "src" }),
+      // multiInput({ relative: "src" }),
       externals({ packagePath }),
       nodeResolve({ extensions: [".ts"] }),
       replace({
