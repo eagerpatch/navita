@@ -1,6 +1,5 @@
 import type { Contract } from "@navita/types";
 import { diff } from 'deep-object-diff';
-import pc from "picocolors";
 import { walkObject } from "./helpers/walkObject";
 
 const normaliseObject = (obj: Contract) => walkObject(obj, () => '');
@@ -21,11 +20,11 @@ function diffLine(value: string, nesting: number, type?: '+' | '-') {
 
   if (process.env.NODE_ENV !== 'test') {
     if (type === '-') {
-      return pc.red(line);
+      return `\x1b[31m${line}\x1b[0m`; // Red for '-' type
     }
 
     if (type === '+') {
-      return pc.green(line);
+      return `\x1b[32m${line}\x1b[0m`; // Green for '+' type
     }
   }
 
