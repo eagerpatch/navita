@@ -4,8 +4,15 @@ import { createRenderer } from "@navita/core/createRenderer";
 import { importMap as defaultImportMap } from "@navita/css";
 import type { Plugin, ViteDevServer } from "vite";
 
-const VIRTUAL_MODULE_NAME = 'virtual:navita';
-const VIRTUAL_CSS_NAME = 'virtual:navita.css';
+let renderer: Renderer;
+
+/*
+Some information for anyone wondering why we have duplicate css for the initial load
+during development in remix.
+https://github.com/remix-run/remix/discussions/8070#discussioncomment-7625870
+*/
+
+const VIRTUAL_CSS_NAME = '\0virtual:navita.css';
 
 interface Options {
   importMap?: ImportMap;
@@ -13,7 +20,6 @@ interface Options {
 }
 
 export function navita(options?: Options) {
-  let renderer: Renderer;
   const importMap = [...defaultImportMap, ...(options?.importMap || [])];
 
   let server: ViteDevServer;
@@ -23,11 +29,8 @@ export function navita(options?: Options) {
   return {
     name: "navita",
     enforce: "pre",
-    config(_, env) {
+    config() {
       return {
-        optimizeDeps: {
-          include: env.command === 'serve' ? ['@navita/css'] : [],
-        },
         ssr: {
           external: [
             '@navita/css',
@@ -63,18 +66,19 @@ export function navita(options?: Options) {
         },
       });
     },
-    async resolveId(source) {
-      if (source === VIRTUAL_MODULE_NAME) {
+    async resolveId(id) {
+      if (id === VIRTUAL_CSS_NAME) {
         return VIRTUAL_CSS_NAME;
       }
 
-      return null;
+      return;
     },
     async load(id) {
       if (id === VIRTUAL_CSS_NAME) {
         return lastCssContent;
       }
-      return null;
+
+      return;
     },
     async transform(code, id) {
       // Bail as early as we can
@@ -83,7 +87,7 @@ export function navita(options?: Options) {
         return null;
       }
 
-      const { result, sourceMap } = await renderer.transformAndProcess({
+      const { result, sourceMap, dependencies } = await renderer.transformAndProcess({
         content: code,
         filePath: id,
       });
@@ -91,20 +95,22 @@ export function navita(options?: Options) {
       const newCssContent = renderer.engine.renderCssToString();
 
       if (lastCssContent !== newCssContent) {
-        if (server) {
-          const { moduleGraph } = server;
-          const virtualModule = moduleGraph.getModuleById(VIRTUAL_CSS_NAME);
-          if (virtualModule) {
-            moduleGraph.invalidateModule(virtualModule);
-            virtualModule.lastHMRTimestamp = Date.now();
-          }
-        }
+        invalidateModule(VIRTUAL_CSS_NAME);
+        this.addWatchFile(VIRTUAL_CSS_NAME);
 
         lastCssContent = newCssContent;
+
+        for (const file of dependencies) {
+          if (!file.includes('node_modules')) {
+            this.addWatchFile(file);
+          }
+
+          invalidateModule(file);
+        }
       }
 
       return {
-        code: `${result} import "${VIRTUAL_MODULE_NAME}";`,
+        code: `${result} import "${VIRTUAL_CSS_NAME}";`,
         map: sourceMap,
       };
     },
@@ -126,4 +132,23 @@ export function navita(options?: Options) {
       );
     }
   } as Plugin;
+
+  function invalidateModule(absoluteId: string) {
+    if (!server) {
+      return;
+    }
+
+    const { moduleGraph } = server;
+    const modules = moduleGraph.getModulesByFile(absoluteId);
+
+    if (modules) {
+      for (const module of modules) {
+        moduleGraph.invalidateModule(module);
+
+        // Vite uses this timestamp to add `?t=` query string automatically for HMR.
+        module.lastHMRTimestamp =
+          module.lastInvalidationTimestamp || Date.now();
+      }
+    }
+  }
 }
