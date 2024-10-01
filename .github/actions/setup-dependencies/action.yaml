@@ -41,7 +41,7 @@ runs:
     - name: Setup rust
       uses: actions-rs/toolchain@v1
       with:
-        toolchain: stable
+        toolchain: 1.70.0
 
     - name: Install WASM Target
       run: rustup target add wasm32-wasi
