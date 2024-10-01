@@ -29,8 +29,7 @@
   "dependencies": {
     "@navita/adapter": "workspace:*",
     "deep-object-diff": "^1.1.9",
-    "cssesc": "^3.0.0",
-    "picocolors": "^1.0.0"
+    "cssesc": "^3.0.0"
   },
   "devDependencies": {
     "@types/cssesc": "^3.0.0",
