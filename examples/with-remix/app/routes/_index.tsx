@@ -1,5 +1,8 @@
 import type { MetaFunction } from "@remix-run/node";
 import { style } from "@navita/css";
+import { background } from "~/consts";
+import { Button } from "~/components/button";
+import { Box } from "~/components/box";
 
 export const meta: MetaFunction = () => {
   return [
@@ -8,19 +11,18 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-const styles = {
-  container: style({
-    background: 'hotpink',
-  }),
-  h1: style({
-    color: 'blue',
-  }),
-}
+const x = style({
+  color: 'white',
+  backgroundColor: background,
+});
 
 export default function Index() {
   return (
-    <div className={styles.container}>
-      <h1 className={styles.h1}>Welcome to Remix!</h1>
+    <div className={x}>
+      Testing
+      <Button>Testing</Button>
+
+      <Box>Hello</Box>
     </div>
   );
 }

@@ -1,39 +1,22 @@
-import { globalStyle } from "@navita/css";
-import { useCallback, useState } from "react";
-import { Button } from "@/components/button";
-import { ComicSansContainer } from "@/components/comicSansContainer.tsx";
-import { DynamicStyleExample } from "@/components/dynamicStyleExample.tsx";
-import { MergeExample } from "@/components/mergeExample.tsx";
-import './App.css';
+import { style } from '@navita/css';
+import { useState } from 'react';
 
-globalStyle(':root', {
-  background: 'floralwhite',
-  '@media (prefers-color-scheme: dark)': {
-    background: 'royalblue',
-    color: 'white',
-  }
+const x = style({
+  background: 'red',
+  color: 'blue',
+});
+
+const button = style({
+  background: 'green',
 });
 
 function App() {
-  const [counter, setCounter] = useState(0);
-
-  const handleButtonClick = useCallback(() => {
-    setCounter((prevState) => prevState + 1);
-  }, []);
+  const [count, setCount] = useState(0);
 
   return (
-    <div>
-      <MergeExample />
-
-      <DynamicStyleExample />
-
-      <Button onClick={handleButtonClick}>
-        Clicked {counter} times
-      </Button>
-
-      <ComicSansContainer>
-        This is written with comic sans
-      </ComicSansContainer>
+    <div className={x}>
+      Hello
+      <button className={button} onClick={() => setCount(count + 1)}>Count: {count}</button>
     </div>
   );
 }
