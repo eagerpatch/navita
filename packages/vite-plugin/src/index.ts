@@ -25,6 +25,7 @@ export function navita(options?: Options) {
   let server: ViteDevServer;
   let lastCssContent: string | undefined;
   let context: string;
+  let isSSR = false;
 
   return {
     name: "navita",
@@ -41,6 +42,7 @@ export function navita(options?: Options) {
     },
     configResolved(config) {
       context = config.root;
+      isSSR = !!config.build.ssr;
     },
     configureServer(_server) {
       lastCssContent = undefined;
@@ -114,7 +116,11 @@ export function navita(options?: Options) {
         map: sourceMap,
       };
     },
-    renderChunk(_, chunk) {
+    renderChunk(_, chunk, third) {
+      if (isSSR) {
+        return;
+      }
+
       for (const id of Object.keys(chunk.modules)) {
         if (id.startsWith(VIRTUAL_CSS_NAME)) {
           delete chunk.modules[id];
