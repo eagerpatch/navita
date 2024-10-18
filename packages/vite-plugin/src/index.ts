@@ -4,15 +4,16 @@ import { createRenderer } from "@navita/core/createRenderer";
 import { importMap as defaultImportMap } from "@navita/css";
 import type { Plugin, ViteDevServer } from "vite";
 
-let renderer: Renderer;
-
 /*
 Some information for anyone wondering why we have duplicate css for the initial load
 during development in remix.
 https://github.com/remix-run/remix/discussions/8070#discussioncomment-7625870
 */
 
-const VIRTUAL_CSS_NAME = '\0virtual:navita.css';
+let renderer: Renderer;
+
+const VIRTUAL_MODULE_ID = 'virtual:navita.css';
+const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 
 interface Options {
   importMap?: ImportMap;
@@ -26,12 +27,18 @@ export function navita(options?: Options) {
   let lastCssContent: string | undefined;
   let context: string;
   let isSSR = false;
+  let isDEV = true;
 
   return {
-    name: "navita",
     enforce: "pre",
-    config() {
+    name: "navita",
+    config(_, env) {
+      isDEV = env.command === 'serve';
+
       return {
+        optimizeDeps: {
+          include: isDEV ? ['@navita/css'] : [],
+        },
         ssr: {
           external: [
             '@navita/css',
@@ -49,9 +56,13 @@ export function navita(options?: Options) {
       server = _server;
     },
     async buildStart() {
+      if (renderer) {
+        return;
+      }
+
       const defaultEngineOptions = {
-        enableSourceMaps: !!server,
-        enableDebugIdentifiers: !!server,
+        enableSourceMaps: isDEV,
+        enableDebugIdentifiers: isDEV,
         ...(options?.engineOptions || {}),
       };
 
@@ -68,16 +79,14 @@ export function navita(options?: Options) {
         },
       });
     },
-    async resolveId(id) {
-      if (id === VIRTUAL_CSS_NAME) {
-        return VIRTUAL_CSS_NAME;
+    resolveId(source) {
+      if (source === VIRTUAL_MODULE_ID) {
+        return RESOLVED_VIRTUAL_MODULE_ID;
       }
-
-      return;
     },
-    async load(id) {
-      if (id === VIRTUAL_CSS_NAME) {
-        return lastCssContent;
+    async load(source) {
+      if (source === RESOLVED_VIRTUAL_MODULE_ID) {
+        return renderer.engine.renderCssToString();
       }
 
       return;
@@ -97,9 +106,7 @@ export function navita(options?: Options) {
       const newCssContent = renderer.engine.renderCssToString();
 
       if (lastCssContent !== newCssContent) {
-        invalidateModule(VIRTUAL_CSS_NAME);
-        this.addWatchFile(VIRTUAL_CSS_NAME);
-
+        invalidateModule(RESOLVED_VIRTUAL_MODULE_ID);
         lastCssContent = newCssContent;
 
         for (const file of dependencies) {
@@ -112,17 +119,17 @@ export function navita(options?: Options) {
       }
 
       return {
-        code: `${result} import "${VIRTUAL_CSS_NAME}";`,
+        code: `${result}\nimport "${VIRTUAL_MODULE_ID}";`,
         map: sourceMap,
       };
     },
-    renderChunk(_, chunk, third) {
+    renderChunk(_, chunk) {
       if (isSSR) {
         return;
       }
 
       for (const id of Object.keys(chunk.modules)) {
-        if (id.startsWith(VIRTUAL_CSS_NAME)) {
+        if (id.startsWith(RESOLVED_VIRTUAL_MODULE_ID)) {
           delete chunk.modules[id];
         }
       }

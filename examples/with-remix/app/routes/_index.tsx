@@ -1,8 +1,9 @@
-import type { MetaFunction } from "@remix-run/node";
 import { style } from "@navita/css";
-import { background } from "~/consts";
-import { Button } from "~/components/button";
+import type { MetaFunction } from "@remix-run/node";
 import { Box } from "~/components/box";
+import { Button } from "~/components/button";
+import { Specificity } from "~/components/specificity";
+import { background } from "~/consts";
 
 export const meta: MetaFunction = () => {
   return [
@@ -17,9 +18,12 @@ const x = style({
 });
 
 export default function Index() {
+
+
   return (
     <div className={x}>
       Testing
+      <Specificity />
       <Button>Testing</Button>
 
       <Box>Hello</Box>
