@@ -1,5 +1,11 @@
 # @navita/vite-plugin
 
+## 1.0.1
+
+### Patch Changes
+
+- e8a1084: Force the vite-plugin to use one renderer
+
 ## 1.0.0
 
 ### Major Changes
