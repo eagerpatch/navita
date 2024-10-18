@@ -27,14 +27,17 @@ export function navita(options?: Options) {
   let lastCssContent: string | undefined;
   let context: string;
   let isSSR = false;
+  let isDEV = true;
 
   return {
     enforce: "pre",
     name: "navita",
     config(_, env) {
+      isDEV = env.command === 'serve';
+
       return {
         optimizeDeps: {
-          include: env.command === 'serve' ? ['@navita/css'] : [],
+          include: isDEV ? ['@navita/css'] : [],
         },
         ssr: {
           external: [
@@ -58,9 +61,8 @@ export function navita(options?: Options) {
       }
 
       const defaultEngineOptions = {
-        // Only for development ?
-        enableSourceMaps: true,
-        enableDebugIdentifiers: true,
+        enableSourceMaps: isDEV,
+        enableDebugIdentifiers: isDEV,
         ...(options?.engineOptions || {}),
       };
 
