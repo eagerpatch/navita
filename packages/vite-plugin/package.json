@@ -35,7 +35,8 @@
     "@navita/css": "workspace:*"
   },
   "devDependencies": {
-    "vite": "5.4.8"
+    "vite": "5.4.8",
+    "rollup": "^4.20.0"
   },
   "license": "MIT",
   "author": "Eagerpatch",
