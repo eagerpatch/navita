@@ -1,5 +1,11 @@
 # @navita/vite-plugin
 
+## 2.0.1
+
+### Patch Changes
+
+- 1859baa: change from middleware to transform for compatability with Shopify Hydrogen
+
 ## 2.0.0
 
 ### Major Changes
