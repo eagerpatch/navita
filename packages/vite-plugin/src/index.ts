@@ -1,23 +1,32 @@
 import fs from 'fs';
-import type { Renderer } from '@navita/core/createRenderer';
+import type { EngineOptions, ImportMap, Renderer } from "@navita/core/createRenderer";
 import { createRenderer } from '@navita/core/createRenderer';
-import { importMap } from '@navita/css';
+import { importMap as defaultImportMap } from "@navita/css";
 import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite';
 
 export const VIRTUAL_MODULE_ID = 'virtual:navita.css';
 const RESOLVED_VIRTUAL_MODULE_ID =
   '\0' + VIRTUAL_MODULE_ID.replace(/.css$/, '');
 
-export function navita(): Plugin {
+export interface Options {
+  importMap?: ImportMap;
+  engineOptions?: EngineOptions;
+}
+
+export function navita(options?: Options): Plugin {
+  const importMap = [...defaultImportMap, ...(options?.importMap || [])];
   let server: ViteDevServer;
   let config: ResolvedConfig;
   let updateTimer: ReturnType<typeof setTimeout> | null = null;
+  let cssEmitted = false;
+  let isProduction = false;
 
   return {
     enforce: 'pre',
     name: 'navita',
     configResolved(_resolvedConfig) {
       config = _resolvedConfig;
+      isProduction = config.mode === 'production';
     },
     configureServer(_server) {
       server = _server;
@@ -29,6 +38,12 @@ export function navita(): Plugin {
 
       setRenderer(
         createRenderer({
+          context: config.root,
+          engineOptions: {
+            enableSourceMaps: !isProduction,
+            enableDebugIdentifiers: !isProduction,
+            ...(options?.engineOptions || {}),
+          },
           importMap,
           resolver: async (filepath: string, request: string) => {
             const resolved = await this.resolve(request, filepath);
@@ -75,31 +90,61 @@ export function navita(): Plugin {
         return null;
       }
 
-      const { result } = await renderer.transformAndProcess({
+      const { result, sourceMap, dependencies } = await renderer.transformAndProcess({
         content: code,
         filePath: id,
       });
 
-      if (!(config.command === 'build' && !config.build.watch)) {
+      if (!isProduction) {
+        for (const dependency of dependencies) {
+          this.addWatchFile(dependency);
+        }
+
         updateNavitaCSS();
       }
 
-      return result;
+      return {
+        code: result,
+        map: sourceMap,
+      };
     },
     transformIndexHtml: {
       handler: async () => {
+        // If we're building, we don't want to inject the CSS into the HTML.
+        // We'll do this in the `renderChunk` hook instead.
+        if (isProduction) {
+          return [];
+        }
+
         return [
           {
-            tag: "link",
-            injectTo: "head",
+            tag: 'link',
+            injectTo: 'head',
             attrs: {
-              rel: "stylesheet",
+              rel: 'stylesheet',
               href: `/${VIRTUAL_MODULE_ID}`,
             },
           },
         ];
       },
     },
+    renderChunk(_, chunk) {
+      if (cssEmitted) {
+        return;
+      }
+
+      chunk.viteMetadata.importedCss.add(
+        this.getFileName(
+          this.emitFile({
+            name: 'navita.css',
+            type: 'asset',
+            source: getRenderer()?.engine.renderCssToString(),
+          })
+        )
+      );
+
+      cssEmitted = true;
+    }
   };
 
   function updateNavitaCSS() {
