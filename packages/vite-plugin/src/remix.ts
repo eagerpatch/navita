@@ -1,12 +1,13 @@
 import * as crypto from "node:crypto";
-import type { Plugin, ViteDevServer } from "vite";
+import type { Plugin } from "vite";
 import type { Options } from "./index";
 import { getRenderer, navita, VIRTUAL_MODULE_ID } from "./index";
 
+const remixServerBuildId = '\0virtual:remix/server-build';
 let cssFileName: string;
 
 export function navitaRemix(options?: Options): Plugin[] {
-  let server: ViteDevServer;
+  let isProduction = false;
 
   const { renderChunk, ...navitaVite } = navita(options);
 
@@ -14,32 +15,15 @@ export function navitaRemix(options?: Options): Plugin[] {
     navitaVite,
     {
       name: 'navita-remix',
-      configureServer(_server) {
-        server = _server;
+      configResolved(config) {
+        isProduction = config.mode === 'production';
+      },
+      transform(code, id) {
+        if (isProduction || id !== remixServerBuildId) {
+          return;
+        }
 
-        server.middlewares.use(async function middleware(_req, _res, next) {
-          try {
-            const build = await server.ssrLoadModule(
-              'virtual:remix/server-build',
-            );
-
-            const { module } = build.routes.root;
-
-            // We modify the root module, to automatically include the CSS
-            // when running the dev server.
-            build.routes.root.module = {
-              ...module,
-              links: () => [
-                ...module.links(),
-                { rel: 'stylesheet', href: `/${VIRTUAL_MODULE_ID}` },
-              ],
-            };
-          } catch(e) {
-            console.error(e);
-          }
-
-          next();
-        });
+        return `${code}\n${remixServerBuildExtension}`;
       },
       renderChunk(_, chunk) {
         if (chunk.name === "root") {
@@ -74,3 +58,13 @@ export function navitaRemix(options?: Options): Plugin[] {
     }
   ];
 }
+
+const remixServerBuildExtension = `
+  routes.root.module = {
+    ...route0,
+    links: () => [
+      ...(route0.links ? route0.links() : []),
+      { rel: 'stylesheet', href: '/${VIRTUAL_MODULE_ID}' },
+    ],
+  };
+`;
