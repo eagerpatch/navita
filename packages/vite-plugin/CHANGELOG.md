@@ -1,5 +1,15 @@
 # @navita/vite-plugin
 
+## 2.0.0
+
+### Major Changes
+
+- 2d1ad33: Adding Remix-specific vite plugin.
+
+  Instead of allowing Vite to extract the CSS, we use a virtual file, and send HMR updates to that file instead.
+
+  During the build, we extract the CSS and write it to a file.
+
 ## 1.0.1
 
 ### Patch Changes
