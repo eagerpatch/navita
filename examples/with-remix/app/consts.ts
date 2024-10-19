@@ -1,1 +1,1 @@
-export const background = 'orange';
+export const background = 'yellow';

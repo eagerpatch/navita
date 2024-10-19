@@ -1,7 +1,8 @@
 import { style } from "@navita/css";
+import React from "react";
 
 const box = style({
-  background: 'hotpink',
+  background: 'green',
   color: 'white',
   fontSize: 20,
   padding: 20,

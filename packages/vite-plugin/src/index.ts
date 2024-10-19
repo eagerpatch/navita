@@ -1,99 +1,91 @@
-import * as fs from "fs";
-import type { Renderer, ImportMap, EngineOptions } from "@navita/core/createRenderer";
-import { createRenderer } from "@navita/core/createRenderer";
+import fs from 'fs';
+import type { EngineOptions, ImportMap, Renderer } from "@navita/core/createRenderer";
+import { createRenderer } from '@navita/core/createRenderer';
 import { importMap as defaultImportMap } from "@navita/css";
-import type { Plugin, ViteDevServer } from "vite";
+import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite';
 
-/*
-Some information for anyone wondering why we have duplicate css for the initial load
-during development in remix.
-https://github.com/remix-run/remix/discussions/8070#discussioncomment-7625870
-*/
+export const VIRTUAL_MODULE_ID = 'virtual:navita.css';
+const RESOLVED_VIRTUAL_MODULE_ID =
+  '\0' + VIRTUAL_MODULE_ID.replace(/.css$/, '');
 
-let renderer: Renderer;
-
-const VIRTUAL_MODULE_ID = 'virtual:navita.css';
-const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
-
-interface Options {
+export interface Options {
   importMap?: ImportMap;
   engineOptions?: EngineOptions;
 }
 
-export function navita(options?: Options) {
+export function navita(options?: Options): Plugin {
   const importMap = [...defaultImportMap, ...(options?.importMap || [])];
-
   let server: ViteDevServer;
-  let lastCssContent: string | undefined;
-  let context: string;
-  let isSSR = false;
-  let isDEV = true;
+  let config: ResolvedConfig;
+  let updateTimer: ReturnType<typeof setTimeout> | null = null;
+  let cssEmitted = false;
+  let isProduction = false;
 
   return {
-    enforce: "pre",
-    name: "navita",
-    config(_, env) {
-      isDEV = env.command === 'serve';
-
-      return {
-        optimizeDeps: {
-          include: isDEV ? ['@navita/css'] : [],
-        },
-        ssr: {
-          external: [
-            '@navita/css',
-            '@navita/adapter',
-          ],
-        },
-      }
-    },
-    configResolved(config) {
-      context = config.root;
-      isSSR = !!config.build.ssr;
+    enforce: 'pre',
+    name: 'navita',
+    configResolved(_resolvedConfig) {
+      config = _resolvedConfig;
+      isProduction = config.mode === 'production';
     },
     configureServer(_server) {
-      lastCssContent = undefined;
       server = _server;
     },
-    async buildStart() {
-      if (renderer) {
+    buildStart() {
+      if (getRenderer()) {
         return;
       }
 
-      const defaultEngineOptions = {
-        enableSourceMaps: isDEV,
-        enableDebugIdentifiers: isDEV,
-        ...(options?.engineOptions || {}),
-      };
-
-      renderer = createRenderer({
-        context,
-        importMap,
-        engineOptions: defaultEngineOptions,
-        resolver: async (filepath: string, request: string) => {
-          const resolved = await this.resolve(request, filepath);
-          return resolved?.id || null;
-        },
-        readFile: (path: string) => {
-          return fs.promises.readFile(path, 'utf-8');
-        },
-      });
+      setRenderer(
+        createRenderer({
+          context: config.root,
+          engineOptions: {
+            enableSourceMaps: !isProduction,
+            enableDebugIdentifiers: !isProduction,
+            ...(options?.engineOptions || {}),
+          },
+          importMap,
+          resolver: async (filepath: string, request: string) => {
+            const resolved = await this.resolve(request, filepath);
+            return resolved?.id || null;
+          },
+          readFile: (path: string) => {
+            return fs.promises.readFile(path, 'utf-8');
+          },
+        }),
+      );
     },
     resolveId(source) {
-      if (source === VIRTUAL_MODULE_ID) {
+      const [id] = source.split('?');
+
+      if (id.endsWith(VIRTUAL_MODULE_ID)) {
         return RESOLVED_VIRTUAL_MODULE_ID;
       }
     },
     async load(source) {
-      if (source === RESOLVED_VIRTUAL_MODULE_ID) {
-        return renderer.engine.renderCssToString();
-      }
+      const [id] = source.split('?');
 
-      return;
+      if (id === RESOLVED_VIRTUAL_MODULE_ID) {
+        const css = getRenderer()?.engine.renderCssToString() || '';
+
+        return {
+          code: css,
+          map: { mappings: '' },
+        };
+      }
     },
     async transform(code, id) {
-      // Bail as early as we can
-      if (!importMap.map((x) => x.source).some((value) => code.indexOf(value) !== -1)) {
+      const renderer = getRenderer();
+
+      if (!renderer || id.includes('node_modules')) {
+        return null;
+      }
+
+      if (
+        !importMap
+          .map((x) => x.source)
+          .some((value) => code.indexOf(value) !== -1)
+      ) {
         renderer.clearCache(id);
         return null;
       }
@@ -103,65 +95,94 @@ export function navita(options?: Options) {
         filePath: id,
       });
 
-      const newCssContent = renderer.engine.renderCssToString();
-
-      if (lastCssContent !== newCssContent) {
-        invalidateModule(RESOLVED_VIRTUAL_MODULE_ID);
-        lastCssContent = newCssContent;
-
-        for (const file of dependencies) {
-          if (!file.includes('node_modules')) {
-            this.addWatchFile(file);
-          }
-
-          invalidateModule(file);
+      if (!isProduction) {
+        for (const dependency of dependencies) {
+          this.addWatchFile(dependency);
         }
+
+        updateNavitaCSS();
       }
 
       return {
-        code: `${result}\nimport "${VIRTUAL_MODULE_ID}";`,
+        code: result,
         map: sourceMap,
       };
     },
-    renderChunk(_, chunk) {
-      if (isSSR) {
-        return;
-      }
-
-      for (const id of Object.keys(chunk.modules)) {
-        if (id.startsWith(RESOLVED_VIRTUAL_MODULE_ID)) {
-          delete chunk.modules[id];
+    transformIndexHtml: {
+      handler: async () => {
+        // If we're building, we don't want to inject the CSS into the HTML.
+        // We'll do this in the `renderChunk` hook instead.
+        if (isProduction) {
+          return [];
         }
+
+        return [
+          {
+            tag: 'link',
+            injectTo: 'head',
+            attrs: {
+              rel: 'stylesheet',
+              href: `/${VIRTUAL_MODULE_ID}`,
+            },
+          },
+        ];
+      },
+    },
+    renderChunk(_, chunk) {
+      if (cssEmitted) {
+        return;
       }
 
       chunk.viteMetadata.importedCss.add(
         this.getFileName(
           this.emitFile({
-            name: "navita.css",
-            type: "asset",
-            source: renderer.engine.renderCssToString()
+            name: 'navita.css',
+            type: 'asset',
+            source: getRenderer()?.engine.renderCssToString(),
           })
         )
       );
-    }
-  } as Plugin;
 
-  function invalidateModule(absoluteId: string) {
+      cssEmitted = true;
+    }
+  };
+
+  function updateNavitaCSS() {
     if (!server) {
       return;
     }
 
-    const { moduleGraph } = server;
-    const modules = moduleGraph.getModulesByFile(absoluteId);
+    clearTimeout(updateTimer!);
 
-    if (modules) {
-      for (const module of modules) {
-        moduleGraph.invalidateModule(module);
+    updateTimer = setTimeout(() => {
+      const { moduleGraph, ws } = server;
+      const mod = moduleGraph.getModuleById(RESOLVED_VIRTUAL_MODULE_ID);
 
-        // Vite uses this timestamp to add `?t=` query string automatically for HMR.
-        module.lastHMRTimestamp =
-          module.lastInvalidationTimestamp || Date.now();
+      if (mod) {
+        moduleGraph.invalidateModule(mod);
+
+        ws.send({
+          type: 'update',
+          updates: [
+            {
+              type: 'css-update',
+              path: `/${VIRTUAL_MODULE_ID}`,
+              acceptedPath: `/${VIRTUAL_MODULE_ID}`,
+              timestamp: Date.now(),
+            },
+          ],
+        });
       }
-    }
+    }, 20);
   }
+}
+
+const globalNavitaRendererKey = '__navita_renderer';
+
+function setRenderer(renderer: Renderer) {
+  globalThis[globalNavitaRendererKey] = renderer;
+}
+
+export function getRenderer(): Renderer | undefined {
+  return globalThis[globalNavitaRendererKey];
 }
