@@ -3,12 +3,12 @@ import { useState } from 'react';
 import { Button } from "./components/button.tsx";
 
 const x = style({
-  background: 'red',
+  background: 'orange',
   color: 'blue',
 });
 
 const button = style({
-  background: 'green',
+  background: 'lawngreen',
 });
 
 function App() {

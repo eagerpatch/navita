@@ -1,7 +1,7 @@
 import { style } from "@navita/css";
 
 const button = style({
-  background: 'red',
+  background: 'hotpink',
   color: 'white',
   padding: '10px',
 });
