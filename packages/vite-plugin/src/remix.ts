@@ -8,6 +8,7 @@ let cssFileName: string;
 
 export function navitaRemix(options?: Options): Plugin[] {
   let isProduction = false;
+  let hasEmittedCss = false;
 
   const { renderChunk, ...navitaVite } = navita(options);
 
@@ -25,8 +26,11 @@ export function navitaRemix(options?: Options): Plugin[] {
 
         return `${code}\n${remixServerBuildExtension}`;
       },
-      renderChunk(_, chunk) {
-        if (chunk.name === "root") {
+      renderChunk(_, chunk, options) {
+        const isServerChunk = options.dir.endsWith('/server');
+        const isClientChunk = options.dir.endsWith('/client');
+
+        if (isClientChunk && chunk.name === "root") {
           // Generate a random name for the CSS file.
           // Vite uses a file hash as the name, but since the client build will finish before
           // the server build, we need to generate a random name for the CSS file.
@@ -39,12 +43,11 @@ export function navitaRemix(options?: Options): Plugin[] {
 
           cssFileName = `assets/navita-${random}.css`;
 
-          // Attach the file to the root chunk so that it's included in the client build.
-          chunk.viteMetadata?.importedCss.add(cssFileName);
+          chunk.viteMetadata.importedCss.add(cssFileName);
           return;
         }
 
-        if (chunk.name === 'server-build') {
+        if (isServerChunk && !hasEmittedCss) {
           // In the server-build, we'll generate the CSS and emit it as an asset.
           // Remix will then move it to the client assets.
           this.emitFile({
@@ -53,6 +56,8 @@ export function navitaRemix(options?: Options): Plugin[] {
             type: 'asset',
             source: getRenderer()?.engine.renderCssToString(),
           });
+
+          hasEmittedCss = true;
         }
       },
     }
