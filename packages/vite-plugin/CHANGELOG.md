@@ -1,5 +1,11 @@
 # @navita/vite-plugin
 
+## 2.0.2
+
+### Patch Changes
+
+- cafa840: Use options to determine if chunk belongs in server or client build
+
 ## 2.0.1
 
 ### Patch Changes
