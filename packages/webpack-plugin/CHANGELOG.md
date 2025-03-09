@@ -1,5 +1,11 @@
 # @navita/webpack-plugin
 
+## 0.4.3
+
+### Patch Changes
+
+- @navita/core@1.0.1
+
 ## 0.4.2
 
 ### Patch Changes
