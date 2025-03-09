@@ -1,5 +1,12 @@
 # @navita/jest
 
+## 0.1.6
+
+### Patch Changes
+
+- Updated dependencies [6b568b7]
+  - @navita/engine@0.2.2
+
 ## 0.1.5
 
 ### Patch Changes

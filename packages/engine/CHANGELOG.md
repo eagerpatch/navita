@@ -1,5 +1,11 @@
 # @navita/engine
 
+## 0.2.2
+
+### Patch Changes
+
+- 6b568b7: pinning dependency versions to engine package
+
 ## 0.2.1
 
 ### Patch Changes

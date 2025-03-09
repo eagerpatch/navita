@@ -1,5 +1,11 @@
 # @navita/vite-plugin
 
+## 2.0.3
+
+### Patch Changes
+
+- @navita/core@1.0.1
+
 ## 2.0.2
 
 ### Patch Changes
