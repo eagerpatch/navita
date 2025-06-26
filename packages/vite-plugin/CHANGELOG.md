@@ -1,5 +1,11 @@
 # @navita/vite-plugin
 
+## 2.0.4
+
+### Patch Changes
+
+- 98b03e5: Added react-router support to remix vite-plugin
+
 ## 2.0.3
 
 ### Patch Changes
