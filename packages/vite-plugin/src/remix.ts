@@ -3,7 +3,11 @@ import type { Plugin } from "vite";
 import type { Options } from "./index";
 import { getRenderer, navita, VIRTUAL_MODULE_ID } from "./index";
 
-const remixServerBuildId = '\0virtual:remix/server-build';
+const VIRTUAL_MODULE_IDS = [
+  '\0virtual:remix/server-build',
+  '\0virtual:react-router/server-build',
+];
+
 let cssFileName: string;
 
 export function navitaRemix(options?: Options): Plugin[] {
@@ -20,11 +24,11 @@ export function navitaRemix(options?: Options): Plugin[] {
         isProduction = config.mode === 'production';
       },
       transform(code, id) {
-        if (isProduction || id !== remixServerBuildId) {
+        if (isProduction || !VIRTUAL_MODULE_IDS.includes(id)) {
           return;
         }
 
-        return `${code}\n${remixServerBuildExtension}`;
+        return `${code}\n${SERVER_BUILD_EXTENSION}`;
       },
       renderChunk(_, chunk, options) {
         const isServerChunk = options.dir.endsWith('/server');
@@ -49,7 +53,7 @@ export function navitaRemix(options?: Options): Plugin[] {
 
         if (isServerChunk && !hasEmittedCss) {
           // In the server-build, we'll generate the CSS and emit it as an asset.
-          // Remix will then move it to the client assets.
+          // Remix/react-router will then move it to the client assets.
           this.emitFile({
             fileName: cssFileName,
             name: 'navita.css',
@@ -64,7 +68,7 @@ export function navitaRemix(options?: Options): Plugin[] {
   ];
 }
 
-const remixServerBuildExtension = `
+const SERVER_BUILD_EXTENSION = `
   routes.root.module = {
     ...route0,
     links: () => [
