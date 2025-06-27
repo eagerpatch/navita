@@ -1,5 +1,11 @@
 # @navita/css
 
+## 0.2.1
+
+### Patch Changes
+
+- f65bf12: re-export @navita/types
+
 ## 0.2.0
 
 ### Minor Changes
