@@ -5,6 +5,7 @@ export { keyframes } from './keyframes';
 export { fontFace } from './fontFace';
 export { createTheme, createGlobalTheme, createGlobalThemeContract, createThemeContract } from './theme';
 export { assignVars, createVar, fallbackVar } from './vars';
+export type * from '@navita/types';
 const source = '@navita/css';
 export const importMap = [
   {
