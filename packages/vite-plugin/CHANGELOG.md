@@ -1,5 +1,11 @@
 # @navita/vite-plugin
 
+## 2.1.0
+
+### Minor Changes
+
+- 6d2749f: Add rwsdk (RedwoodJS SDK) support via new `@navita/vite-plugin/rwsdk` export
+
 ## 2.0.5
 
 ### Patch Changes
