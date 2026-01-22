@@ -86,3 +86,4 @@ The plugin accepts the following as optional configuration:
 ImportMap is a feature that allows you to extend the functionality of Navita.
 
 If you provide your own, it will be merged with the default importMap.
+
