@@ -19,7 +19,7 @@ jobs:
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
         with:
-          node-version: 18.x
+          node-version: 24.x
 
       - name: Build Monorepo
         run: pnpm build
