@@ -1,9 +1,15 @@
-import type { Buffer } from "buffer";
-import type { Compilation } from "webpack";
+import type { Buffer } from 'node:buffer';
+import type { Compilation } from 'webpack';
 
 export function createHashFunction(compilation: Compilation) {
-  const { webpack: { util: { createHash } } } = compilation.compiler;
-  const { outputOptions: { hashFunction, hashDigest, hashDigestLength } } = compilation;
+  const {
+    webpack: {
+      util: { createHash },
+    },
+  } = compilation.compiler;
+  const {
+    outputOptions: { hashFunction, hashDigest, hashDigestLength },
+  } = compilation;
 
   const hash = createHash(hashFunction);
 
@@ -13,5 +19,5 @@ export function createHashFunction(compilation: Compilation) {
     }
 
     return hash.digest(hashDigest).toString().substring(0, hashDigestLength);
-  }
+  };
 }

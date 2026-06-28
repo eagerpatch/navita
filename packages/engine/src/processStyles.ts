@@ -1,18 +1,18 @@
-import type { StyleRule } from "@navita/types";
-import type { Cache } from "./cache";
-import { generateCombinedAtRules } from "./helpers/generateCombinedAtRules";
-import { hyphenateProperty } from "./helpers/hyphenateProperty";
-import { isContainerQuery } from "./helpers/isContainerQuery";
-import { isMediaQuery } from "./helpers/isMediaQuery";
-import { isNestedSelector } from "./helpers/isNestedSelector";
-import { isObject } from "./helpers/isObject";
-import { isSupportsQuery } from "./helpers/isSupportsQuery";
-import { normalizeCSSVarsProperty } from "./helpers/normalizeCSSVarsProperty";
-import { normalizeCSSVarsValue } from "./helpers/normalizeCSSVarsValue";
-import { normalizeNestedProperty } from "./helpers/normalizeNestedProperty";
-import { pixelifyProperties } from "./helpers/pixelifyProperties";
-import { transformContentProperty } from "./helpers/transformContentProperty";
-import type { StyleBlock } from "./types";
+import type { StyleRule } from '@navita/types';
+import type { Cache } from './cache';
+import { generateCombinedAtRules } from './helpers/generateCombinedAtRules';
+import { hyphenateProperty } from './helpers/hyphenateProperty';
+import { isContainerQuery } from './helpers/isContainerQuery';
+import { isMediaQuery } from './helpers/isMediaQuery';
+import { isNestedSelector } from './helpers/isNestedSelector';
+import { isObject } from './helpers/isObject';
+import { isSupportsQuery } from './helpers/isSupportsQuery';
+import { normalizeCSSVarsProperty } from './helpers/normalizeCSSVarsProperty';
+import { normalizeCSSVarsValue } from './helpers/normalizeCSSVarsValue';
+import { normalizeNestedProperty } from './helpers/normalizeNestedProperty';
+import { pixelifyProperties } from './helpers/pixelifyProperties';
+import { transformContentProperty } from './helpers/transformContentProperty';
+import type { StyleBlock } from './types';
 
 const transformValuePropertyMap = {
   content: transformContentProperty,
@@ -20,18 +20,18 @@ const transformValuePropertyMap = {
 
 export function processStyles({
   cache,
-  type
+  type,
 }: {
   cache: Cache<StyleBlock>;
-  type: StyleBlock["type"];
+  type: StyleBlock['type'];
 }) {
   return function process({
     styles,
-    pseudo = "",
-    media = "",
-    support = "",
-    container = "",
-    selector = ""
+    pseudo = '',
+    media = '',
+    support = '',
+    container = '',
+    selector = '',
   }: {
     styles: StyleRule;
     pseudo?: string;
@@ -47,7 +47,7 @@ export function processStyles({
         if (isMediaQuery(property)) {
           const combinedMedia = generateCombinedAtRules(
             media,
-            property.slice(6).trim()
+            property.slice(6).trim(),
           );
 
           result.push(
@@ -57,8 +57,8 @@ export function processStyles({
               media: combinedMedia,
               support,
               container,
-              selector
-            })
+              selector,
+            }),
           );
 
           continue;
@@ -67,7 +67,7 @@ export function processStyles({
         if (isSupportsQuery(property)) {
           const combinedSupport = generateCombinedAtRules(
             support,
-            property.slice(9).trim()
+            property.slice(9).trim(),
           );
 
           result.push(
@@ -77,8 +77,8 @@ export function processStyles({
               media,
               support: combinedSupport,
               container,
-              selector
-            })
+              selector,
+            }),
           );
 
           continue;
@@ -87,7 +87,7 @@ export function processStyles({
         if (isContainerQuery(property)) {
           const combinedContainer = generateCombinedAtRules(
             container,
-            property.slice(10).trim()
+            property.slice(10).trim(),
           );
 
           result.push(
@@ -97,8 +97,8 @@ export function processStyles({
               media,
               support,
               container: combinedContainer,
-              selector
-            })
+              selector,
+            }),
           );
 
           continue;
@@ -116,15 +116,15 @@ export function processStyles({
                 media,
                 support,
                 container,
-                selector
-              })
+                selector,
+              }),
             );
           }
 
           continue;
         }
 
-        console.warn("Unknown property", property);
+        console.warn('Unknown property', property);
 
         continue;
       }
@@ -132,12 +132,12 @@ export function processStyles({
       let newProperty = normalizeCSSVarsProperty(property);
       let newValue = value;
 
-      if (typeof value === "string") {
-        newValue = value.trim().replace(/;[\n\s]*$/, "");
+      if (typeof value === 'string') {
+        newValue = value.trim().replace(/;[\n\s]*$/, '');
         newValue = normalizeCSSVarsValue(newValue);
       }
 
-      if (typeof value === "number") {
+      if (typeof value === 'number') {
         newValue = pixelifyProperties(newProperty, value);
       }
 
@@ -148,16 +148,18 @@ export function processStyles({
       newProperty = hyphenateProperty(newProperty);
 
       // Remove trailing semicolon and new lines with regex
-      result.push(cache.getOrStore({
-        type,
-        selector,
-        property: newProperty,
-        value: newValue,
-        pseudo,
-        media,
-        support,
-        container,
-      }));
+      result.push(
+        cache.getOrStore({
+          type,
+          selector,
+          property: newProperty,
+          value: newValue,
+          pseudo,
+          media,
+          support,
+          container,
+        }),
+      );
     }
 
     return result as StyleBlock[];

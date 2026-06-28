@@ -1,4 +1,4 @@
-import { style } from "@navita/css";
+import { style } from '@navita/css';
 
 const button = style({
   all: 'unset',

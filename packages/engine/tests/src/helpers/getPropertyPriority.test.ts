@@ -1,4 +1,4 @@
-import { getPropertyPriority } from "../../../src/helpers/getPropertyPriority";
+import { getPropertyPriority } from '../../../src/helpers/getPropertyPriority';
 
 describe('getPropertyPriority', () => {
   it('returns 1 for non-shorthand properties', () => {

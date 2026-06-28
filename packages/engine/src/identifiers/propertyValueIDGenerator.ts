@@ -1,15 +1,27 @@
-import type { IdentifierGenerator, StyleBlock } from "../types";
-import { AlphaIDGenerator } from "./alphaIDGenerator";
+import type { IdentifierGenerator, StyleBlock } from '../types';
+import { AlphaIDGenerator } from './alphaIDGenerator';
 
-export class PropertyValueIDGenerator implements IdentifierGenerator<StyleBlock> {
+export class PropertyValueIDGenerator
+  implements IdentifierGenerator<StyleBlock>
+{
   private property = new AlphaIDGenerator();
 
-  private cache: Record<string, {
-    key: string;
-    cache: Record<string, number>;
-  }> = {};
+  private cache: Record<
+    string,
+    {
+      key: string;
+      cache: Record<string, number>;
+    }
+  > = {};
 
-  next({ property, media = '', support = '', container = '', pseudo = '', value }: StyleBlock) {
+  next({
+    property,
+    media = '',
+    support = '',
+    container = '',
+    pseudo = '',
+    value,
+  }: StyleBlock) {
     const propertyKey = `m${media}s${support}c${container}ps${pseudo}p${property}`;
 
     if (this.cache[propertyKey] === undefined) {

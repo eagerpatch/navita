@@ -1,6 +1,6 @@
-import { setAdapter } from "@navita/adapter";
-import { Engine } from "@navita/engine";
-import { beforeEach } from "vitest";
+import { setAdapter } from '@navita/adapter';
+import { Engine } from '@navita/engine';
+import { beforeEach } from 'vitest';
 
 beforeEach(() => {
   const engine = new Engine();

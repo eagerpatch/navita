@@ -1,9 +1,9 @@
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 import { CachedInputFileSystem } from 'enhanced-resolve';
 import { createFsFromVolume, Volume } from 'memfs';
 import { Union } from 'unionfs';
 import type { IFS } from 'unionfs/lib/fs';
-import type { Compiler, Configuration, RuleSetRule, Stats } from "webpack";
+import type { Compiler, Configuration, RuleSetRule, Stats } from 'webpack';
 import { webpack } from 'webpack';
 
 type Contents = string | { [path: string]: string };
@@ -19,11 +19,16 @@ interface Options {
 // The loaders are tested with a faked context instead.
 export const createWebpack = ({ rules, plugins, contents }: Options) => {
   const inputMemoryFileSystem = createFsFromVolume(new Volume());
-  const combinedInputFileSystem = new Union().use(fs).use(inputMemoryFileSystem as unknown as IFS);
+  const combinedInputFileSystem = new Union()
+    .use(fs)
+    .use(inputMemoryFileSystem as unknown as IFS);
 
-  const files: { [key: string]: string } = typeof contents === 'string' ? {
-    '/index.js': contents
-  } : contents || {};
+  const files: { [key: string]: string } =
+    typeof contents === 'string'
+      ? {
+          '/index.js': contents,
+        }
+      : contents || {};
 
   for (const [filePath, value] of Object.entries(files)) {
     inputMemoryFileSystem.writeFileSync(filePath, value || '');
@@ -43,23 +48,23 @@ export const createWebpack = ({ rules, plugins, contents }: Options) => {
       filename: 'index.js',
     },
     module: {
-      rules: [
-        ...rules || []
-      ],
+      rules: [...(rules || [])],
     },
     plugins: [
       {
         apply(compiler: Compiler) {
-          compiler.inputFileSystem = (
+          compiler.inputFileSystem =
             // Webpack overrides the inputFileSystem with a CachedInputFileSystem:
             // https://github.com/webpack/webpack/blob/c181294865dca01b28e6e316636fef5f2aad4eb6/lib/node/NodeEnvironmentPlugin.js#L44
-            new CachedInputFileSystem(combinedInputFileSystem, 60000) as unknown as Compiler['inputFileSystem']
-          );
+            new CachedInputFileSystem(
+              combinedInputFileSystem,
+              60000,
+            ) as unknown as Compiler['inputFileSystem'];
 
           compiler.outputFileSystem = outputFileSystem;
-        }
+        },
       },
-      ...(plugins || [])
+      ...(plugins || []),
     ],
   });
 
@@ -80,26 +85,24 @@ export const createWebpack = ({ rules, plugins, contents }: Options) => {
 
         resolve(stats);
       });
-    })
+    });
 
-    const getStatsSource = (fileName: string) => (
-      Array.from(stats.compilation.modules).find(
-        (mod) => mod.nameForCondition() === fileName
-      )?.originalSource()?.source()
-    );
+    const getStatsSource = (fileName: string) =>
+      Array.from(stats.compilation.modules)
+        .find((mod) => mod.nameForCondition() === fileName)
+        ?.originalSource()
+        ?.source();
 
-    const getCompiledSource = (fileName: string) => (
-      outputVolume.readFileSync(fileName, 'utf-8')
-    );
+    const getCompiledSource = (fileName: string) =>
+      outputVolume.readFileSync(fileName, 'utf-8');
 
     return {
       stats,
-      output:
-      outputFileSystem,
+      output: outputFileSystem,
       getStatsSource,
-      getCompiledSource
+      getCompiledSource,
     };
   }
 
   return [run, compiler] as const;
-}
+};

@@ -1,9 +1,9 @@
-import { style } from "@navita/css";
-import { Inter } from "next/font/google";
-import React from "react";
-import { vars } from "@/theme";
+import { style } from '@navita/css';
+import { Inter } from 'next/font/google';
+import React from 'react';
+import { vars } from '@/theme';
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'] });
 
 const container = style({
   padding: '1rem 1.2rem',
@@ -20,7 +20,7 @@ const container = style({
   },
   '@media (max-width: 700px)': {
     padding: '1rem 2.5rem',
-  }
+  },
 });
 
 const span = style({
@@ -33,7 +33,7 @@ const h2 = style({
   marginBottom: '0.7rem',
   '@media (max-width: 700px)': {
     marginBottom: '0.5rem',
-  }
+  },
 });
 
 const p = style({
@@ -54,8 +54,8 @@ export const Card = ({ href, title, description }: Props) => (
   <a
     href={href}
     className={container}
-    target="_blank"
-    rel="noopener noreferrer"
+    target='_blank'
+    rel='noopener noreferrer'
   >
     <h2 className={[h2, inter.className].join(' ')}>
       {title} <span className={span}>-&gt;</span>

@@ -1,16 +1,16 @@
-import * as fs from 'fs';
-import path from 'path';
-import { type Mock, vi } from 'vitest';
+import * as fs from 'node:fs';
+import path from 'node:path';
 import {
-  collectResult,
-  generateIdentifier,
-  setAdapter,
   addCss,
   addFontFace,
   addKeyframe,
   addStaticCss,
+  collectResult,
+  generateIdentifier,
+  setAdapter,
 } from '@navita/adapter';
 import { ClassList, Engine, Static } from '@navita/engine';
+import { type Mock, vi } from 'vitest';
 import type { Caches } from '../../src/evaluateAndProcess';
 import { evaluateAndProcess } from '../../src/evaluateAndProcess';
 
@@ -37,10 +37,7 @@ describe('evaluateAndProcess', () => {
   });
 
   // We'll set a basePath that doesn't force us into isExternal
-  const fakedBasePath = path.resolve(
-    __dirname,
-    '../../../../'
-  );
+  const fakedBasePath = path.resolve(__dirname, '../../../../');
 
   const toFilePath = (fileName: string) =>
     path.resolve(fakedBasePath, fileName);
@@ -149,10 +146,12 @@ describe('evaluateAndProcess', () => {
         end: 114,
         start: 68,
         value: '"a1"',
-      }
+      },
     ]);
     expect(dependencies).toEqual([]);
-    expect(engine.renderCssToString()).toMatchInlineSnapshot(`".a1{color:red}"`);
+    expect(engine.renderCssToString()).toMatchInlineSnapshot(
+      `".a1{color:red}"`,
+    );
   }, 10000);
 
   it('set the adapter', async () => {
@@ -174,7 +173,7 @@ describe('evaluateAndProcess', () => {
     expect(addFontFace({ src: 'bar' })).toEqual('a');
     expect(() => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      // @ts-expect-error
       addFontFace({ fontFamily: 'bar' });
     }).toThrow(
       `This function creates and returns a font-family name, so the "fontFamily" property should not be provided.`,
@@ -192,7 +191,7 @@ describe('evaluateAndProcess', () => {
       sourceMap: {
         line: 0,
         column: 0,
-      }
+      },
     });
 
     expect(result).toEqual('something');
@@ -203,7 +202,7 @@ describe('evaluateAndProcess', () => {
 
   it('should work with a dependency', async () => {
     const { result, dependencies } = await createEvaluateAndProcess({
-      resolver: async (_, request) => request.replace('~/', '') + '.ts',
+      resolver: async (_, request) => `${request.replace('~/', '')}.ts`,
       files: {
         'index.ts': `
           import { style } from '@navita/css';
@@ -225,8 +224,8 @@ describe('evaluateAndProcess', () => {
       {
         start: 117,
         end: 187,
-        value: '"a1 b1"'
-      }
+        value: '"a1 b1"',
+      },
     ]);
     expect(engine.renderCssToString()).toMatchInlineSnapshot(
       `".a1{color:red}.b1{background:red}"`,
@@ -258,8 +257,8 @@ describe('evaluateAndProcess', () => {
       {
         start: 113,
         end: 137,
-        value: '"a2"'
-      }
+        value: '"a2"',
+      },
     ]);
     expect(engine.renderCssToString()).toMatchInlineSnapshot(
       `".a1{color:red}.a2{color:blue}"`,
@@ -268,7 +267,7 @@ describe('evaluateAndProcess', () => {
 
   it('populates the resolverCache and nodeModuleCache', async () => {
     const { result, dependencies } = await createEvaluateAndProcess({
-      resolver: async (_, request) => request.replace('~/', '') + '.ts',
+      resolver: async (_, request) => `${request.replace('~/', '')}.ts`,
       files: {
         'index.ts': `
           import { style } from '@navita/css';
@@ -298,10 +297,12 @@ describe('evaluateAndProcess', () => {
       {
         start: 110,
         end: 138,
-        value: '"a1"'
-      }
+        value: '"a1"',
+      },
     ]);
-    expect(engine.renderCssToString()).toMatchInlineSnapshot(`".a1{color:var(--color)}"`);
+    expect(engine.renderCssToString()).toMatchInlineSnapshot(
+      `".a1{color:var(--color)}"`,
+    );
   });
 
   it('uses the moduleCache', async () => {
@@ -330,14 +331,20 @@ describe('evaluateAndProcess', () => {
 
     // First it checks for cache
     expect(hasSpy).toHaveBeenCalledTimes(2);
-    expect(hasSpy).toHaveBeenNthCalledWith(1, toFilePath('index.ts') + ':entryPoint');
-    expect(hasSpy).toHaveBeenNthCalledWith(2, toFilePath('theme.ts') + ':dependency');
+    expect(hasSpy).toHaveBeenNthCalledWith(
+      1,
+      `${toFilePath('index.ts')}:entryPoint`,
+    );
+    expect(hasSpy).toHaveBeenNthCalledWith(
+      2,
+      `${toFilePath('theme.ts')}:dependency`,
+    );
 
     // Then it sets the cache
     expect(setSpy).toHaveBeenCalledTimes(2);
     expect(setSpy).toHaveBeenNthCalledWith(
       1,
-      toFilePath('index.ts') + ':entryPoint',
+      `${toFilePath('index.ts')}:entryPoint`,
       expect.objectContaining({
         source: expect.anything(),
         compiledFn: expect.anything(),
@@ -345,7 +352,7 @@ describe('evaluateAndProcess', () => {
     );
     expect(setSpy).toHaveBeenNthCalledWith(
       2,
-      toFilePath('theme.ts') + ':dependency',
+      `${toFilePath('theme.ts')}:dependency`,
       expect.objectContaining({
         source: expect.anything(),
         compiledFn: expect.anything(),
@@ -363,8 +370,14 @@ describe('evaluateAndProcess', () => {
     expect(setSpy).not.toHaveBeenCalled();
     expect(hasSpy).toHaveBeenCalledTimes(2);
     expect(getSpy).toHaveBeenCalledTimes(2);
-    expect(getSpy).toHaveBeenNthCalledWith(1, toFilePath('index.ts') + ':entryPoint');
-    expect(getSpy).toHaveBeenNthCalledWith(2, toFilePath('theme.ts') + ':dependency');
+    expect(getSpy).toHaveBeenNthCalledWith(
+      1,
+      `${toFilePath('index.ts')}:entryPoint`,
+    );
+    expect(getSpy).toHaveBeenNthCalledWith(
+      2,
+      `${toFilePath('theme.ts')}:dependency`,
+    );
   });
 
   it('ignores dependencies that are not "source" files', async () => {
@@ -399,7 +412,9 @@ describe('evaluateAndProcess', () => {
       expect(true).toBe(false);
     } catch (error) {
       expect(error).toBeInstanceOf(Error);
-      expect(error.message.startsWith('Failed to resolve dependency "~/colors" in ')).toBe(true);
+      expect(
+        error.message.startsWith('Failed to resolve dependency "~/colors" in '),
+      ).toBe(true);
     }
   });
 });

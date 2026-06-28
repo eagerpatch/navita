@@ -1,21 +1,26 @@
-import type { CSSKeyframes, GlobalStyleRule, StyleRule, FontFaceRule } from "@navita/types";
+import type {
+  CSSKeyframes,
+  FontFaceRule,
+  GlobalStyleRule,
+  StyleRule,
+} from '@navita/types';
 
 export type Adapter = {
-  generateIdentifier: typeof generateIdentifier,
-  addCss: typeof addCss,
-  addStaticCss: typeof addStaticCss,
-  addKeyframe: typeof addKeyframe,
-  addFontFace: typeof addFontFace,
+  generateIdentifier: typeof generateIdentifier;
+  addCss: typeof addCss;
+  addStaticCss: typeof addStaticCss;
+  addKeyframe: typeof addKeyframe;
+  addFontFace: typeof addFontFace;
   collectResult?: typeof collectResult;
 };
 
-let adapter: Adapter | undefined = undefined;
+let adapter: Adapter | undefined;
 
 function getAdapter() {
   if (!adapter) {
     throw new Error(
       'Could not find an adapter. Please ensure you have added a bundler integration:\n' +
-      'https://navita.style/#bundler-integration',
+        'https://navita.style/#bundler-integration',
     );
   }
 
@@ -24,7 +29,7 @@ function getAdapter() {
 
 export const setAdapter = (newAdapter: Adapter) => {
   adapter = newAdapter;
-}
+};
 
 export function generateIdentifier(value: unknown): string {
   return getAdapter().generateIdentifier(value) as string;
@@ -35,6 +40,7 @@ export function addCss(css: StyleRule): string {
 }
 
 export function addStaticCss(selector: string, css: GlobalStyleRule): void {
+  // biome-ignore lint/correctness/noVoidTypeReturn: the public contract is void, but the underlying adapter's return value is passed through (white-box tests assert on it).
   return getAdapter().addStaticCss(selector, css);
 }
 
@@ -51,15 +57,15 @@ type End = number;
 type Position = [Start, End];
 
 export function collectResult<T>(input: {
-  filePath: string,
-  index: number,
-  result: () => T,
-  identifier: string,
-  position: Position,
+  filePath: string;
+  index: number;
+  result: () => T;
+  identifier: string;
+  position: Position;
   sourceMap: {
-    line: number,
-    column: number,
-  },
+    line: number;
+    column: number;
+  };
 }): T {
   return getAdapter().collectResult?.(input) as T;
 }

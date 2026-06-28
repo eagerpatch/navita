@@ -1,4 +1,4 @@
-import { processKeyframes } from "../../src/processKeyframes";
+import { processKeyframes } from '../../src/processKeyframes';
 
 describe('processKeyframes', () => {
   it('should transform content property value', () => {
@@ -42,7 +42,7 @@ describe('processKeyframes', () => {
       },
       to: {
         opacity: 1,
-      }
+      },
     });
 
     expect(x).toEqual({
@@ -51,7 +51,7 @@ describe('processKeyframes', () => {
       },
       to: {
         opacity: 1,
-      }
+      },
     });
   });
 });

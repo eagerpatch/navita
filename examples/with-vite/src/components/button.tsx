@@ -1,5 +1,5 @@
-import { style } from "@navita/css";
-import React from "react";
+import { style } from '@navita/css';
+import type React from 'react';
 
 const styles = {
   button: style({
@@ -7,7 +7,7 @@ const styles = {
     color: 'white',
     padding: '10px',
   }),
-}
+};
 
 interface Props {
   children: React.ReactNode;

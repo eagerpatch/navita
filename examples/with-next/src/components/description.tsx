@@ -1,6 +1,6 @@
-import { style } from "@navita/css";
-import React from "react";
-import { vars } from "@/theme";
+import { style } from '@navita/css';
+import type React from 'react';
+import { vars } from '@/theme';
 
 const description = style({
   display: 'inherit',
@@ -14,7 +14,7 @@ const description = style({
 
   '@media (max-width: 700px)': {
     fontSize: '0.8rem',
-  }
+  },
 });
 
 const p = style({
@@ -48,7 +48,7 @@ const sharedMedia = style({
     justifyContent: 'center',
     position: 'fixed',
     width: '100%',
-  }
+  },
 });
 
 const div = style({
@@ -64,7 +64,7 @@ const div = style({
       rgb(${vars.backgroundEndRgb}) 40%
     )`,
     zIndex: 1,
-  }
+  },
 });
 
 interface Props {
@@ -74,11 +74,7 @@ interface Props {
 
 export const Description = ({ left, right }: Props) => (
   <div className={description}>
-    <p className={[p, sharedMedia].join(' ')}>
-      {left}
-    </p>
-    <div className={[div, sharedMedia].join(' ')}>
-      {right}
-    </div>
+    <p className={[p, sharedMedia].join(' ')}>{left}</p>
+    <div className={[div, sharedMedia].join(' ')}>{right}</div>
   </div>
 );

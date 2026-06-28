@@ -1,9 +1,9 @@
-import { sortAtRules } from "../../../src/printers/sortAtRules";
-import type { StyleBlock } from "../../../src/types";
+import { sortAtRules } from '../../../src/printers/sortAtRules';
+import type { StyleBlock } from '../../../src/types';
 
 describe('sortAtRules', () => {
   const createBlock = (data: Partial<StyleBlock> = {}) => {
-    return ({
+    return {
       id: '',
       type: 'rule',
       selector: '',
@@ -15,8 +15,8 @@ describe('sortAtRules', () => {
       support: '',
       container: '',
       ...data,
-    }) as const;
-  }
+    } as const;
+  };
 
   it('should sort rules', () => {
     const blocks: StyleBlock[] = [
@@ -25,10 +25,27 @@ describe('sortAtRules', () => {
       createBlock({ id: 'c', media: '(min-width: 100px)', support: 'y' }),
       createBlock({ id: 'd', media: '(min-width: 100px)', support: 'x' }),
       createBlock({ id: 'e', media: '', support: '', container: 'x' }),
-      createBlock({ id: 'f', media: '(min-width: 400px)', container: '(min-width: 400px)' }),
-      createBlock({ id: 'g', media: '(min-width: 500px)', container: '(min-width: 500px)', support: 'x' }),
+      createBlock({
+        id: 'f',
+        media: '(min-width: 400px)',
+        container: '(min-width: 400px)',
+      }),
+      createBlock({
+        id: 'g',
+        media: '(min-width: 500px)',
+        container: '(min-width: 500px)',
+        support: 'x',
+      }),
     ];
 
-    expect(sortAtRules(blocks).map(x => x.id)).toEqual(['d', 'c', 'a', 'b', 'f', 'g', 'e']);
+    expect(sortAtRules(blocks).map((x) => x.id)).toEqual([
+      'd',
+      'c',
+      'a',
+      'b',
+      'f',
+      'g',
+      'e',
+    ]);
   });
 });

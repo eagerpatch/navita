@@ -1,5 +1,5 @@
-import { declarationsToBlock } from "../helpers/declarationsToBlock";
-import type { FontFaceBlock } from "../types";
+import { declarationsToBlock } from '../helpers/declarationsToBlock';
+import type { FontFaceBlock } from '../types';
 
 export function printFontFaces(blocks: FontFaceBlock[]) {
   let fontFaces = '';

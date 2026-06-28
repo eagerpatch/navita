@@ -1,4 +1,4 @@
-import { style } from "@navita/css";
+import { style } from '@navita/css';
 
 const container = style({
   width: 500,
@@ -10,6 +10,4 @@ const container = style({
   },
 });
 
-export const Specificity = () => (
-  <div className={container} />
-);
+export const Specificity = () => <div className={container} />;

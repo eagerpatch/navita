@@ -1,6 +1,6 @@
-import type { CSSOutput, UsedIdCache } from "@navita/webpack-plugin";
-import type { Chunk } from "webpack";
-import { optimizeCSSOutput } from "../src/optimizeCSSOutput";
+import type { CSSOutput, UsedIdCache } from '@navita/webpack-plugin';
+import type { Chunk } from 'webpack';
+import { optimizeCSSOutput } from '../src/optimizeCSSOutput';
 
 describe('optimizeCss', () => {
   let css: CSSOutput;
@@ -9,28 +9,36 @@ describe('optimizeCss', () => {
     css = new Map();
   });
 
-  const add = (id: number, name: string, usedIds: UsedIdCache, parents?: Chunk[]) => {
+  const add = (
+    id: number,
+    name: string,
+    usedIds: UsedIdCache,
+    parents?: Chunk[],
+  ) => {
     const chunk = {
       id,
-      name
+      name,
     } as Chunk;
 
     const value = {
       usedIds: { ...usedIds },
       parents: [...(parents || [])],
       modules: [],
-      filePaths: []
+      filePaths: [],
     };
 
     css.set(chunk, value);
 
     return [chunk, value] as const;
-  }
+  };
 
   describe('app-router', () => {
     it('should optimize the css for next.js app-router', () => {
       const [chunk1] = add(1, 'app/layout', { rule: ['a'], static: [1, 2] });
-      const [chunk2] = add(2, 'app/page', { rule: ['a', 'b', 'd'], static: [1, 2, 3] });
+      const [chunk2] = add(2, 'app/page', {
+        rule: ['a', 'b', 'd'],
+        static: [1, 2, 3],
+      });
       const [chunk3] = add(3, 'app/(start)/layout', { rule: ['a', 'b'] });
       const [chunk4] = add(4, 'app/(start)/page', { rule: ['a', 'b', 'c'] });
 
@@ -48,14 +56,16 @@ describe('optimizeCss', () => {
       add(1, 'app/layout', { rule: ['a'] });
       add(2, 'app/(start)/layout', { rule: ['a', 'b'] });
       const [chunk3] = add(2, 'app/(start)/page', { rule: ['a', 'b', 'c'] });
-      const [chunk4] = add(3, undefined, { rule: ['a', 'b', 'c', 'd'] }, [chunk3]);
+      const [chunk4] = add(3, undefined, { rule: ['a', 'b', 'c', 'd'] }, [
+        chunk3,
+      ]);
 
       const newOutput = optimizeCSSOutput(css);
 
       expect(newOutput.get(chunk3)?.usedIds.rule).toEqual(['c']);
       expect(newOutput.get(chunk4)?.usedIds.rule).toEqual(['d']);
     });
-  })
+  });
 
   describe('page-router', () => {
     it('should optimize the css for pages-router', () => {
@@ -74,7 +84,9 @@ describe('optimizeCss', () => {
       add(1, 'pages/_document', { rule: ['a'] });
       add(2, 'pages/_app', { rule: ['a', 'b'] });
       const [chunk3] = add(3, 'pages/index', { rule: ['a', 'b', 'c'] });
-      const [chunk4] = add(3, undefined, { rule: ['a', 'b', 'c', 'd'] }, [chunk3]);
+      const [chunk4] = add(3, undefined, { rule: ['a', 'b', 'c', 'd'] }, [
+        chunk3,
+      ]);
 
       const newOutput = optimizeCSSOutput(css);
 
@@ -85,14 +97,23 @@ describe('optimizeCss', () => {
       add(1, 'pages/_document', { rule: ['a'] });
       add(2, 'pages/_app', { rule: ['a', 'b'] });
 
-      const [chunk3] = add(3, 'pages/index', { rule: ['in one parent', 'removed'] });
+      const [chunk3] = add(3, 'pages/index', {
+        rule: ['in one parent', 'removed'],
+      });
       const [chunk4] = add(4, 'pages/other', { rule: ['removed'] });
-      const [chunk5] = add(5, undefined, { rule: ['in one parent', 'removed', 'dynamic'] }, [chunk3, chunk4]);
+      const [chunk5] = add(
+        5,
+        undefined,
+        { rule: ['in one parent', 'removed', 'dynamic'] },
+        [chunk3, chunk4],
+      );
 
       const newOutput = optimizeCSSOutput(css);
 
-      expect(newOutput.get(chunk5)?.usedIds.rule).toEqual(['in one parent', 'dynamic']);
+      expect(newOutput.get(chunk5)?.usedIds.rule).toEqual([
+        'in one parent',
+        'dynamic',
+      ]);
     });
-
   });
 });

@@ -1,5 +1,5 @@
-import path from "path";
-import type { Compiler, Dependency } from "webpack";
+import path from 'node:path';
+import type { Compiler, Dependency } from 'webpack';
 
 type DependencyProperties = {
   issuerPath: string;
@@ -7,13 +7,16 @@ type DependencyProperties = {
 };
 
 // All of this is very verbose due to the way webpacks types are defined. Would love to find a fix!
-export type NavitaDependency = new (issuerPath: string, cssHash: string) => Dependency & DependencyProperties;
+export type NavitaDependency = new (
+  issuerPath: string,
+  cssHash: string,
+) => Dependency & DependencyProperties;
 export type NavitaDependencyInstance = InstanceType<NavitaDependency>;
 
 const cache = new WeakMap<Compiler['webpack'], NavitaDependency>();
 
 function createNavitaDependency(webpack: Compiler['webpack']) {
-  const WebpackDependency = (webpack.Dependency) as typeof Dependency;
+  const WebpackDependency = webpack.Dependency as typeof Dependency;
 
   class NavitaDependency extends WebpackDependency {
     constructor(
@@ -47,7 +50,7 @@ function createNavitaDependency(webpack: Compiler['webpack']) {
 
   webpack.util.serialization.register(
     NavitaDependency,
-    path.resolve(__dirname, "NavitaDependency"),
+    path.resolve(__dirname, 'NavitaDependency'),
     null,
     {
       serialize(instance, context) {
@@ -58,16 +61,13 @@ function createNavitaDependency(webpack: Compiler['webpack']) {
         const issuerPath = read();
         const cssHash = read();
 
-        const dep = new NavitaDependency(
-          issuerPath,
-          cssHash,
-        );
+        const dep = new NavitaDependency(issuerPath, cssHash);
 
         dep.deserialize(context);
 
         return dep;
       },
-    }
+    },
   );
 
   return NavitaDependency;

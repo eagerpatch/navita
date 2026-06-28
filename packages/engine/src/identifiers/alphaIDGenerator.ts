@@ -1,4 +1,4 @@
-import type { IdentifierGenerator } from "../types";
+import type { IdentifierGenerator } from '../types';
 
 const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const charLength = chars.length;
@@ -16,7 +16,7 @@ export class AlphaIDGenerator implements IdentifierGenerator<undefined> {
 
       return nextString(
         (id / charLength) | 0,
-        chars[(id - 1) % charLength] + className
+        chars[(id - 1) % charLength] + className,
       );
     };
 

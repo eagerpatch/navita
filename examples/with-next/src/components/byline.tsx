@@ -1,5 +1,5 @@
-import { style } from "@navita/css";
-import Image from "next/image";
+import { style } from '@navita/css';
+import Image from 'next/image';
 
 const link = style({
   display: 'flex',
@@ -9,7 +9,7 @@ const link = style({
 
   '@media (max-width: 700px)': {
     padding: '1rem',
-  }
+  },
 });
 
 const logo = style({
@@ -20,15 +20,15 @@ const logo = style({
 
 export const Byline = () => (
   <a
-    href="https://vercel.com"
-    target="_blank"
-    rel="noopener noreferrer"
+    href='https://vercel.com'
+    target='_blank'
+    rel='noopener noreferrer'
     className={link}
   >
     By{' '}
     <Image
-      src="/vercel.svg"
-      alt="Vercel Logo"
+      src='/vercel.svg'
+      alt='Vercel Logo'
       className={logo}
       width={100}
       height={24}

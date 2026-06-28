@@ -12,8 +12,8 @@
   "scripts": {
     "build": "turbo --filter=./packages/* build",
     "dev": "turbo --filter=./packages/* dev --concurrency 11",
-    "lint": "turbo run lint --filter=./packages/*",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "lint": "biome check .",
+    "format": "biome format --write .",
     "test": "FORCE_COLOR=1 turbo --filter=./packages/* test --log-prefix=none --color",
     "release": "pnpm build && changeset publish"
   },
@@ -21,13 +21,11 @@
     "@changesets/cli": "^2.26.2",
     "@tsconfig/strictest": "^2.0.1",
     "build": "workspace:*",
-    "eslint": "^8.43.0",
-    "eslint-config": "workspace:*",
-    "prettier": "latest",
     "turbo": "^1.10.7",
     "typescript": "5.4.5"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.1",
     "@types/node": "^18.14.0",
     "vite": "^8",
     "vitest": "^4.1.9"

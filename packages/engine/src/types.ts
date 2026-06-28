@@ -1,4 +1,4 @@
-import type { CSSKeyframes, FontFaceRule } from "@navita/types";
+import type { CSSKeyframes, FontFaceRule } from '@navita/types';
 
 export interface StyleBlock {
   type: 'rule' | 'static';

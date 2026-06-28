@@ -1,19 +1,20 @@
-import { Engine } from "../../../src";
-import { sortStatic } from "../../../src/printers/sortStatic";
-import type { StyleBlock } from "../../../src/types";
+import { Engine } from '../../../src';
+import { sortStatic } from '../../../src/printers/sortStatic';
+import type { StyleBlock } from '../../../src/types';
 
 describe('sortStatic', () => {
-  const createBlock = (data: Partial<StyleBlock>) => ({
-    id: 0,
-    type: 'static',
-    selector: '',
-    declaration: '',
-    property: '',
-    pseudo: '',
-    media: '',
-    support: '',
-    ...data,
-  }) as const;
+  const createBlock = (data: Partial<StyleBlock>) =>
+    ({
+      id: 0,
+      type: 'static',
+      selector: '',
+      declaration: '',
+      property: '',
+      pseudo: '',
+      media: '',
+      support: '',
+      ...data,
+    }) as const;
 
   it('should sort selectors and sort by id', () => {
     const blocks: StyleBlock[] = [
@@ -27,7 +28,7 @@ describe('sortStatic', () => {
 
     const sorted = sortStatic(blocks);
 
-    expect(sorted.map(x => x.id)).toEqual([1, 2, 3, 4, 5, 6]);
+    expect(sorted.map((x) => x.id)).toEqual([1, 2, 3, 4, 5, 6]);
   });
 
   it('when we have media queries etc, ID order might be funky', () => {
@@ -41,12 +42,12 @@ describe('sortStatic', () => {
         '@media (max-width: 300px)': {
           color: 'green',
           backgroundColor: 'yellow',
-        }
-      }
+        },
+      },
     });
 
-    const items = renderer['caches'].static.items();
+    const items = renderer.caches.static.items();
 
-    expect(items.map(x => x.id)).toEqual(sortStatic(items).map(x => x.id));
+    expect(items.map((x) => x.id)).toEqual(sortStatic(items).map((x) => x.id));
   });
 });

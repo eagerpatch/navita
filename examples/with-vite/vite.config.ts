@@ -1,11 +1,8 @@
-import { navita } from "@navita/vite-plugin";
-import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { navita } from '@navita/vite-plugin';
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    navita(),
-    react()
-  ],
-})
+  plugins: [navita(), react()],
+});

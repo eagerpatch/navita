@@ -1,16 +1,20 @@
-import * as fs from "fs";
-import * as path from "path";
-import type { PackageJson } from "type-fest";
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import type { PackageJson } from 'type-fest';
 
 export async function createPackageJson(outDir: string, pkg: PackageJson) {
   const { scripts, devDependencies, publishConfig, files, ...rest } = pkg;
 
-  const content = JSON.stringify({
-    ...rest,
-    exports: removeDirectoryFromValues(rest.exports),
-  }, null, 2);
+  const content = JSON.stringify(
+    {
+      ...rest,
+      exports: removeDirectoryFromValues(rest.exports),
+    },
+    null,
+    2,
+  );
 
-  return fs.promises.writeFile(path.resolve(outDir, 'package.json'), content)
+  return fs.promises.writeFile(path.resolve(outDir, 'package.json'), content);
 }
 
 function removeDirectoryFromValues(obj: PackageJson['exports']) {

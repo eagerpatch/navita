@@ -320,7 +320,7 @@ describe('Engine', () => {
       src: 'local("Gentium")',
     });
 
-    expect(engine['usedIds']).toEqual({
+    expect(engine.usedIds).toEqual({
       'file1.ts': {
         fontFace: ['a'],
         keyframes: ['a'],
@@ -339,7 +339,7 @@ describe('Engine', () => {
       color: 'red',
     });
 
-    expect(engine['usedIds']).toEqual({
+    expect(engine.usedIds).toEqual({
       'file1.ts': {
         rule: ['a1'],
       },
@@ -347,21 +347,25 @@ describe('Engine', () => {
 
     engine.clearUsedIds(undefined);
 
-    expect(engine['usedIds']).toEqual({
+    expect(engine.usedIds).toEqual({
       'file1.ts': {
         rule: ['a1'],
       },
     });
 
-    expect(engine.getItems(engine.getCacheIds(engine.getUsedFilePaths()))['rule']).toHaveLength(1)
+    expect(
+      engine.getItems(engine.getCacheIds(engine.getUsedFilePaths())).rule,
+    ).toHaveLength(1);
 
     engine.clearUsedIds('file1.ts');
 
-    expect(engine['usedIds']).toEqual({
+    expect(engine.usedIds).toEqual({
       'file1.ts': {},
     });
 
-    expect(engine.getItems(engine.getCacheIds(engine.getUsedFilePaths()))['rule']).toHaveLength(0);
+    expect(
+      engine.getItems(engine.getCacheIds(engine.getUsedFilePaths())).rule,
+    ).toHaveLength(0);
   });
 
   describe('identifiers', () => {
@@ -414,9 +418,9 @@ describe('Engine', () => {
         display: 'block',
         all: 'unset',
       });
-      expect(
-        engine.renderCssToString({ opinionatedLayers: true }),
-      ).toEqual(`@layer s,lpr,r,at;@layer lpr{.b1{all:unset}}@layer r{.a1{display:block}}`);
+      expect(engine.renderCssToString({ opinionatedLayers: true })).toEqual(
+        `@layer s,lpr,r,at;@layer lpr{.b1{all:unset}}@layer r{.a1{display:block}}`,
+      );
     });
   });
 });

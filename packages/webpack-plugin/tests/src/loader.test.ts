@@ -1,7 +1,7 @@
 import type { ImportMap } from '@navita/core/createRenderer';
-import { AsyncSeriesHook, SyncHook } from "tapable";
-import type { LoaderContext } from 'webpack';
+import { AsyncSeriesHook, SyncHook } from 'tapable';
 import { type Mock, vi } from 'vitest';
+import type { LoaderContext } from 'webpack';
 import loader from '../../src/loader';
 
 describe('loader.tests.ts', () => {
@@ -18,8 +18,14 @@ describe('loader.tests.ts', () => {
     watchCloseHook = new SyncHook();
   });
 
-  const createLoaderContext = (options: { importMap?: ImportMap, fileName?: string, watchMode?: boolean, } = {}) => {
-    return ({
+  const createLoaderContext = (
+    options: {
+      importMap?: ImportMap;
+      fileName?: string;
+      watchMode?: boolean;
+    } = {},
+  ) => {
+    return {
       async: () => callback,
       cacheable: () => undefined,
       getOptions: () => ({
@@ -46,7 +52,7 @@ describe('loader.tests.ts', () => {
           watchClose: watchCloseHook,
         },
       },
-    } as unknown as LoaderContext<unknown>);
+    } as unknown as LoaderContext<unknown>;
   };
 
   it('should bail if matchResource', async () => {
@@ -99,7 +105,7 @@ describe('loader.tests.ts', () => {
         ],
       }),
       input,
-      ''
+      '',
     );
 
     expect(callback).toHaveBeenCalledWith(expect.objectContaining(new Error()));

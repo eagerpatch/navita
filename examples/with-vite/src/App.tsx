@@ -1,6 +1,6 @@
 import { style } from '@navita/css';
 import { useState } from 'react';
-import { Button } from "./components/button.tsx";
+import { Button } from './components/button.tsx';
 
 const x = style({
   background: 'orange',
@@ -17,8 +17,9 @@ function App() {
   return (
     <div className={x}>
       Hello
-      <button className={button} onClick={() => setCount(count + 1)}>Count: {count}</button>
-
+      <button className={button} onClick={() => setCount(count + 1)}>
+        Count: {count}
+      </button>
       <Button>Hello</Button>
     </div>
   );

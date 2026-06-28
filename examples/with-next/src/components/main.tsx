@@ -1,5 +1,5 @@
-import { style } from "@navita/css";
-import React from "react";
+import { style } from '@navita/css';
+import type React from 'react';
 
 const main = style({
   display: 'flex',
@@ -16,4 +16,4 @@ interface Props {
 
 export const Main = ({ children }: Props) => (
   <main className={main}>{children}</main>
-)
+);

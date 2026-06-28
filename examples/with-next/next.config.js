@@ -1,4 +1,4 @@
-const { createNavitaStylePlugin } = require("@navita/next-plugin");
+const { createNavitaStylePlugin } = require('@navita/next-plugin');
 const nextConfig = {
   reactStrictMode: true,
   typescript: {

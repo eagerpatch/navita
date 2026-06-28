@@ -1,12 +1,11 @@
-import { Engine } from "@navita/engine";
-import type { UsedIdCache, Options as EngineOptions } from "@navita/engine";
-import type { ImportMap } from "@navita/types";
-import MagicString from "magic-string";
-import { evaluateAndProcess } from "./evaluateAndProcess";
-import type { ResultCache } from "./helpers/setAdapter";
+import type { Options as EngineOptions, UsedIdCache } from '@navita/engine';
+import { Engine } from '@navita/engine';
+import type { ImportMap } from '@navita/types';
+import MagicString from 'magic-string';
+import { evaluateAndProcess } from './evaluateAndProcess';
+import type { ResultCache } from './helpers/setAdapter';
 
-export type { Engine, UsedIdCache, EngineOptions };
-export type { ImportMap };
+export type { Engine, EngineOptions, ImportMap, UsedIdCache };
 
 export interface Options {
   resolver: (filepath: string, request: string) => Promise<string>;
@@ -55,7 +54,7 @@ export function createRenderer({
         readFile,
         importMap,
         engine,
-        resultCache
+        resultCache,
       });
 
       const newSource = new MagicString(content, {
@@ -72,7 +71,7 @@ export function createRenderer({
         usedIds: engine.getCacheIds([filePath]),
         sourceMap: newSource.generateMap(),
       };
-    }
+    },
   };
 }
 

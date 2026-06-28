@@ -1,4 +1,4 @@
-import type { IdentifierGenerator } from "../types";
+import type { IdentifierGenerator } from '../types';
 
 export class IDGenerator implements IdentifierGenerator<undefined> {
   private counter = 1;

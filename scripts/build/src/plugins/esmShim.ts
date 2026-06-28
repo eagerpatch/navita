@@ -1,9 +1,9 @@
-import MagicString from "magic-string";
-import type { Plugin } from "rollup";
+import MagicString from 'magic-string';
+import type { Plugin } from 'rollup';
 
 export function esmShim(): Plugin {
   return {
-    name: "esm-shim",
+    name: 'esm-shim',
     renderChunk(code, _chunk, opts) {
       if (opts.format !== 'es') {
         return null;
@@ -17,7 +17,10 @@ export function esmShim(): Plugin {
         shims.push(filenameShim(code));
       }
 
-      if (code.indexOf('require(') !== -1 || code.indexOf('require.resolve(') !== -1) {
+      if (
+        code.indexOf('require(') !== -1 ||
+        code.indexOf('require.resolve(') !== -1
+      ) {
         shims.push(requireShim(code));
       }
 
@@ -26,7 +29,7 @@ export function esmShim(): Plugin {
       }
 
       const result = new MagicString(code);
-      result.appendRight(0, shims.join('\n') + '\n');
+      result.appendRight(0, `${shims.join('\n')}\n`);
 
       return {
         code: result.toString(),
@@ -49,7 +52,7 @@ function dirnameShim(code: string) {
   return [
     filenameShim(code),
     `import { dirname as ${importName} } from 'path';`,
-    `const __dirname = ${importName}(__filename);`
+    `const __dirname = ${importName}(__filename);`,
   ].join('\n');
 }
 
@@ -57,7 +60,7 @@ function requireShim(code: string) {
   const importName = findUniqueImportName(code, 'createRequire');
   return [
     `import { createRequire as ${importName} } from 'module';`,
-    `const require = ${importName}(import.meta.url);`
+    `const require = ${importName}(import.meta.url);`,
   ].join('\n');
 }
 

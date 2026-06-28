@@ -7,12 +7,7 @@
     "allowSyntheticDefaultImports": true,
     "exactOptionalPropertyTypes": false,
     "skipLibCheck": true,
-    "typeRoots": [
-      "node_modules/@types",
-      "scripts",
-    ],
+    "typeRoots": ["node_modules/@types", "scripts"]
   },
-  "exclude": [
-    "**/dist"
-  ]
+  "exclude": ["**/dist"]
 }

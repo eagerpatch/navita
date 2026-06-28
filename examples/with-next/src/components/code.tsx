@@ -1,6 +1,6 @@
-import { style } from "@navita/css";
-import React from "react";
-import { vars } from "@/theme";
+import { style } from '@navita/css';
+import type React from 'react';
+import { vars } from '@/theme';
 
 const code = style({
   fontFamily: vars.fontMono,
@@ -15,4 +15,6 @@ interface Props {
   children: React.ReactNode;
 }
 
-export const Code = ({ children }: Props) => <code className={code}>{children}</code>;
+export const Code = ({ children }: Props) => (
+  <code className={code}>{children}</code>
+);

@@ -7,7 +7,7 @@ const nextConfig = {
   },
   typescript: {
     ignoreBuildErrors: true,
-  }
+  },
 };
 
 export default createNavitaStylePlugin()(nextConfig);

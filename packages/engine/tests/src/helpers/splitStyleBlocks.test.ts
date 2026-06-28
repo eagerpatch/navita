@@ -1,5 +1,5 @@
-import { splitStyleBlocks } from "../../../src/helpers/splitStyleBlocks";
-import type { StyleBlock } from "../../../src/types";
+import { splitStyleBlocks } from '../../../src/helpers/splitStyleBlocks';
+import type { StyleBlock } from '../../../src/types';
 
 describe('splitStyleBlocks', () => {
   it('should split at-rules and rules', () => {
@@ -11,23 +11,23 @@ describe('splitStyleBlocks', () => {
       {
         id: '2',
         property: '',
-        media: 'something'
+        media: 'something',
       },
       {
         id: '3',
         property: '',
-        support: 'something'
+        support: 'something',
       },
       {
         id: '4',
         property: '',
         media: 'something',
-        support: 'something'
+        support: 'something',
       },
       {
         id: '5',
         property: 'all',
-      }
+      },
     ] as StyleBlock[];
 
     const { atRules, rules, lowPrioRules } = splitStyleBlocks(blocks);

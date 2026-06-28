@@ -1,5 +1,5 @@
-import { style } from "@navita/css";
-import React from "react";
+import { style } from '@navita/css';
+import type React from 'react';
 
 const box = style({
   background: 'green',
@@ -13,7 +13,5 @@ interface Props {
 }
 
 export const Box = ({ children }: Props) => (
-  <div className={box}>
-    {children}
-  </div>
+  <div className={box}>{children}</div>
 );

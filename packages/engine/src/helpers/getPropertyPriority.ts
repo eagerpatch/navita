@@ -188,7 +188,7 @@ const shorthandProperties = {
 
 const longhands = Object.values(shorthandProperties).reduce(
   (a, b) => [...a, ...b],
-  []
+  [],
 );
 
 /**
@@ -200,4 +200,5 @@ const longhands = Object.values(shorthandProperties).reduce(
  * @see https://weser.io/blog/the-shorthand-longhand-problem-in-atomic-css
  * @see https://www.w3.org/TR/selectors-3/#specificity
  */
-export const getPropertyPriority = (property: string) => longhands.includes(property) ? 2 : 1;
+export const getPropertyPriority = (property: string) =>
+  longhands.includes(property) ? 2 : 1;

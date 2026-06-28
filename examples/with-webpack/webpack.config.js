@@ -1,10 +1,10 @@
-import path from 'path';
-import { NavitaPlugin } from "@navita/webpack-plugin";
-import ReactRefreshWebpackPlugin from "@pmmmwh/react-refresh-webpack-plugin";
-import HtmlWebpackPlugin from "html-webpack-plugin";
-import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import path from 'node:path';
+import { NavitaPlugin } from '@navita/webpack-plugin';
+import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
-const isDevelopment = process.env.NODE_ENV !== "production";
+const isDevelopment = process.env.NODE_ENV !== 'production';
 
 export default {
   entry: './src/index.js',
@@ -19,21 +19,16 @@ export default {
           presets: [
             '@babel/preset-env',
             '@babel/preset-typescript',
-            '@babel/preset-react'
+            '@babel/preset-react',
           ],
-          plugins: [
-            isDevelopment && 'react-refresh/babel'
-          ].filter(Boolean),
-        }
+          plugins: [isDevelopment && 'react-refresh/babel'].filter(Boolean),
+        },
       },
       {
         test: /\.css$/i,
-        use: [
-          MiniCssExtractPlugin.loader,
-          'css-loader'
-        ],
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
-    ]
+    ],
   },
   resolve: {
     extensions: ['.js', '.jsx', '.tsx', '.ts'],
@@ -46,8 +41,8 @@ export default {
   devServer: {
     hot: true,
     devMiddleware: {
-      writeToDisk: true
-    }
+      writeToDisk: true,
+    },
   },
   plugins: [
     new HtmlWebpackPlugin({

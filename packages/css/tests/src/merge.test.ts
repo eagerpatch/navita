@@ -1,4 +1,4 @@
-import { merge } from "../../src";
+import { merge } from '../../src';
 
 describe('merge', () => {
   it('should merge atomic classes', () => {
@@ -11,6 +11,8 @@ describe('merge', () => {
 
   it('will always take the latest if the classNames are not atomic', () => {
     expect(merge('alexander', 'alexander')).toEqual('alexander');
-    expect(merge('alexander1', 'alexander2', 'alexander3')).toEqual('alexander3');
+    expect(merge('alexander1', 'alexander2', 'alexander3')).toEqual(
+      'alexander3',
+    );
   });
 });

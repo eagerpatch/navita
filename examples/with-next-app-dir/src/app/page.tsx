@@ -1,4 +1,4 @@
-import { style } from "@navita/css";
+import { style } from '@navita/css';
 
 const container = style({
   background: 'orange',
@@ -8,9 +8,5 @@ const container = style({
 });
 
 export default function Home() {
-  return (
-    <main className={container}>
-      App Dir.
-    </main>
-  );
+  return <main className={container}>App Dir.</main>;
 }

@@ -1,5 +1,5 @@
-import { importedName, type Node, patternNames } from "./ast";
-import { getParser } from "./loadOxc";
+import { importedName, type Node, patternNames } from './ast';
+import { getParser } from './loadOxc';
 
 type Options = {
   /** Drop imports whose bindings are not referenced in the body (entry points). */
@@ -7,9 +7,9 @@ type Options = {
 };
 
 type ImportSpec =
-  | { kind: "named"; imported: string; local: string }
-  | { kind: "default"; local: string }
-  | { kind: "namespace"; local: string };
+  | { kind: 'named'; imported: string; local: string }
+  | { kind: 'default'; local: string }
+  | { kind: 'namespace'; local: string };
 
 type SourceInfo = { source: string; specs: ImportSpec[]; param: string };
 
@@ -19,7 +19,10 @@ type SourceInfo = { source: string; specs: ImportSpec[]; param: string };
  * expression — the shape `@navita/core`'s evaluator expects.
  */
 export function esmToAmd(code: string, { dropUnusedImports }: Options): string {
-  const { program } = getParser().parseSync("module.js", code, { lang: "js", sourceType: "module" });
+  const { program } = getParser().parseSync('module.js', code, {
+    lang: 'js',
+    sourceType: 'module',
+  });
   const body: Node[] = program.body;
 
   // Gather imports keyed by source (preserving source order).
@@ -30,7 +33,7 @@ export function esmToAmd(code: string, { dropUnusedImports }: Options): string {
   const sourceInfoFor = (source: string): SourceInfo => {
     let info = sourceIndex.get(source);
     if (!info) {
-      info = { source, specs: [], param: "" };
+      info = { source, specs: [], param: '' };
       sourceIndex.set(source, info);
       sources.push(info);
     }
@@ -38,7 +41,7 @@ export function esmToAmd(code: string, { dropUnusedImports }: Options): string {
   };
 
   for (const stmt of body) {
-    if (stmt.type !== "ImportDeclaration") {
+    if (stmt.type !== 'ImportDeclaration') {
       continue;
     }
     const source = stmt.source.value as string;
@@ -49,12 +52,16 @@ export function esmToAmd(code: string, { dropUnusedImports }: Options): string {
     }
     const info = sourceInfoFor(source);
     for (const spec of specifiers) {
-      if (spec.type === "ImportDefaultSpecifier") {
-        info.specs.push({ kind: "default", local: spec.local.name });
-      } else if (spec.type === "ImportNamespaceSpecifier") {
-        info.specs.push({ kind: "namespace", local: spec.local.name });
+      if (spec.type === 'ImportDefaultSpecifier') {
+        info.specs.push({ kind: 'default', local: spec.local.name });
+      } else if (spec.type === 'ImportNamespaceSpecifier') {
+        info.specs.push({ kind: 'namespace', local: spec.local.name });
       } else {
-        info.specs.push({ kind: "named", imported: importedName(spec), local: spec.local.name });
+        info.specs.push({
+          kind: 'named',
+          imported: importedName(spec),
+          local: spec.local.name,
+        });
       }
     }
   }
@@ -64,7 +71,7 @@ export function esmToAmd(code: string, { dropUnusedImports }: Options): string {
   const referenced = new Set<string>();
   if (dropUnusedImports) {
     for (const stmt of body) {
-      if (stmt.type === "ImportDeclaration") {
+      if (stmt.type === 'ImportDeclaration') {
         continue;
       }
       collectIdentifierNames(stmt, referenced);
@@ -100,8 +107,8 @@ export function esmToAmd(code: string, { dropUnusedImports }: Options): string {
     ...keptSideEffects.map((source) => JSON.stringify(source)),
   ];
   const params = [
-    "require",
-    "exports",
+    'require',
+    'exports',
     ...keptSources.map((info) => info.param),
     ...sideEffectParams,
   ];
@@ -114,24 +121,28 @@ export function esmToAmd(code: string, { dropUnusedImports }: Options): string {
   }
 
   for (const stmt of body) {
-    if (stmt.type === "ImportDeclaration") {
+    if (stmt.type === 'ImportDeclaration') {
       continue;
     }
     emitStatement(stmt, code, lines);
   }
 
-  const bodyText = lines.join("\n");
+  const bodyText = lines.join('\n');
 
-  return `define([${deps.join(", ")}], function (${params.join(", ")}) {\n${bodyText}\n})`;
+  return `define([${deps.join(', ')}], function (${params.join(', ')}) {\n${bodyText}\n})`;
 }
 
 function destructure(info: SourceInfo): string[] {
   const lines: string[] = [];
   const named: string[] = [];
   for (const spec of info.specs) {
-    if (spec.kind === "named") {
-      named.push(spec.imported === spec.local ? spec.local : `${spec.imported}: ${spec.local}`);
-    } else if (spec.kind === "namespace") {
+    if (spec.kind === 'named') {
+      named.push(
+        spec.imported === spec.local
+          ? spec.local
+          : `${spec.imported}: ${spec.local}`,
+      );
+    } else if (spec.kind === 'namespace') {
       lines.push(`const ${spec.local} = ${info.param};`);
     } else {
       // default import interop (handles both ESM default and CJS module.exports)
@@ -142,14 +153,14 @@ function destructure(info: SourceInfo): string[] {
     }
   }
   if (named.length > 0) {
-    lines.push(`const { ${named.join(", ")} } = ${info.param};`);
+    lines.push(`const { ${named.join(', ')} } = ${info.param};`);
   }
   return lines;
 }
 
 function emitStatement(stmt: Node, code: string, lines: string[]): void {
   switch (stmt.type) {
-    case "ExportNamedDeclaration": {
+    case 'ExportNamedDeclaration': {
       if (stmt.declaration) {
         const decl = stmt.declaration;
         lines.push(code.slice(decl.start, decl.end));
@@ -162,9 +173,13 @@ function emitStatement(stmt: Node, code: string, lines: string[]): void {
       if (stmt.source) {
         // Re-export from another module: pull values off its namespace.
         const ns = `_navita_reexport_${reexportCounter++}`;
-        lines.push(`const ${ns} = require(${JSON.stringify(stmt.source.value)});`);
+        lines.push(
+          `const ${ns} = require(${JSON.stringify(stmt.source.value)});`,
+        );
         for (const spec of stmt.specifiers || []) {
-          lines.push(`exports.${spec.exported.name} = ${ns}.${spec.local.name};`);
+          lines.push(
+            `exports.${spec.exported.name} = ${ns}.${spec.local.name};`,
+          );
         }
         return;
       }
@@ -173,9 +188,12 @@ function emitStatement(stmt: Node, code: string, lines: string[]): void {
       }
       return;
     }
-    case "ExportDefaultDeclaration": {
+    case 'ExportDefaultDeclaration': {
       const decl = stmt.declaration;
-      if (decl.type === "FunctionDeclaration" || decl.type === "ClassDeclaration") {
+      if (
+        decl.type === 'FunctionDeclaration' ||
+        decl.type === 'ClassDeclaration'
+      ) {
         if (decl.id) {
           lines.push(code.slice(decl.start, decl.end));
           lines.push(`exports.default = ${decl.id.name};`);
@@ -187,9 +205,11 @@ function emitStatement(stmt: Node, code: string, lines: string[]): void {
       }
       return;
     }
-    case "ExportAllDeclaration": {
+    case 'ExportAllDeclaration': {
       const ns = `_navita_reexport_${reexportCounter++}`;
-      lines.push(`const ${ns} = require(${JSON.stringify(stmt.source.value)});`);
+      lines.push(
+        `const ${ns} = require(${JSON.stringify(stmt.source.value)});`,
+      );
       if (stmt.exported) {
         lines.push(`exports.${stmt.exported.name} = ${ns};`);
       } else {
@@ -207,24 +227,24 @@ function emitStatement(stmt: Node, code: string, lines: string[]): void {
 let reexportCounter = 0;
 
 function declaredNames(decl: Node): string[] {
-  if (decl.type === "VariableDeclaration") {
+  if (decl.type === 'VariableDeclaration') {
     const names: string[] = [];
     for (const d of decl.declarations) {
       patternNames(d.id, names);
     }
     return names;
   }
-  if (decl.type === "FunctionDeclaration" || decl.type === "ClassDeclaration") {
+  if (decl.type === 'FunctionDeclaration' || decl.type === 'ClassDeclaration') {
     return decl.id ? [decl.id.name] : [];
   }
   return [];
 }
 
-const SKIP_KEYS = new Set(["type", "start", "end", "range", "loc", "parent"]);
+const SKIP_KEYS = new Set(['type', 'start', 'end', 'range', 'loc', 'parent']);
 
 /** Collect identifier names referenced in a subtree (skip static member/key). */
 function collectIdentifierNames(node: any, out: Set<string>): void {
-  if (!node || typeof node !== "object") {
+  if (!node || typeof node !== 'object') {
     return;
   }
   if (Array.isArray(node)) {
@@ -234,20 +254,20 @@ function collectIdentifierNames(node: any, out: Set<string>): void {
     return;
   }
   switch (node.type) {
-    case "Identifier":
-    case "IdentifierReference":
+    case 'Identifier':
+    case 'IdentifierReference':
       out.add(node.name);
       return;
-    case "MemberExpression":
-    case "StaticMemberExpression":
-    case "ComputedMemberExpression":
+    case 'MemberExpression':
+    case 'StaticMemberExpression':
+    case 'ComputedMemberExpression':
       if (node.computed) {
         collectIdentifierNames(node.property, out);
       }
       collectIdentifierNames(node.object, out);
       return;
-    case "Property":
-    case "ObjectProperty":
+    case 'Property':
+    case 'ObjectProperty':
       if (node.computed) {
         collectIdentifierNames(node.key, out);
       }
@@ -261,7 +281,7 @@ function collectIdentifierNames(node: any, out: Set<string>): void {
       continue;
     }
     const value = node[key];
-    if (value && typeof value === "object") {
+    if (value && typeof value === 'object') {
       collectIdentifierNames(value, out);
     }
   }

@@ -1,5 +1,5 @@
-import * as fs from "fs";
-import * as path from "path";
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 export async function copyFiles(files: { from: string; to: string }[]) {
   const promises: Promise<unknown>[] = [];
@@ -8,7 +8,7 @@ export async function copyFiles(files: { from: string; to: string }[]) {
     promises.push(
       fs.promises
         .mkdir(path.dirname(to), { recursive: true })
-        .then(() => fs.promises.copyFile(from, to))
+        .then(() => fs.promises.copyFile(from, to)),
     );
   }
 

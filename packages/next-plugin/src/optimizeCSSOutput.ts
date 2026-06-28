@@ -1,5 +1,5 @@
-import type { CSSOutput, UsedIdCache } from "@navita/webpack-plugin";
-import type { Chunk } from "webpack";
+import type { CSSOutput, UsedIdCache } from '@navita/webpack-plugin';
+import type { Chunk } from 'webpack';
 
 const merge = (...merge: UsedIdCache[]) => {
   const result: UsedIdCache = {};
@@ -22,28 +22,38 @@ const intersect = (...intersect: UsedIdCache[]) => {
 
   for (const usedIds of intersect) {
     for (const key in usedIds) {
-      result[key] = result[key] ? result[key].filter(id => usedIds[key].includes(id)) : usedIds[key];
+      result[key] = result[key]
+        ? result[key].filter((id) => usedIds[key].includes(id))
+        : usedIds[key];
     }
   }
 
   return result;
-}
+};
 
 // structuredClone would be better, but since Next.js version 13 is at node 16.14.0,
 // we can't use it.
-const copy = (source: UsedIdCache): UsedIdCache => JSON.parse(JSON.stringify(source));
+const copy = (source: UsedIdCache): UsedIdCache =>
+  JSON.parse(JSON.stringify(source));
 
-const removeParentFromCurrent = (usedIds: UsedIdCache, parentUsedIds: UsedIdCache) => {
+const removeParentFromCurrent = (
+  usedIds: UsedIdCache,
+  parentUsedIds: UsedIdCache,
+) => {
   for (const key in parentUsedIds) {
     if (usedIds[key] && parentUsedIds[key]) {
-      usedIds[key] = usedIds[key].filter(id => !parentUsedIds[key].includes(id));
+      usedIds[key] = usedIds[key].filter(
+        (id) => !parentUsedIds[key].includes(id),
+      );
     }
   }
 };
 
 export function optimizeCSSOutput(output: CSSOutput) {
   const nameToChunk = Object.fromEntries(
-    Array.from(output.keys()).filter((x) => x.name).map((x) => [x.name, x])
+    Array.from(output.keys())
+      .filter((x) => x.name)
+      .map((x) => [x.name, x]),
   );
 
   const getAllParentUsedIds = (chunk: Chunk) => {
@@ -59,28 +69,23 @@ export function optimizeCSSOutput(output: CSSOutput) {
 
       return [
         intersect(
-          ...value.parents.map((parent) => merge(
-              ...getAllParentUsedIds(parent),
-              output.get(parent).usedIds
-            )
-          )
-        )
+          ...value.parents.map((parent) =>
+            merge(...getAllParentUsedIds(parent), output.get(parent).usedIds),
+          ),
+        ),
       ];
     }
 
     if (route.startsWith('pages/')) {
-      const routes = [
-        'pages/_document',
-        'pages/_app',
-        route,
-      ];
+      const routes = ['pages/_document', 'pages/_app', route];
 
       const currentRouteIndex = routes.indexOf(route);
 
       return routes
         .filter((_, index) => currentRouteIndex > index)
         .map((x) => output.get(nameToChunk[x]))
-        .filter(Boolean).map((x) => copy(x.usedIds));
+        .filter(Boolean)
+        .map((x) => copy(x.usedIds));
     }
 
     const parts = route.split('/');

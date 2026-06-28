@@ -1,24 +1,31 @@
-import path from "path";
-import type { Engine } from "@navita/engine";
-import { extraction } from "@navita/swc";
-import type { ImportMap } from "@navita/types";
-import { createCompiledFunction } from "./helpers/createCompiledFunction";
-import type { NodeModuleCache, ResolverCache } from "./helpers/createDefineFunction";
-import { createDefineFunction } from "./helpers/createDefineFunction";
-import type { ResultCache } from "./helpers/setAdapter";
-import { setAdapter } from "./helpers/setAdapter";
+import path from 'node:path';
+import type { Engine } from '@navita/engine';
+import { extraction } from '@navita/swc';
+import type { ImportMap } from '@navita/types';
+import { createCompiledFunction } from './helpers/createCompiledFunction';
+import type {
+  NodeModuleCache,
+  ResolverCache,
+} from './helpers/createDefineFunction';
+import { createDefineFunction } from './helpers/createDefineFunction';
+import type { ResultCache } from './helpers/setAdapter';
+import { setAdapter } from './helpers/setAdapter';
 
-const rootDir = path.resolve(__dirname, "../../");
-const isExternal = (dependency: string) => dependency.startsWith(rootDir) || dependency.includes('node_modules');
+const rootDir = path.resolve(__dirname, '../../');
+const isExternal = (dependency: string) =>
+  dependency.startsWith(rootDir) || dependency.includes('node_modules');
 
 type FilePathWithType = string;
-type ModuleCache = Map<FilePathWithType, {
-  source: string;
-  compiledFn: () => Promise<{
-    dependencies: string[];
-    exports: Record<string, unknown>;
-  }>;
-}>;
+type ModuleCache = Map<
+  FilePathWithType,
+  {
+    source: string;
+    compiledFn: () => Promise<{
+      dependencies: string[];
+      exports: Record<string, unknown>;
+    }>;
+  }
+>;
 
 export interface Caches {
   nodeModuleCache?: NodeModuleCache;
@@ -35,11 +42,15 @@ const defaultResultCache: ResultCache = {};
 type Types = 'entryPoint' | 'dependency';
 
 interface Output<Type extends Types> {
-  result: Type extends 'entryPoint' ? ResultCache[number] : Record<string, unknown>;
+  result: Type extends 'entryPoint'
+    ? ResultCache[number]
+    : Record<string, unknown>;
   dependencies: string[];
 }
 
-export async function evaluateAndProcess<Type extends 'entryPoint' | 'dependency'>({
+export async function evaluateAndProcess<
+  Type extends 'entryPoint' | 'dependency',
+>({
   type,
   filePath,
   source,
@@ -76,38 +87,39 @@ export async function evaluateAndProcess<Type extends 'entryPoint' | 'dependency
       importMap,
     });
 
-    const define = createDefineFunction({
-      filePath,
-      resolver,
-      isExternal,
-      resolverCache,
-      nodeModuleCache,
-      setAdapter: () => setAdapter({
-        engine,
-        resultCache: resultCache,
-      })
-    }, (dependency) => (
-      readFile(dependency)
-        .then(
-          (source) => evaluateAndProcess({
-            type: 'dependency',
-            source: source.toString(),
-            filePath: dependency,
+    const define = createDefineFunction(
+      {
+        filePath,
+        resolver,
+        isExternal,
+        resolverCache,
+        nodeModuleCache,
+        setAdapter: () =>
+          setAdapter({
             engine,
-            resolver,
-            readFile,
-            importMap,
-            nodeModuleCache,
-            resolverCache,
-            moduleCache,
-          }))
-        .then(({ result }) => result)
-    ));
-
-    const compiledFn = createCompiledFunction(
-      `return ${newSource}`,
-      define,
+            resultCache: resultCache,
+          }),
+      },
+      (dependency) =>
+        readFile(dependency)
+          .then((source) =>
+            evaluateAndProcess({
+              type: 'dependency',
+              source: source.toString(),
+              filePath: dependency,
+              engine,
+              resolver,
+              readFile,
+              importMap,
+              nodeModuleCache,
+              resolverCache,
+              moduleCache,
+            }),
+          )
+          .then(({ result }) => result),
     );
+
+    const compiledFn = createCompiledFunction(`return ${newSource}`, define);
 
     moduleCache.set(cacheKey, {
       source,
@@ -128,6 +140,6 @@ export async function evaluateAndProcess<Type extends 'entryPoint' | 'dependency
     return {
       result: exports,
       dependencies,
-    }
+    };
   }) as Promise<Output<Type>>;
 }

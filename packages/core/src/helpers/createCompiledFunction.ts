@@ -1,5 +1,5 @@
-import vm from "vm";
-import { createMagicProxy } from "./magicProxy";
+import vm from 'node:vm';
+import { createMagicProxy } from './magicProxy';
 
 const context = vm.createContext({ global });
 

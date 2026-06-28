@@ -1,4 +1,4 @@
-import { validateContract } from "../../src/validateContract";
+import { validateContract } from '../../src/validateContract';
 
 describe('validateContract', () => {
   it('should return valid when tokens match contract', () => {

@@ -1,11 +1,13 @@
-import { vi } from "vitest";
-import { Cache } from "../../src/cache";
-import { IDGenerator } from "../../src/identifiers/IDGenerator";
-import { processStyles as processStylesUnderTest } from "../../src/processStyles";
-import type { StyleBlock } from "../../src/types";
+import { vi } from 'vitest';
+import { Cache } from '../../src/cache';
+import { IDGenerator } from '../../src/identifiers/IDGenerator';
+import { processStyles as processStylesUnderTest } from '../../src/processStyles';
+import type { StyleBlock } from '../../src/types';
 
 describe('processStyles', () => {
-  const createProcessStyles = ({ type }: Omit<Parameters<typeof processStylesUnderTest>[number], 'cache'>) =>
+  const createProcessStyles = ({
+    type,
+  }: Omit<Parameters<typeof processStylesUnderTest>[number], 'cache'>) =>
     processStylesUnderTest({
       cache: new Cache<StyleBlock>(new IDGenerator()),
       type,
@@ -14,13 +16,13 @@ describe('processStyles', () => {
   describe('static', () => {
     it('should handle static declarations with pseudo selectors', () => {
       const processStyles = createProcessStyles({
-        type: "static",
+        type: 'static',
       });
 
       const result = processStyles({
         selector: '.test:hover',
         styles: {
-          color: "red",
+          color: 'red',
         },
       });
 
@@ -28,8 +30,8 @@ describe('processStyles', () => {
       expect(result).toEqual([
         expect.objectContaining({
           id: 1,
-          property: "color",
-          value: "red",
+          property: 'color',
+          value: 'red',
           // The user is responsible for the first level selector
           selector: '.test:hover',
         }),
@@ -38,14 +40,14 @@ describe('processStyles', () => {
 
     it('should work with nested pseudos', () => {
       const processStyles = createProcessStyles({
-        type: "static",
+        type: 'static',
       });
 
       const result = processStyles({
         selector: '.test:selection',
         styles: {
           ':hover': {
-            color: "red",
+            color: 'red',
           },
         },
       });
@@ -54,8 +56,8 @@ describe('processStyles', () => {
       expect(result).toEqual([
         expect.objectContaining({
           id: 1,
-          property: "color",
-          value: "red",
+          property: 'color',
+          value: 'red',
           selector: '.test:selection',
           pseudo: ':hover',
         }),
@@ -64,13 +66,13 @@ describe('processStyles', () => {
 
     it('works with selectors that look like pseudos', () => {
       const processStyles = createProcessStyles({
-        type: "static",
+        type: 'static',
       });
 
       const result = processStyles({
         selector: ':root',
         styles: {
-          color: "red",
+          color: 'red',
         },
       });
 
@@ -78,8 +80,8 @@ describe('processStyles', () => {
       expect(result).toEqual([
         expect.objectContaining({
           id: 1,
-          property: "color",
-          value: "red",
+          property: 'color',
+          value: 'red',
           selector: ':root',
           pseudo: '',
         }),
@@ -89,7 +91,7 @@ describe('processStyles', () => {
 
   it('should return an empty array for empty input', () => {
     const processStyles = createProcessStyles({
-      type: "rule",
+      type: 'rule',
     });
 
     const result = processStyles({
@@ -102,13 +104,13 @@ describe('processStyles', () => {
 
   it(`does not continue without a valid declaration`, () => {
     const processStyles = createProcessStyles({
-      type: "rule",
+      type: 'rule',
     });
 
     const result = processStyles({
       styles: {
-        "@media (min-width: 400px)": {},
-      }
+        '@media (min-width: 400px)': {},
+      },
     });
 
     expect(result).toHaveLength(0);
@@ -117,12 +119,12 @@ describe('processStyles', () => {
 
   it('should correctly identify declarations', () => {
     const processStyles = createProcessStyles({
-      type: "rule",
+      type: 'rule',
     });
 
     const result = processStyles({
       styles: {
-        color: "red",
+        color: 'red',
       },
     });
 
@@ -130,8 +132,8 @@ describe('processStyles', () => {
     expect(result).toEqual([
       expect.objectContaining({
         id: 1,
-        property: "color",
-        value: "red",
+        property: 'color',
+        value: 'red',
         pseudo: '',
         selector: '',
         media: '',
@@ -142,13 +144,13 @@ describe('processStyles', () => {
 
   it('should correctly identify declarations with pseudo selectors', () => {
     const processStyles = createProcessStyles({
-      type: "rule",
+      type: 'rule',
     });
 
     const result = processStyles({
       styles: {
-        ":hover": {
-          color: "red",
+        ':hover': {
+          color: 'red',
         },
       },
     });
@@ -157,8 +159,8 @@ describe('processStyles', () => {
     expect(result).toEqual([
       expect.objectContaining({
         id: 1,
-        property: "color",
-        value: "red",
+        property: 'color',
+        value: 'red',
         pseudo: ':hover',
         selector: '',
         media: '',
@@ -169,13 +171,13 @@ describe('processStyles', () => {
 
   it('should correctly identify declarations with media queries', () => {
     const processStyles = createProcessStyles({
-      type: "rule",
+      type: 'rule',
     });
 
     const result = processStyles({
       styles: {
-        "@media (min-width: 400px)": {
-          color: "red",
+        '@media (min-width: 400px)': {
+          color: 'red',
         },
       },
     });
@@ -184,8 +186,8 @@ describe('processStyles', () => {
     expect(result).toEqual([
       expect.objectContaining({
         id: 1,
-        property: "color",
-        value: "red",
+        property: 'color',
+        value: 'red',
         pseudo: '',
         selector: '',
         media: '(min-width: 400px)',
@@ -196,14 +198,14 @@ describe('processStyles', () => {
 
   it('should concat media nested media queries', () => {
     const processStyles = createProcessStyles({
-      type: "rule",
+      type: 'rule',
     });
 
     const result = processStyles({
       styles: {
-        "@media (min-width: 400px)": {
-          "@media (max-width: 600px)": {
-            color: "red",
+        '@media (min-width: 400px)': {
+          '@media (max-width: 600px)': {
+            color: 'red',
           },
         },
       },
@@ -213,8 +215,8 @@ describe('processStyles', () => {
     expect(result).toEqual([
       expect.objectContaining({
         id: 1,
-        property: "color",
-        value: "red",
+        property: 'color',
+        value: 'red',
         pseudo: '',
         selector: '',
         media: '(min-width: 400px) and (max-width: 600px)',
@@ -225,13 +227,13 @@ describe('processStyles', () => {
 
   it('should correctly identify declarations with supports queries', () => {
     const processStyles = createProcessStyles({
-      type: "rule",
+      type: 'rule',
     });
 
     const result = processStyles({
       styles: {
-        "@supports (display: grid)": {
-          color: "red",
+        '@supports (display: grid)': {
+          color: 'red',
         },
       },
     });
@@ -240,8 +242,8 @@ describe('processStyles', () => {
     expect(result).toEqual([
       expect.objectContaining({
         id: 1,
-        property: "color",
-        value: "red",
+        property: 'color',
+        value: 'red',
         pseudo: '',
         selector: '',
         media: '',
@@ -252,13 +254,13 @@ describe('processStyles', () => {
 
   it('should handle multiple declarations', () => {
     const processStyles = createProcessStyles({
-      type: "rule",
+      type: 'rule',
     });
 
     const result = processStyles({
       styles: {
-        color: "red",
-        backgroundColor: "blue",
+        color: 'red',
+        backgroundColor: 'blue',
       },
     });
 
@@ -266,8 +268,8 @@ describe('processStyles', () => {
     expect(result).toEqual([
       expect.objectContaining({
         id: 1,
-        property: "color",
-        value: "red",
+        property: 'color',
+        value: 'red',
         pseudo: '',
         selector: '',
         media: '',
@@ -275,8 +277,8 @@ describe('processStyles', () => {
       }),
       expect.objectContaining({
         id: 2,
-        property: "background-color",
-        value: "blue",
+        property: 'background-color',
+        value: 'blue',
         pseudo: '',
         selector: '',
         media: '',
@@ -287,14 +289,14 @@ describe('processStyles', () => {
 
   it('should handle static declarations', () => {
     const processStyles = createProcessStyles({
-      type: "static",
+      type: 'static',
     });
 
     const result = processStyles({
       selector: '.test',
       styles: {
-        color: "red",
-        backgroundColor: "blue",
+        color: 'red',
+        backgroundColor: 'blue',
       },
     });
 
@@ -302,14 +304,14 @@ describe('processStyles', () => {
     expect(result).toEqual([
       expect.objectContaining({
         id: 1,
-        property: "color",
-        value: "red",
+        property: 'color',
+        value: 'red',
         selector: '.test',
       }),
       expect.objectContaining({
         id: 2,
-        property: "background-color",
-        value: "blue",
+        property: 'background-color',
+        value: 'blue',
         selector: '.test',
       }),
     ]);
@@ -317,7 +319,7 @@ describe('processStyles', () => {
 
   it('should transform specific properties (content)', () => {
     const processStyles = createProcessStyles({
-      type: "rule",
+      type: 'rule',
     });
 
     const result = processStyles({
@@ -330,21 +332,21 @@ describe('processStyles', () => {
     expect(result).toEqual([
       expect.objectContaining({
         id: 1,
-        property: "content",
-        value: "\"\"",
+        property: 'content',
+        value: '""',
       }),
     ]);
   });
 
   it('should create copies of declarations when using comma separated nested selectors', () => {
     const processStyles = createProcessStyles({
-      type: "rule",
+      type: 'rule',
     });
 
     const result = processStyles({
       styles: {
-        "::after, ::before": {
-          color: "red",
+        '::after, ::before': {
+          color: 'red',
         },
       },
     });
@@ -353,14 +355,14 @@ describe('processStyles', () => {
     expect(result).toEqual([
       expect.objectContaining({
         id: 1,
-        property: "color",
-        value: "red",
+        property: 'color',
+        value: 'red',
         pseudo: '::after',
       }),
       expect.objectContaining({
         id: 2,
-        property: "color",
-        value: "red",
+        property: 'color',
+        value: 'red',
         pseudo: '::before',
       }),
     ]);
@@ -368,27 +370,27 @@ describe('processStyles', () => {
 
   it('should correctly identify a nesting with media, support and pseudo', () => {
     const processStyles = createProcessStyles({
-      type: "rule",
+      type: 'rule',
     });
 
     const result = processStyles({
       styles: {
-        "@media (min-width: 400px)": {
-          "@supports (display: grid)": {
-            "::after, ::before": {
-              color: "red",
-            }
-          }
-        }
-      }
+        '@media (min-width: 400px)': {
+          '@supports (display: grid)': {
+            '::after, ::before': {
+              color: 'red',
+            },
+          },
+        },
+      },
     });
 
     expect(result).toHaveLength(2);
     expect(result).toEqual([
       expect.objectContaining({
         id: 1,
-        property: "color",
-        value: "red",
+        property: 'color',
+        value: 'red',
         pseudo: '::after',
         media: '(min-width: 400px)',
         support: '(display: grid)',
@@ -396,8 +398,8 @@ describe('processStyles', () => {
       }),
       expect.objectContaining({
         id: 2,
-        property: "color",
-        value: "red",
+        property: 'color',
+        value: 'red',
         pseudo: '::before',
         media: '(min-width: 400px)',
         support: '(display: grid)',
@@ -408,13 +410,13 @@ describe('processStyles', () => {
 
   it('works with other nested selectors', () => {
     const processStyles = createProcessStyles({
-      type: "rule",
+      type: 'rule',
     });
 
     const result = processStyles({
       styles: {
-        "> .cool": {
-          color: "red",
+        '> .cool': {
+          color: 'red',
         },
       },
     });
@@ -423,8 +425,8 @@ describe('processStyles', () => {
     expect(result).toEqual([
       expect.objectContaining({
         id: 1,
-        property: "color",
-        value: "red",
+        property: 'color',
+        value: 'red',
         pseudo: '> .cool',
       }),
     ]);
@@ -432,12 +434,12 @@ describe('processStyles', () => {
 
   it('removes trailing semicolons', () => {
     const processStyles = createProcessStyles({
-      type: "rule",
+      type: 'rule',
     });
 
     const result = processStyles({
       styles: {
-        color: "red;",
+        color: 'red;',
       },
     });
 
@@ -445,8 +447,8 @@ describe('processStyles', () => {
     expect(result).toEqual([
       expect.objectContaining({
         id: 1,
-        property: "color",
-        value: "red",
+        property: 'color',
+        value: 'red',
         pseudo: '',
       }),
     ]);
@@ -454,18 +456,18 @@ describe('processStyles', () => {
 
   it('warns on invalid properties', () => {
     const processStyles = createProcessStyles({
-      type: "rule",
+      type: 'rule',
     });
 
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
     const result = processStyles({
       styles: {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
+        // @ts-expect-error
         '#####': {
-          color: "red",
-        }
+          color: 'red',
+        },
       },
     });
 
@@ -479,13 +481,13 @@ describe('processStyles', () => {
 
   it('adds a var()-func to naked css vars', () => {
     const processStyles = createProcessStyles({
-      type: "rule",
+      type: 'rule',
     });
 
     const result = processStyles({
       styles: {
-        color: "--red",
-        boxShadow: "0px 2px 0px --box-shadow-color",
+        color: '--red',
+        boxShadow: '0px 2px 0px --box-shadow-color',
       },
     });
 
@@ -493,14 +495,14 @@ describe('processStyles', () => {
     expect(result).toEqual([
       expect.objectContaining({
         id: 1,
-        property: "color",
-        value: "var(--red)",
+        property: 'color',
+        value: 'var(--red)',
         pseudo: '',
       }),
       expect.objectContaining({
         id: 2,
-        property: "box-shadow",
-        value: "0px 2px 0px var(--box-shadow-color)",
+        property: 'box-shadow',
+        value: '0px 2px 0px var(--box-shadow-color)',
         pseudo: '',
       }),
     ]);
@@ -508,13 +510,13 @@ describe('processStyles', () => {
 
   it(`doesn't touch values that already have var()-func`, () => {
     const processStyles = createProcessStyles({
-      type: "rule",
+      type: 'rule',
     });
 
     const result = processStyles({
       styles: {
-        color: "var(--red)",
-        boxShadow: "0px 2px 0px var(--box-shadow-color)",
+        color: 'var(--red)',
+        boxShadow: '0px 2px 0px var(--box-shadow-color)',
       },
     });
 
@@ -522,14 +524,14 @@ describe('processStyles', () => {
     expect(result).toEqual([
       expect.objectContaining({
         id: 1,
-        property: "color",
-        value: "var(--red)",
+        property: 'color',
+        value: 'var(--red)',
         pseudo: '',
       }),
       expect.objectContaining({
         id: 2,
-        property: "box-shadow",
-        value: "0px 2px 0px var(--box-shadow-color)",
+        property: 'box-shadow',
+        value: '0px 2px 0px var(--box-shadow-color)',
         pseudo: '',
       }),
     ]);
@@ -537,21 +539,21 @@ describe('processStyles', () => {
 
   it('"pixelates" values that are numbers', () => {
     const processStyles = createProcessStyles({
-      type: "rule",
+      type: 'rule',
     });
 
     const result = processStyles({
       styles: {
         width: 10,
-      }
+      },
     });
 
     expect(result).toHaveLength(1);
     expect(result).toEqual([
       expect.objectContaining({
         id: 1,
-        property: "width",
-        value: "10px",
+        property: 'width',
+        value: '10px',
         pseudo: '',
       }),
     ]);
@@ -559,13 +561,13 @@ describe('processStyles', () => {
 
   it('should handle container queries', () => {
     const processStyles = createProcessStyles({
-      type: "rule",
+      type: 'rule',
     });
 
     const result = processStyles({
       styles: {
-        "@container (min-width: 500px)": {
-          background: "blue",
+        '@container (min-width: 500px)': {
+          background: 'blue',
         },
       },
     });
@@ -574,8 +576,8 @@ describe('processStyles', () => {
     expect(result).toEqual([
       expect.objectContaining({
         id: 1,
-        property: "background",
-        value: "blue",
+        property: 'background',
+        value: 'blue',
         pseudo: '',
         selector: '',
         media: '',

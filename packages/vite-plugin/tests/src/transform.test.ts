@@ -52,7 +52,8 @@ describe('navita vite-plugin transform — RedwoodSDK linker pass', () => {
     const { transform } = plugin as {
       transform: (this: unknown, code: string, id: string) => Promise<unknown>;
     };
-    return (c: string, i: string) => transform.call({ addWatchFile: vi.fn() }, c, i);
+    return (c: string, i: string) =>
+      transform.call({ addWatchFile: vi.fn() }, c, i);
   };
 
   it('skips the built worker bundle during the rwsdk linker pass', async () => {

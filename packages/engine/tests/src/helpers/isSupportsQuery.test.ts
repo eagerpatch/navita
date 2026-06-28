@@ -1,4 +1,4 @@
-import { isSupportsQuery } from "../../../src/helpers/isSupportsQuery";
+import { isSupportsQuery } from '../../../src/helpers/isSupportsQuery';
 
 describe('isMediaQuery', () => {
   it('should return true if the property starts with @supports', () => {

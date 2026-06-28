@@ -1,4 +1,4 @@
-import { createVar, fallbackVar } from "../../src";
+import { createVar, fallbackVar } from '../../src';
 
 describe('vars', () => {
   describe('createVar', () => {
@@ -69,12 +69,7 @@ describe('vars', () => {
 
     it('supports multiple fallbacks resolving to a var', () => {
       expect(
-        fallbackVar(
-          '--foo',
-          '--bar',
-          '--baz',
-          '--final-fallback',
-        ),
+        fallbackVar('--foo', '--bar', '--baz', '--final-fallback'),
       ).toMatchInlineSnapshot(
         `"var(--foo, var(--bar, var(--baz, var(--final-fallback))))"`,
       );
@@ -94,25 +89,35 @@ describe('vars', () => {
     it('should throw with invalid vars', () => {
       expect(() => {
         fallbackVar('INVALID', '10px');
-      }).toThrowErrorMatchingInlineSnapshot(`[Error: Invalid variable name: INVALID]`);
+      }).toThrowErrorMatchingInlineSnapshot(
+        `[Error: Invalid variable name: INVALID]`,
+      );
 
       expect(() => {
         fallbackVar('INVALID1', 'INVALID2', '10px');
-      }).toThrowErrorMatchingInlineSnapshot(`[Error: Invalid variable name: INVALID2]`);
+      }).toThrowErrorMatchingInlineSnapshot(
+        `[Error: Invalid variable name: INVALID2]`,
+      );
 
       expect(() => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
         fallbackVar('INVALID', 10, 10);
-      }).toThrowErrorMatchingInlineSnapshot(`[Error: Invalid variable name: 10]`);
+      }).toThrowErrorMatchingInlineSnapshot(
+        `[Error: Invalid variable name: 10]`,
+      );
 
       expect(() => {
         fallbackVar('var(--foo-bar)', 'INVALID', '10px');
-      }).toThrowErrorMatchingInlineSnapshot(`[Error: Invalid variable name: INVALID]`);
+      }).toThrowErrorMatchingInlineSnapshot(
+        `[Error: Invalid variable name: INVALID]`,
+      );
 
       expect(() => {
         fallbackVar('INVALID', 'var(--foo-bar)', '10px');
-      }).toThrowErrorMatchingInlineSnapshot(`[Error: Invalid variable name: INVALID]`);
+      }).toThrowErrorMatchingInlineSnapshot(
+        `[Error: Invalid variable name: INVALID]`,
+      );
     });
   });
 });

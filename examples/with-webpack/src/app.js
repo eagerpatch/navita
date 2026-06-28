@@ -1,7 +1,7 @@
-import { style } from "@navita/css";
+import { style } from '@navita/css';
 import React from 'react';
 import './styles.css';
-import { background } from "./colors.js";
+import { background } from './colors.js';
 
 const container = style({
   color: 'orange',
@@ -11,14 +11,10 @@ const container = style({
   background: background,
   '@supports (display: grid)': {
     '@media (min-width: 500px)': {
-      color: 'green'
+      color: 'green',
     },
-    color: 'blue'
-  }
+    color: 'blue',
+  },
 });
 
-export const App = () => (
-  <div className={container}>
-    Hello World!
-  </div>
-);
+export const App = () => <div className={container}>Hello World!</div>;

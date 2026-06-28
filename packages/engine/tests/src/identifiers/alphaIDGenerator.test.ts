@@ -1,4 +1,4 @@
-import { AlphaIDGenerator } from "../../../src/identifiers/alphaIDGenerator";
+import { AlphaIDGenerator } from '../../../src/identifiers/alphaIDGenerator';
 
 describe('AlphaIDGenerator', () => {
   it('should increment by one alpha numerically on each next-call', () => {

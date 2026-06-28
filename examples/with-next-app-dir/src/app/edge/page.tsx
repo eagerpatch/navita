@@ -1,4 +1,4 @@
-import { style } from "@navita/css";
+import { style } from '@navita/css';
 
 const y = style({
   background: 'hotpink',
@@ -9,9 +9,7 @@ const y = style({
 export default function Edge() {
   return (
     <main>
-      <div className={y}>
-        Edge
-      </div>
+      <div className={y}>Edge</div>
     </main>
   );
 }

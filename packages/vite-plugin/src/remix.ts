@@ -1,7 +1,7 @@
-import * as crypto from "node:crypto";
-import type { Plugin } from "vite";
-import type { Options } from "./index";
-import { getRenderer, navita, VIRTUAL_MODULE_ID } from "./index";
+import * as crypto from 'node:crypto';
+import type { Plugin } from 'vite';
+import type { Options } from './index';
+import { getRenderer, navita, VIRTUAL_MODULE_ID } from './index';
 
 const VIRTUAL_MODULE_IDS = [
   '\0virtual:remix/server-build',
@@ -34,15 +34,15 @@ export function navitaRemix(options?: Options): Plugin[] {
         const isServerChunk = options.dir.endsWith('/server');
         const isClientChunk = options.dir.endsWith('/client');
 
-        if (isClientChunk && chunk.name === "root") {
+        if (isClientChunk && chunk.name === 'root') {
           // Generate a random name for the CSS file.
           // Vite uses a file hash as the name, but since the client build will finish before
           // the server build, we need to generate a random name for the CSS file.
           // Ideally we could use a hash, but since the server might contain more styles than the client, we need to do it like this.
           const random = crypto
             .randomBytes(30)
-            .toString("base64")
-            .replace(/[^a-zA-Z0-9]/g, "")
+            .toString('base64')
+            .replace(/[^a-zA-Z0-9]/g, '')
             .slice(0, 8);
 
           cssFileName = `assets/navita-${random}.css`;
@@ -64,7 +64,7 @@ export function navitaRemix(options?: Options): Plugin[] {
           hasEmittedCss = true;
         }
       },
-    }
+    },
   ];
 }
 

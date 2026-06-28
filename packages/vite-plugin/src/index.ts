@@ -1,12 +1,15 @@
-import fs from 'fs';
-import type { EngineOptions, ImportMap, Renderer } from "@navita/core/createRenderer";
+import fs from 'node:fs';
+import type {
+  EngineOptions,
+  ImportMap,
+  Renderer,
+} from '@navita/core/createRenderer';
 import { createRenderer } from '@navita/core/createRenderer';
-import { importMap as defaultImportMap } from "@navita/css";
+import { importMap as defaultImportMap } from '@navita/css';
 import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite';
 
 export const VIRTUAL_MODULE_ID = 'virtual:navita.css';
-const RESOLVED_VIRTUAL_MODULE_ID =
-  '\0' + VIRTUAL_MODULE_ID.replace(/.css$/, '');
+const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID.replace(/.css$/, '')}`;
 
 export interface Options {
   importMap?: ImportMap;
@@ -100,10 +103,11 @@ export function navita(options?: Options): Plugin {
         return null;
       }
 
-      const { result, sourceMap, dependencies } = await renderer.transformAndProcess({
-        content: code,
-        filePath: id,
-      });
+      const { result, sourceMap, dependencies } =
+        await renderer.transformAndProcess({
+          content: code,
+          filePath: id,
+        });
 
       if (!isProduction) {
         for (const dependency of dependencies) {
@@ -149,12 +153,12 @@ export function navita(options?: Options): Plugin {
             name: 'navita.css',
             type: 'asset',
             source: getRenderer()?.engine.renderCssToString(),
-          })
-        )
+          }),
+        ),
       );
 
       cssEmitted = true;
-    }
+    },
   };
 
   function updateNavitaCSS() {

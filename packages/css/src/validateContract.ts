@@ -1,6 +1,6 @@
-import type { Contract } from "@navita/types";
+import type { Contract } from '@navita/types';
 import { diff } from 'deep-object-diff';
-import { walkObject } from "./helpers/walkObject";
+import { walkObject } from './helpers/walkObject';
 
 const normaliseObject = (obj: Contract) => walkObject(obj, () => '');
 

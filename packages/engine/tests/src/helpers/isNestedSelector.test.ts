@@ -1,4 +1,4 @@
-import { isNestedSelector } from "../../../src/helpers/isNestedSelector";
+import { isNestedSelector } from '../../../src/helpers/isNestedSelector';
 
 describe('isNestedSelector', () => {
   it('should return true if the property starts with :', () => {

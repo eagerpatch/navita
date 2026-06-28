@@ -1,16 +1,14 @@
-import { generateIdentifier } from "@navita/adapter";
-import type { Contract, CSSVarFunction, MapLeafNodes } from "@navita/types";
+import { generateIdentifier } from '@navita/adapter';
+import type { Contract, CSSVarFunction, MapLeafNodes } from '@navita/types';
 import cssesc from 'cssesc';
-import { walkObject } from "./helpers/walkObject";
-import { validateContract } from "./validateContract";
+import { walkObject } from './helpers/walkObject';
+import { validateContract } from './validateContract';
 
 export function createVar<T extends string>(name?: T): `--${T}` {
   return `--${cssesc(!name ? generateIdentifier(undefined) : name, { isIdentifier: true }) as T}`;
 }
 
-export function fallbackVar(
-  ...values: [string, ...Array<string>]
-): string {
+export function fallbackVar(...values: [string, ...Array<string>]): string {
   let finalValue = '';
 
   for (let value of values.reverse()) {

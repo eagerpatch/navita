@@ -1,20 +1,20 @@
-import "@/theme";
-import { globalStyle } from "@navita/css";
+import '@/theme';
+import { globalStyle } from '@navita/css';
 import type { AppProps } from 'next/app';
-import { vars } from "@/theme";
+import { vars } from '@/theme';
 
-globalStyle("*", {
+globalStyle('*', {
   boxSizing: 'border-box',
   padding: 0,
   margin: 0,
 });
 
-globalStyle("html, body", {
+globalStyle('html, body', {
   maxWidth: '100vw',
   overflowX: 'hidden',
 });
 
-globalStyle("body", {
+globalStyle('body', {
   color: `rgb(${vars.foregroundRgb})`,
   background: `linear-gradient(
       to bottom,
@@ -25,7 +25,7 @@ globalStyle("body", {
   `,
 });
 
-globalStyle("a", {
+globalStyle('a', {
   color: 'inherit',
   textDecoration: 'none',
 });

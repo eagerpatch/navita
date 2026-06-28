@@ -1,9 +1,13 @@
-import nodeResolve from "@rollup/plugin-node-resolve";
-import { rollup } from "rollup";
-import dts from "rollup-plugin-dts";
-import externals from "rollup-plugin-node-externals";
+import nodeResolve from '@rollup/plugin-node-resolve';
+import { rollup } from 'rollup';
+import dts from 'rollup-plugin-dts';
+import externals from 'rollup-plugin-node-externals';
 
-export async function createDeclaration({ outDir, packagePath, input }: {
+export async function createDeclaration({
+  outDir,
+  packagePath,
+  input,
+}: {
   outDir: string;
   packagePath: string;
   input: Set<string>;
@@ -12,13 +16,13 @@ export async function createDeclaration({ outDir, packagePath, input }: {
     input: [...input],
     plugins: [
       externals({ packagePath }),
-      nodeResolve({ extensions: [".ts"] }),
+      nodeResolve({ extensions: ['.ts'] }),
       dts({
         compilerOptions: {
           stripInternal: true,
-        }
-      })
-    ]
+        },
+      }),
+    ],
   });
 
   return types.write({

@@ -1,5 +1,5 @@
-import { getNavitaDependency } from "@navita/webpack-plugin";
-import type { LoaderContext } from "webpack";
+import { getNavitaDependency } from '@navita/webpack-plugin';
+import type { LoaderContext } from 'webpack';
 
 export function pitch(this: LoaderContext<unknown>) {
   this._module.loaders = [];
@@ -7,12 +7,10 @@ export function pitch(this: LoaderContext<unknown>) {
   const dependency = getNavitaDependency(this._compiler.webpack);
 
   const { cssHash, issuerPath } = Object.fromEntries(
-    new URLSearchParams(this.resourceQuery).entries()
+    new URLSearchParams(this.resourceQuery).entries(),
   );
 
-  this._module.addDependency(
-    new dependency(issuerPath, cssHash)
-  );
+  this._module.addDependency(new dependency(issuerPath, cssHash));
 
   // We set the layer to something other than WEBPACK_LAYERS.appPagesBrowser to
   // not have the modules included in the next pageManifest.

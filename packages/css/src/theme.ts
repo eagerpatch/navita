@@ -1,8 +1,14 @@
-import { generateIdentifier, addStaticCss } from "@navita/adapter";
-import type { MapLeafNodes, NullableTokens, ThemeVars, Tokens, Contract  } from "@navita/types";
-import cssesc from "cssesc";
-import { walkObject } from "./helpers/walkObject";
-import { assignVars, createVar } from "./vars";
+import { addStaticCss, generateIdentifier } from '@navita/adapter';
+import type {
+  Contract,
+  MapLeafNodes,
+  NullableTokens,
+  ThemeVars,
+  Tokens,
+} from '@navita/types';
+import cssesc from 'cssesc';
+import { walkObject } from './helpers/walkObject';
+import { assignVars, createVar } from './vars';
 
 export function createThemeContract<ThemeTokens extends NullableTokens>(
   tokens: ThemeTokens,

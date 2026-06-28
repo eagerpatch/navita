@@ -1,4 +1,6 @@
-export function merge(...classNames: (string | false | void | null | 0 | '')[]) {
+export function merge(
+  ...classNames: (string | false | void | null | 0 | '')[]
+) {
   const input = classNames.filter(Boolean).join(' ').split(' ');
   const output: Record<string, string> = {};
 

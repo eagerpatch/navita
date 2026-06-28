@@ -27,7 +27,7 @@ describe('printStyleBlock', () => {
     });
 
     // printStyleBlock assumes a sorted array of blocks.
-    const blocks = sortAtRules(renderer['caches'].rule.items());
+    const blocks = sortAtRules(renderer.caches.rule.items());
     const result = printStyleBlocks(blocks);
 
     expect(result).toMatchInlineSnapshot(
@@ -46,7 +46,7 @@ describe('printStyleBlock', () => {
     });
 
     // printStyleBlock assumes a sorted array of blocks.
-    const blocks = sortAtRules(renderer['caches'].rule.items());
+    const blocks = sortAtRules(renderer.caches.rule.items());
     const result = printStyleBlocks(blocks);
 
     expect(result).toMatchInlineSnapshot(
@@ -68,7 +68,7 @@ describe('printStyleBlock', () => {
     });
 
     // Static rules are not sorted
-    const blocks = renderer['caches'].static.items();
+    const blocks = renderer.caches.static.items();
     const result = printStyleBlocks(blocks);
     expect(result).toMatchInlineSnapshot(
       `":root{color:red;}@media (min-width: 100px){:root{color:green;}}"`,
@@ -94,7 +94,7 @@ describe('printStyleBlock', () => {
       color: 'green',
     });
 
-    const blocks = renderer['caches'].static.items();
+    const blocks = renderer.caches.static.items();
     const result = printStyleBlocks(blocks);
     expect(result).toMatchInlineSnapshot(
       `":root{color:green;background-color:red;}:root:hover{color:red;}:root::before{color:blue;}:root::after{color:black;}.something{color:green;}"`,
@@ -109,7 +109,7 @@ describe('printStyleBlock', () => {
     renderer.addStyle({
       marginTop: '10px',
     });
-    const blocks = renderer['caches'].rule.items();
+    const blocks = renderer.caches.rule.items();
     const result = printStyleBlocks(blocks);
     expect(result).toMatchInlineSnapshot(
       `".a1{margin:10px}.b1.b1{margin-top:10px}"`,
@@ -135,7 +135,7 @@ describe('printStyleBlock', () => {
     });
 
     // printStyleBlock assumes a sorted array of blocks.
-    const blocks = sortAtRules(renderer['caches'].rule.items());
+    const blocks = sortAtRules(renderer.caches.rule.items());
     const result = printStyleBlocks(blocks);
 
     expect(result).toMatchInlineSnapshot(
@@ -170,7 +170,7 @@ describe('printStyleBlock', () => {
     });
 
     // printStyleBlock assumes a sorted array of blocks.
-    const blocks = sortAtRules(renderer['caches'].rule.items());
+    const blocks = sortAtRules(renderer.caches.rule.items());
     const result = printStyleBlocks(blocks);
 
     expect(result).toMatchInlineSnapshot(

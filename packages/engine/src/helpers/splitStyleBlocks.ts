@@ -1,4 +1,4 @@
-import type { StyleBlock } from "../types";
+import type { StyleBlock } from '../types';
 
 const lowPriorityProperties = ['all'];
 

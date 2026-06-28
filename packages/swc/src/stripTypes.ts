@@ -1,4 +1,4 @@
-import { getTransform } from "./loadOxc";
+import { getTransform } from './loadOxc';
 
 /**
  * Strip TypeScript types (and transform JSX) from a module, leaving an ES

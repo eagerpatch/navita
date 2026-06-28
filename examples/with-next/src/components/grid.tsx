@@ -1,6 +1,6 @@
-import { style } from "@navita/css";
-import React from "react";
-import { vars } from "@/theme";
+import { style } from '@navita/css';
+import type React from 'react';
+import { vars } from '@/theme';
 
 const container = style({
   display: 'grid',
@@ -15,7 +15,7 @@ const container = style({
   },
   '@media (min-width: 701px) and (max-width: 1120px)': {
     gridTemplateColumns: 'repeat(2, 50%)',
-  }
+  },
 });
 
 interface Props {
@@ -23,7 +23,5 @@ interface Props {
 }
 
 export const Grid = ({ children }: Props) => (
-  <div className={container}>
-    {children}
-  </div>
+  <div className={container}>{children}</div>
 );

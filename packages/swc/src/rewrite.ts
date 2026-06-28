@@ -1,6 +1,5 @@
-import MagicString from "magic-string";
-import type { ImportMap } from "@navita/types";
-import { getParser } from "./loadOxc";
+import type { ImportMap } from '@navita/types';
+import MagicString from 'magic-string';
 import {
   collectArgumentIdents,
   createLineColumnLookup,
@@ -10,10 +9,11 @@ import {
   type Node,
   patternNames,
   walk,
-} from "./ast";
+} from './ast';
+import { getParser } from './loadOxc';
 
-const COLLECT_RESULT_NAME = "collectResult";
-const ADAPTER_SOURCE = "@navita/adapter";
+const COLLECT_RESULT_NAME = 'collectResult';
+const ADAPTER_SOURCE = '@navita/adapter';
 
 type Options = {
   filename: string;
@@ -21,8 +21,8 @@ type Options = {
 };
 
 type KeptItem =
-  | { kind: "statement"; node: Node }
-  | { kind: "exprCall"; node: Node };
+  | { kind: 'statement'; node: Node }
+  | { kind: 'exprCall'; node: Node };
 
 /**
  * The core extraction rewrite. Produces an ES module (still TypeScript, still
@@ -36,8 +36,14 @@ type KeptItem =
  * This mirrors the behavior of the original Rust/swc-plugin transform (see the
  * `test!` fixtures in crates/extraction/src/lib.rs).
  */
-export function rewrite(code: string, { filename, importMap }: Options): string {
-  const { program } = getParser().parseSync(filename, code, { lang: "tsx", sourceType: "module" });
+export function rewrite(
+  code: string,
+  { filename, importMap }: Options,
+): string {
+  const { program } = getParser().parseSync(filename, code, {
+    lang: 'tsx',
+    sourceType: 'module',
+  });
   const body: Node[] = program.body;
 
   // ---------------------------------------------------------------------------
@@ -48,13 +54,13 @@ export function rewrite(code: string, { filename, importMap }: Options): string 
   const importBindings = new Set<string>(); // every import local name
 
   for (const stmt of body) {
-    if (stmt.type !== "ImportDeclaration" || stmt.importKind === "type") {
+    if (stmt.type !== 'ImportDeclaration' || stmt.importKind === 'type') {
       continue;
     }
     const source = stmt.source.value as string;
     for (const spec of stmt.specifiers || []) {
       importBindings.add(spec.local.name);
-      if (spec.type !== "ImportSpecifier" || spec.importKind === "type") {
+      if (spec.type !== 'ImportSpecifier' || spec.importKind === 'type') {
         continue;
       }
       const imported = importedName(spec);
@@ -67,7 +73,8 @@ export function rewrite(code: string, { filename, importMap }: Options): string 
   }
 
   const isMatchedCall = (node: Node): boolean =>
-    node.type === "CallExpression" && importCalls.has(getCalleeName(node) ?? "\0");
+    node.type === 'CallExpression' &&
+    importCalls.has(getCalleeName(node) ?? '\0');
 
   // ---------------------------------------------------------------------------
   // Phase B — collect identifiers referenced inside the arguments of every
@@ -96,7 +103,7 @@ export function rewrite(code: string, { filename, importMap }: Options): string 
       if (initCallee !== null && importCalls.has(initCallee)) {
         keep = true;
         const names = patternNames(decl.id);
-        const label = names[0] ?? "";
+        const label = names[0] ?? '';
         // Map each matched call in the init to the declared name.
         walkMatched(decl.init, isMatchedCall, (call) => {
           callIdentifier.set(call, label);
@@ -114,7 +121,7 @@ export function rewrite(code: string, { filename, importMap }: Options): string 
   };
 
   const visit = (node: any): void => {
-    if (!node || typeof node !== "object") {
+    if (!node || typeof node !== 'object') {
       return;
     }
     if (Array.isArray(node)) {
@@ -125,25 +132,28 @@ export function rewrite(code: string, { filename, importMap }: Options): string 
     }
 
     switch (node.type) {
-      case "ImportDeclaration": {
+      case 'ImportDeclaration': {
         for (const spec of node.specifiers || []) {
           usedIdents.delete(spec.local.name);
         }
         moduleImports.push(node);
         return; // imports are leaves here
       }
-      case "VariableDeclaration": {
+      case 'VariableDeclaration': {
         if (computeVarDeclKeep(node)) {
-          keptItems.push({ kind: "statement", node });
+          keptItems.push({ kind: 'statement', node });
         } else {
           visitChildren(node);
         }
         return;
       }
-      case "ExportNamedDeclaration": {
-        if (node.declaration && node.declaration.type === "VariableDeclaration") {
+      case 'ExportNamedDeclaration': {
+        if (
+          node.declaration &&
+          node.declaration.type === 'VariableDeclaration'
+        ) {
           if (computeVarDeclKeep(node.declaration)) {
-            keptItems.push({ kind: "statement", node });
+            keptItems.push({ kind: 'statement', node });
           } else {
             visitChildren(node.declaration);
           }
@@ -152,25 +162,25 @@ export function rewrite(code: string, { filename, importMap }: Options): string 
         visitChildren(node);
         return;
       }
-      case "FunctionDeclaration": {
+      case 'FunctionDeclaration': {
         visitChildren(node);
         if (node.id && usedIdents.has(node.id.name)) {
-          keptItems.push({ kind: "statement", node });
+          keptItems.push({ kind: 'statement', node });
           usedIdents.delete(node.id.name);
         }
         return;
       }
-      case "ClassDeclaration": {
+      case 'ClassDeclaration': {
         visitChildren(node);
         if (node.id && usedIdents.has(node.id.name)) {
-          keptItems.push({ kind: "statement", node });
+          keptItems.push({ kind: 'statement', node });
           usedIdents.delete(node.id.name);
         }
         return;
       }
-      case "CallExpression": {
+      case 'CallExpression': {
         if (isMatchedCall(node)) {
-          keptItems.push({ kind: "exprCall", node });
+          keptItems.push({ kind: 'exprCall', node });
           return; // do not descend into a matched call
         }
         visitChildren(node);
@@ -183,11 +193,11 @@ export function rewrite(code: string, { filename, importMap }: Options): string 
 
   const visitChildren = (node: Node): void => {
     for (const key in node) {
-      if (key === "type" || key === "start" || key === "end") {
+      if (key === 'type' || key === 'start' || key === 'end') {
         continue;
       }
       const value = node[key];
-      if (value && typeof value === "object") {
+      if (value && typeof value === 'object') {
         visit(value);
       }
     }
@@ -208,7 +218,7 @@ export function rewrite(code: string, { filename, importMap }: Options): string 
   let index = 0;
 
   const rewriteCall = (call: Node): void => {
-    const identifier = callIdentifier.get(call) ?? "";
+    const identifier = callIdentifier.get(call) ?? '';
     const start = call.start;
     const end = call.end;
     const { line, column } = lineColumn(start);
@@ -237,7 +247,9 @@ export function rewrite(code: string, { filename, importMap }: Options): string 
   }
 
   const parts: string[] = [];
-  parts.push(`import { ${COLLECT_RESULT_NAME} as ${COLLECT_RESULT_NAME} } from "${ADAPTER_SOURCE}";`);
+  parts.push(
+    `import { ${COLLECT_RESULT_NAME} as ${COLLECT_RESULT_NAME} } from "${ADAPTER_SOURCE}";`,
+  );
   for (const imp of moduleImports) {
     parts.push(magic.slice(imp.start, imp.end));
   }
@@ -246,18 +258,22 @@ export function rewrite(code: string, { filename, importMap }: Options): string 
   }
   for (const item of keptItems) {
     const sliced = magic.slice(item.node.start, item.node.end);
-    parts.push(item.kind === "exprCall" ? `${sliced};` : sliced);
+    parts.push(item.kind === 'exprCall' ? `${sliced};` : sliced);
   }
 
-  return parts.join("\n");
+  return parts.join('\n');
 }
 
 /**
  * Depth-first visit of matched calls, NOT descending into a matched call's own
  * subtree (mirrors the swc visitor which replaces the node without recursing).
  */
-function walkMatched(node: any, isMatched: (n: Node) => boolean, fn: (call: Node) => void): void {
-  if (!node || typeof node !== "object") {
+function walkMatched(
+  node: any,
+  isMatched: (n: Node) => boolean,
+  fn: (call: Node) => void,
+): void {
+  if (!node || typeof node !== 'object') {
     return;
   }
   if (Array.isArray(node)) {
@@ -266,16 +282,16 @@ function walkMatched(node: any, isMatched: (n: Node) => boolean, fn: (call: Node
     }
     return;
   }
-  if (node.type === "CallExpression" && isMatched(node)) {
+  if (node.type === 'CallExpression' && isMatched(node)) {
     fn(node);
     return; // do not descend into the matched call
   }
   for (const key in node) {
-    if (key === "type" || key === "start" || key === "end") {
+    if (key === 'type' || key === 'start' || key === 'end') {
       continue;
     }
     const value = node[key];
-    if (value && typeof value === "object") {
+    if (value && typeof value === 'object') {
       walkMatched(value, isMatched, fn);
     }
   }

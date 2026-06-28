@@ -1,7 +1,11 @@
-import type { Adapter} from "@navita/adapter";
-import { setAdapter } from "@navita/adapter";
-import { vi } from "vitest";
-import { createGlobalThemeContract, createTheme, createThemeContract } from "../../src";
+import type { Adapter } from '@navita/adapter';
+import { setAdapter } from '@navita/adapter';
+import { vi } from 'vitest';
+import {
+  createGlobalThemeContract,
+  createTheme,
+  createThemeContract,
+} from '../../src';
 
 describe('theme', () => {
   describe('createThemeContract', () => {
@@ -50,7 +54,7 @@ describe('theme', () => {
 
       expect(className).toBe(generatedIdentifier);
       expect(addStaticCss).toHaveBeenCalledWith(`.${generatedIdentifier}`, {
-        "--color-primary": "red",
+        '--color-primary': 'red',
       });
       expect(vars).toMatchInlineSnapshot(`
         {

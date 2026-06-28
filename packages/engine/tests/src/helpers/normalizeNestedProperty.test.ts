@@ -1,4 +1,4 @@
-import { normalizeNestedProperty } from "../../../src/helpers/normalizeNestedProperty";
+import { normalizeNestedProperty } from '../../../src/helpers/normalizeNestedProperty';
 
 describe('NormalizeNestedProperty', () => {
   it('should remove starting ampersand', () => {

@@ -1,4 +1,4 @@
-import { IDGenerator } from "../../../src/identifiers/IDGenerator";
+import { IDGenerator } from '../../../src/identifiers/IDGenerator';
 
 describe('IDGenerator', () => {
   it('should increment by one on every next call', () => {
