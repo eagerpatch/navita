@@ -1,0 +1,17 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "@navita/adapter": "0.1.0",
+    "@navita/core": "1.0.1",
+    "@navita/css": "0.2.1",
+    "@navita/engine": "0.2.2",
+    "@navita/jest": "0.1.6",
+    "@navita/next-plugin": "0.4.4",
+    "@navita/swc": "0.1.0",
+    "@navita/types": "0.1.0",
+    "@navita/vite-plugin": "2.1.0",
+    "@navita/webpack-plugin": "0.4.4"
+  },
+  "changesets": []
+}
