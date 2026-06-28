@@ -3,7 +3,7 @@ import type {
   AtRule,
   Properties,
   SimplePseudos,
-} from 'csstype';
+} from "csstype";
 
 export type ImportMap = {
   callee: string;
@@ -25,7 +25,7 @@ type Primitive = string | boolean | number | null | undefined;
 export type MapLeafNodes<Obj, LeafType> = {
   [Prop in keyof Obj]: Obj[Prop] extends Primitive
     ? LeafType
-    : Obj[Prop] extends Record<string | number, any>
+    : Obj[Prop] extends Record<string | number, unknown>
       ? MapLeafNodes<Obj[Prop], LeafType>
       : never;
 };
@@ -43,9 +43,9 @@ export type ThemeVars<ThemeContract extends NullableTokens> = MapLeafNodes<
   CSSVarFunction
 >;
 
-export type GlobalFontFaceRule = Omit<AtRule.FontFaceFallback, 'src'> &
-  Required<Pick<AtRule.FontFaceFallback, 'src'>>;
-export type FontFaceRule = Omit<GlobalFontFaceRule, 'fontFamily'>;
+export type GlobalFontFaceRule = Omit<AtRule.FontFaceFallback, "src"> &
+  Required<Pick<AtRule.FontFaceFallback, "src">>;
+export type FontFaceRule = Omit<GlobalFontFaceRule, "fontFamily">;
 
 // https://github.com/vanilla-extract-css/vanilla-extract/blob/master/packages/css/src/types.ts
 
@@ -54,7 +54,7 @@ export type FontFaceRule = Omit<GlobalFontFaceRule, 'fontFamily'>;
 // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Container_Queries
 interface ContainerProperties {
   container?: string;
-  containerType?: 'size' | 'inline-size' | (string & {});
+  containerType?: "size" | "inline-size" | (string & {});
   containerName?: string;
 }
 

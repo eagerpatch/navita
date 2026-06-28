@@ -1,8 +1,8 @@
-import type { Adapter } from '@navita/adapter';
-import { setAdapter as _setAdapter } from '@navita/adapter';
-import type { Engine, Static } from '@navita/engine';
-import { ClassList } from '@navita/engine';
-import type { GlobalStyleRule, StyleRule } from '@navita/types';
+import type { Adapter } from "@navita/adapter";
+import { setAdapter as _setAdapter } from "@navita/adapter";
+import type { Engine, Static } from "@navita/engine";
+import { ClassList } from "@navita/engine";
+import type { GlobalStyleRule, StyleRule } from "@navita/types";
 
 type FilePath = string;
 
@@ -31,7 +31,7 @@ export function setAdapter({
     addFontFace: (fontFace) => {
       const hasFontFamily = (
         Array.isArray(fontFace) ? fontFace : [fontFace]
-      ).some((fontFace) => 'fontFamily' in fontFace);
+      ).some((fontFace) => "fontFamily" in fontFace);
 
       if (hasFontFamily) {
         throw new Error(
@@ -65,7 +65,7 @@ export function setAdapter({
 
         if (extraClass) {
           result = new ClassList(
-            [result.toString(), extraClass].join(' '),
+            [result.toString(), extraClass].join(" "),
           ) as typeof result;
         }
       }
@@ -79,7 +79,7 @@ export function setAdapter({
         resultCache[filePath][index] = {
           start,
           end,
-          value: result === undefined ? 'undefined' : JSON.stringify(result),
+          value: result === undefined ? "undefined" : JSON.stringify(result),
         };
       }
 

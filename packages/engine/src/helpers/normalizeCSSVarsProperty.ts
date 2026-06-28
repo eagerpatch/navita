@@ -1,7 +1,7 @@
 const regex = /var\(([^,]+).*\)/;
 
 export function normalizeCSSVarsProperty(property: string) {
-  if (!property.startsWith('var(')) {
+  if (!property.startsWith("var(")) {
     return property;
   }
 

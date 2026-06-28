@@ -1,4 +1,4 @@
-import { SourceMapGenerator } from 'source-map';
+import { SourceMapGenerator } from "source-map";
 
 type FilePath = string;
 export type SourceMapReference = Record<
@@ -25,7 +25,7 @@ export function printSourceMap(
   }
 
   const sourceMap = new SourceMapGenerator({
-    file: 'navita.css',
+    file: "navita.css",
     skipValidation: true,
   });
 
@@ -46,7 +46,7 @@ export function printSourceMap(
     });
   }
 
-  const sourceMapContent = Buffer.from(sourceMap.toString()).toString('base64');
+  const sourceMapContent = Buffer.from(sourceMap.toString()).toString("base64");
 
   content += `\n/*# sourceMappingURL=data:application/json;base64,${sourceMapContent} */`;
 

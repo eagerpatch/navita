@@ -1,5 +1,5 @@
-import type { IdentifierGenerator, StyleBlock } from '../types';
-import { AlphaIDGenerator } from './alphaIDGenerator';
+import type { IdentifierGenerator, StyleBlock } from "../types";
+import { AlphaIDGenerator } from "./alphaIDGenerator";
 
 export class PropertyValueIDGenerator
   implements IdentifierGenerator<StyleBlock>
@@ -16,10 +16,10 @@ export class PropertyValueIDGenerator
 
   next({
     property,
-    media = '',
-    support = '',
-    container = '',
-    pseudo = '',
+    media = "",
+    support = "",
+    container = "",
+    pseudo = "",
     value,
   }: StyleBlock) {
     const propertyKey = `m${media}s${support}c${container}ps${pseudo}p${property}`;

@@ -1,5 +1,5 @@
-import type { Buffer } from 'node:buffer';
-import type { Compilation } from 'webpack';
+import type { Buffer } from "node:buffer";
+import type { Compilation } from "webpack";
 
 export function createHashFunction(compilation: Compilation) {
   const {
@@ -11,9 +11,11 @@ export function createHashFunction(compilation: Compilation) {
     outputOptions: { hashFunction, hashDigest, hashDigestLength },
   } = compilation;
 
-  const hash = createHash(hashFunction);
-
   return (...parts: (string | Buffer)[]) => {
+    // Create a fresh hash per call: a crypto Hash instance cannot be reused
+    // after `.digest()` has been called ("Digest already called").
+    const hash = createHash(hashFunction);
+
     for (const part of parts) {
       hash.update(part);
     }

@@ -35,13 +35,16 @@
         "useImportType": "error",
         "noDefaultExport": "error",
         "noNonNullAssertion": "off"
+      },
+      "suspicious": {
+        "noExplicitAny": "error"
       }
     }
   },
   "javascript": {
     "formatter": {
-      "quoteStyle": "single",
-      "jsxQuoteStyle": "single",
+      "quoteStyle": "double",
+      "jsxQuoteStyle": "double",
       "trailingCommas": "all",
       "semicolons": "always"
     }
@@ -71,6 +74,16 @@
           },
           "correctness": {
             "noUnusedImports": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/*.test.*", "**/tests/**"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off"
           }
         }
       }

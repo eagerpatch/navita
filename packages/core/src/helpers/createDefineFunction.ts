@@ -1,13 +1,13 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import enhancedResolve from 'enhanced-resolve';
+import fs from "node:fs";
+import path from "node:path";
+import enhancedResolve from "enhanced-resolve";
 
 const { ResolverFactory, CachedInputFileSystem } = enhancedResolve;
 
 const resolver = ResolverFactory.createResolver({
   fileSystem: new CachedInputFileSystem(fs, 4000),
-  extensions: ['.js', '.cjs', '.mjs'],
-  conditionNames: ['import', 'require'],
+  extensions: [".js", ".cjs", ".mjs"],
+  conditionNames: ["import", "require"],
 });
 
 const requireResolveLike = (request: string, paths: string[] = []) =>
@@ -102,9 +102,7 @@ export function createDefineFunction(
           resolverCache[filepathDirectory][dependency] = resolved;
           return resolved;
         }),
-    ).catch((error: Error) => {
-      throw error;
-    });
+    );
 
     for (const dependency of resolvedDependencies) {
       if (nodeModuleCache[dependency]) {

@@ -1,5 +1,5 @@
-import createSort from 'sort-css-media-queries/lib/create-sort.js';
-import type { StyleBlock } from '../types';
+import createSort from "sort-css-media-queries/lib/create-sort.js";
+import type { StyleBlock } from "../types";
 
 const sortCSSMediaQueries = createSort() as (a: string, b: string) => number;
 

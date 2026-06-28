@@ -1,10 +1,10 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import type { Options } from 'tsdown';
-import { createPackageJson } from './createPackageJson';
+import * as fs from "node:fs";
+import * as path from "node:path";
+import type { Options } from "tsdown";
+import { createPackageJson } from "./createPackageJson";
 
 function escapeRegExp(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 /**
@@ -17,7 +17,7 @@ function escapeRegExp(s: string): string {
  */
 function externalsFromPackageJson(cwd: string): RegExp[] {
   const pkg = JSON.parse(
-    fs.readFileSync(path.resolve(cwd, 'package.json'), 'utf8'),
+    fs.readFileSync(path.resolve(cwd, "package.json"), "utf8"),
   );
   const names = new Set<string>([
     ...Object.keys(pkg.dependencies ?? {}),
@@ -32,7 +32,7 @@ function externalsFromPackageJson(cwd: string): RegExp[] {
 
 export interface NavitaPresetOptions {
   /** Output formats. Default ['esm','cjs']. Use ['cjs'] for cjs-only packages. */
-  format?: ('esm' | 'cjs')[];
+  format?: ("esm" | "cjs")[];
   /**
    * The export entry points that should get a rolled-up `.d.ts` (matches the
    * custom tool, which emitted ONE .d.ts per `exports` entry — not per file).
@@ -42,7 +42,7 @@ export interface NavitaPresetOptions {
   dtsEntry: string | string[];
 }
 
-const ROOT_README = () => path.resolve(process.cwd(), '../../README.md');
+const ROOT_README = () => path.resolve(process.cwd(), "../../README.md");
 
 /**
  * Shared tsdown preset for navita packages. Replaces the custom rollup tool
@@ -59,14 +59,14 @@ const ROOT_README = () => path.resolve(process.cwd(), '../../README.md');
  * publish-from-dist rewrite maps `.ts -> .d.ts`.
  */
 export function navitaPreset(opts: NavitaPresetOptions): Options[] {
-  const { format = ['esm', 'cjs'], dtsEntry } = opts;
+  const { format = ["esm", "cjs"], dtsEntry } = opts;
   const neverBundle = externalsFromPackageJson(process.cwd());
 
   const jsBase: Options = {
-    entry: ['src/**/*.{ts,tsx}'], // all src modules
+    entry: ["src/**/*.{ts,tsx}"], // all src modules
     unbundle: true, // file-per-module (core evaluates modules at runtime)
     fixedExtension: true, // .mjs / .cjs
-    platform: 'node',
+    platform: "node",
     dts: false,
     deps: { neverBundle, dts: { neverBundle } },
   };
@@ -78,17 +78,17 @@ export function navitaPreset(opts: NavitaPresetOptions): Options[] {
   // has native __dirname/require.
   const passes: Options[] = [];
 
-  if (format.includes('esm')) {
+  if (format.includes("esm")) {
     passes.push({
       ...jsBase,
-      format: ['esm'],
+      format: ["esm"],
       shims: true, // __dirname/__filename shim (ESM only)
     });
   }
-  if (format.includes('cjs')) {
+  if (format.includes("cjs")) {
     passes.push({
       ...jsBase,
-      format: ['cjs'],
+      format: ["cjs"],
       shims: false, // CJS: native __dirname/require (rolldown emits __require too)
     });
   }
@@ -97,17 +97,17 @@ export function navitaPreset(opts: NavitaPresetOptions): Options[] {
   passes.push({
     entry: dtsEntry,
     unbundle: false, // bundle → rolled-up single .d.ts per entry (matches custom)
-    format: ['esm'], // single dts pass (no collision => safe to force .d.ts)
-    platform: 'node',
+    format: ["esm"], // single dts pass (no collision => safe to force .d.ts)
+    platform: "node",
     dts: { emitDtsOnly: true }, // types only; no JS from this pass
     // Force a plain `.d.ts` regardless of package `type`/format. Safe because
     // this pass emits a single format.
-    outExtensions: () => ({ dts: '.d.ts' }),
+    outExtensions: () => ({ dts: ".d.ts" }),
     deps: { neverBundle, dts: { neverBundle } },
     copy: [{ from: ROOT_README() }], // root README into each dist
     // publish-from-dist package.json rewrite (runs last)
     hooks: {
-      'build:done': async () => {
+      "build:done": async () => {
         await createPackageJson(process.cwd());
       },
     },
@@ -127,21 +127,21 @@ export function navitaPreset(opts: NavitaPresetOptions): Options[] {
  * bundled dts-only pass plus README copy + package.json rewrite.
  */
 export function navitaTypesPreset(
-  dtsEntry: string | string[] = 'src/index.ts',
+  dtsEntry: string | string[] = "src/index.ts",
 ): Options {
   const neverBundle = externalsFromPackageJson(process.cwd());
   return {
     entry: dtsEntry,
     unbundle: false,
-    format: ['esm'],
-    platform: 'node',
+    format: ["esm"],
+    platform: "node",
     dts: { emitDtsOnly: true },
-    outExtensions: () => ({ dts: '.d.ts' }),
+    outExtensions: () => ({ dts: ".d.ts" }),
     clean: true,
     deps: { neverBundle, dts: { neverBundle } },
     copy: [{ from: ROOT_README() }],
     hooks: {
-      'build:done': async () => {
+      "build:done": async () => {
         await createPackageJson(process.cwd());
       },
     },

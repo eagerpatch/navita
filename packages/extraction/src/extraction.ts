@@ -1,7 +1,7 @@
-import type { ImportMap } from '@navita/types';
-import { rewrite } from './rewrite';
-import { stripTypes } from './stripTypes';
-import { esmToAmd } from './toAmd';
+import type { ImportMap } from "@navita/types";
+import { rewrite } from "./rewrite";
+import { stripTypes } from "./stripTypes";
+import { esmToAmd } from "./toAmd";
 
 type Options = {
   filename: string;

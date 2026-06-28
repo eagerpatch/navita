@@ -1,19 +1,19 @@
-import path from 'node:path';
-import type { Engine } from '@navita/engine';
-import { extraction } from '@navita/extraction';
-import type { ImportMap } from '@navita/types';
-import { createCompiledFunction } from './helpers/createCompiledFunction';
+import path from "node:path";
+import type { Engine } from "@navita/engine";
+import { extraction } from "@navita/extraction";
+import type { ImportMap } from "@navita/types";
+import { createCompiledFunction } from "./helpers/createCompiledFunction";
 import type {
   NodeModuleCache,
   ResolverCache,
-} from './helpers/createDefineFunction';
-import { createDefineFunction } from './helpers/createDefineFunction';
-import type { ResultCache } from './helpers/setAdapter';
-import { setAdapter } from './helpers/setAdapter';
+} from "./helpers/createDefineFunction";
+import { createDefineFunction } from "./helpers/createDefineFunction";
+import type { ResultCache } from "./helpers/setAdapter";
+import { setAdapter } from "./helpers/setAdapter";
 
-const rootDir = path.resolve(__dirname, '../../');
+const rootDir = path.resolve(__dirname, "../../");
 const isExternal = (dependency: string) =>
-  dependency.startsWith(rootDir) || dependency.includes('node_modules');
+  dependency.startsWith(rootDir) || dependency.includes("node_modules");
 
 type FilePathWithType = string;
 type ModuleCache = Map<
@@ -39,17 +39,17 @@ const defaultResolverCache: ResolverCache = {};
 const defaultModuleCache: ModuleCache = new Map();
 const defaultResultCache: ResultCache = {};
 
-type Types = 'entryPoint' | 'dependency';
+type Types = "entryPoint" | "dependency";
 
 interface Output<Type extends Types> {
-  result: Type extends 'entryPoint'
+  result: Type extends "entryPoint"
     ? ResultCache[number]
     : Record<string, unknown>;
   dependencies: string[];
 }
 
 export async function evaluateAndProcess<
-  Type extends 'entryPoint' | 'dependency',
+  Type extends "entryPoint" | "dependency",
 >({
   type,
   filePath,
@@ -83,7 +83,7 @@ export async function evaluateAndProcess<
 
     const newSource = await extraction(source, {
       filename: filePath,
-      entryPoint: type === 'entryPoint',
+      entryPoint: type === "entryPoint",
       importMap,
     });
 
@@ -104,7 +104,7 @@ export async function evaluateAndProcess<
         readFile(dependency)
           .then((source) =>
             evaluateAndProcess({
-              type: 'dependency',
+              type: "dependency",
               source: source.toString(),
               filePath: dependency,
               engine,
@@ -130,7 +130,7 @@ export async function evaluateAndProcess<
   })();
 
   return compiledFn().then(({ dependencies, exports }) => {
-    if (type === 'entryPoint') {
+    if (type === "entryPoint") {
       return {
         result: resultCache[filePath] || [],
         dependencies,

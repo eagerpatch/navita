@@ -3,7 +3,7 @@ import type {
   FontFaceRule,
   GlobalStyleRule,
   StyleRule,
-} from '@navita/types';
+} from "@navita/types";
 
 export type Adapter = {
   generateIdentifier: typeof generateIdentifier;
@@ -19,8 +19,8 @@ let adapter: Adapter | undefined;
 function getAdapter() {
   if (!adapter) {
     throw new Error(
-      'Could not find an adapter. Please ensure you have added a bundler integration:\n' +
-        'https://navita.style/#bundler-integration',
+      "Could not find an adapter. Please ensure you have added a bundler integration:\n" +
+        "https://navita.style/#bundler-integration",
     );
   }
 

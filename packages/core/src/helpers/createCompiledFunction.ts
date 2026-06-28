@@ -1,5 +1,5 @@
-import vm from 'node:vm';
-import { createMagicProxy } from './magicProxy';
+import vm from "node:vm";
+import { createMagicProxy } from "./magicProxy";
 
 const context = vm.createContext({ global });
 
@@ -14,7 +14,10 @@ Object
 
 export function createCompiledFunction<Return>(
   source: string,
-  define: (deps: string[], handlerFn: (...args: any[]) => void) => Return,
+  define: (
+    deps: string[],
+    handlerFn: (...args: unknown[]) => unknown,
+  ) => Return,
 ) {
   // This looks a bit weird, but it's much quicker to do it this way than to
   // run vm.runInContext. There's a bit more information in this issue:

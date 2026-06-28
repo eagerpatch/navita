@@ -1,6 +1,6 @@
-import type { StyleBlock } from '../types';
+import type { StyleBlock } from "../types";
 
-const lowPriorityProperties = ['all'];
+const lowPriorityProperties = ["all"];
 
 export function splitStyleBlocks(blocks: StyleBlock[]) {
   const atRules: StyleBlock[] = [];

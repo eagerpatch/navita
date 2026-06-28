@@ -1,5 +1,5 @@
-import type { CSSOutput, UsedIdCache } from '@navita/webpack-plugin';
-import type { Chunk } from 'webpack';
+import type { CSSOutput, UsedIdCache } from "@navita/webpack-plugin";
+import type { Chunk } from "webpack";
 
 const merge = (...merge: UsedIdCache[]) => {
   const result: UsedIdCache = {};
@@ -76,8 +76,8 @@ export function optimizeCSSOutput(output: CSSOutput) {
       ];
     }
 
-    if (route.startsWith('pages/')) {
-      const routes = ['pages/_document', 'pages/_app', route];
+    if (route.startsWith("pages/")) {
+      const routes = ["pages/_document", "pages/_app", route];
 
       const currentRouteIndex = routes.indexOf(route);
 
@@ -88,13 +88,13 @@ export function optimizeCSSOutput(output: CSSOutput) {
         .map((x) => copy(x.usedIds));
     }
 
-    const parts = route.split('/');
+    const parts = route.split("/");
     const parents: UsedIdCache[] = [];
 
-    let currentPart = '';
+    let currentPart = "";
 
     for (const part of parts) {
-      currentPart = [currentPart, part].filter(Boolean).join('/');
+      currentPart = [currentPart, part].filter(Boolean).join("/");
       const possibleParent = `${currentPart}/layout`;
 
       if (route === possibleParent) {

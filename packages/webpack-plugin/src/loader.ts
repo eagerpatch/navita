@@ -1,7 +1,7 @@
-import type { createRenderer, ImportMap } from '@navita/core/createRenderer';
-import type { LoaderContext, LoaderDefinitionFunction } from 'webpack';
-import { createHashFunction } from './createHashFunction';
-import type { NavitaDependency } from './getNavitaDependency';
+import type { createRenderer, ImportMap } from "@navita/core/createRenderer";
+import type { LoaderContext, LoaderDefinitionFunction } from "webpack";
+import { createHashFunction } from "./createHashFunction";
+import type { NavitaDependency } from "./getNavitaDependency";
 
 interface Options {
   importMap: ImportMap;
@@ -34,11 +34,15 @@ export default async function loader(
   }
 
   try {
-    const { result, dependencies, usedIds, sourceMap } =
-      await renderer.transformAndProcess({
-        content,
-        filePath: resourcePath,
-      });
+    const {
+      result,
+      dependencies,
+      usedIds,
+      sourceMap: outputSourceMap,
+    } = await renderer.transformAndProcess({
+      content,
+      filePath: resourcePath,
+    });
 
     for (const dependency of dependencies) {
       this.addDependency(dependency);
@@ -54,7 +58,7 @@ export default async function loader(
       this._module.addDependency(new NavitaDependency(this.resourcePath, hash));
 
       if (this.hot) {
-        const hmr = require.resolve('@navita/webpack-plugin/hmr/css');
+        const hmr = require.resolve("@navita/webpack-plugin/hmr/css");
         const { RuntimeGlobals } = this._compiler.webpack;
 
         contents.push(`
@@ -65,7 +69,7 @@ export default async function loader(
       }
     }
 
-    callback(null, contents.filter(Boolean).join('\n').trim(), sourceMap);
+    callback(null, contents.filter(Boolean).join("\n").trim(), outputSourceMap);
   } catch (error) {
     callback(error as Error);
   }

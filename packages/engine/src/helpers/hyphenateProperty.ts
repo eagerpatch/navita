@@ -15,9 +15,9 @@ export function hyphenateProperty(property: string): string {
   }
 
   const hyphenated = property
-    .replace(uppercasePattern, '-$&')
+    .replace(uppercasePattern, "-$&")
     .toLowerCase()
-    .replace(msPattern, '-ms-');
+    .replace(msPattern, "-ms-");
 
   cache[property] = hyphenated;
 

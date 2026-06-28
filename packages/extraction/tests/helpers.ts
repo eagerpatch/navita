@@ -1,4 +1,4 @@
-import { getParser } from '../src/loadOxc';
+import { getParser } from "../src/loadOxc";
 
 export type CollectResultMeta = {
   filePath: string;
@@ -18,8 +18,8 @@ export type Analysis = {
 
 function literalValue(node: any): any {
   if (!node) return undefined;
-  if (node.type === 'Literal') return node.value;
-  if (node.type === 'UnaryExpression' && node.operator === '-') {
+  if (node.type === "Literal") return node.value;
+  if (node.type === "UnaryExpression" && node.operator === "-") {
     return -literalValue(node.argument);
   }
   return undefined;
@@ -28,8 +28,8 @@ function literalValue(node: any): any {
 function readObject(obj: any): Record<string, any> {
   const out: Record<string, any> = {};
   for (const prop of obj.properties || []) {
-    if (prop.type !== 'Property') continue;
-    const key = prop.key.type === 'Identifier' ? prop.key.name : prop.key.value;
+    if (prop.type !== "Property") continue;
+    const key = prop.key.type === "Identifier" ? prop.key.name : prop.key.value;
     out[key] = prop.value;
   }
   return out;
@@ -37,11 +37,11 @@ function readObject(obj: any): Record<string, any> {
 
 function calleeName(node: any): string | null {
   const callee = node && node.callee;
-  if (callee && callee.type === 'Identifier') return callee.name;
+  if (callee && callee.type === "Identifier") return callee.name;
   if (
     callee &&
-    callee.type === 'MemberExpression' &&
-    callee.property?.type === 'Identifier'
+    callee.type === "MemberExpression" &&
+    callee.property?.type === "Identifier"
   ) {
     return callee.property.name;
   }
@@ -50,9 +50,9 @@ function calleeName(node: any): string | null {
 
 /** Parse an extraction-rewrite output and extract structural facts. */
 export function analyze(code: string): Analysis {
-  const { program } = getParser().parseSync('out.tsx', code, {
-    lang: 'tsx',
-    sourceType: 'module',
+  const { program } = getParser().parseSync("out.tsx", code, {
+    lang: "tsx",
+    sourceType: "module",
   });
   const body: any[] = program.body;
 
@@ -62,19 +62,19 @@ export function analyze(code: string): Analysis {
 
   for (const stmt of body) {
     topLevelKinds.push(stmt.type);
-    if (stmt.type === 'ImportDeclaration') {
+    if (stmt.type === "ImportDeclaration") {
       imports.push({
         source: stmt.source.value,
         specifiers: (stmt.specifiers || []).map((s: any) => s.local.name),
       });
     }
     if (
-      stmt.type === 'VariableDeclaration' &&
-      stmt.kind === 'let' &&
+      stmt.type === "VariableDeclaration" &&
+      stmt.kind === "let" &&
       stmt.declarations.every((d: any) => d.init === null)
     ) {
       for (const d of stmt.declarations) {
-        if (d.id.type === 'Identifier') lets.push(d.id.name);
+        if (d.id.type === "Identifier") lets.push(d.id.name);
       }
     }
   }
@@ -82,11 +82,11 @@ export function analyze(code: string): Analysis {
   // Collect collectResult(...) calls in source order.
   const collectResults: CollectResultMeta[] = [];
   const visit = (node: any) => {
-    if (!node || typeof node !== 'object') return;
+    if (!node || typeof node !== "object") return;
     if (Array.isArray(node)) return node.forEach(visit);
     if (
-      node.type === 'CallExpression' &&
-      calleeName(node) === 'collectResult'
+      node.type === "CallExpression" &&
+      calleeName(node) === "collectResult"
     ) {
       const arg = node.arguments[0];
       const o = readObject(arg);
@@ -96,12 +96,12 @@ export function analyze(code: string): Analysis {
       let resultCallee: string | null = null;
       if (
         thunk &&
-        (thunk.type === 'ArrowFunctionExpression' ||
-          thunk.type === 'FunctionExpression')
+        (thunk.type === "ArrowFunctionExpression" ||
+          thunk.type === "FunctionExpression")
       ) {
         const b = thunk.body;
-        const expr = b.type === 'BlockStatement' ? null : b;
-        if (expr && expr.type === 'CallExpression')
+        const expr = b.type === "BlockStatement" ? null : b;
+        if (expr && expr.type === "CallExpression")
           resultCallee = calleeName(expr);
       }
       collectResults.push({
@@ -119,9 +119,9 @@ export function analyze(code: string): Analysis {
       return;
     }
     for (const key in node) {
-      if (key === 'type' || key === 'start' || key === 'end') continue;
+      if (key === "type" || key === "start" || key === "end") continue;
       const value = node[key];
-      if (value && typeof value === 'object') visit(value);
+      if (value && typeof value === "object") visit(value);
     }
   };
   visit(program);

@@ -6,17 +6,51 @@
  * indices, so `code.slice(node.start, node.end)` returns the node's source text.
  */
 
-// Minimal structural typing — the oxc AST is plain JSON-ish objects.
-export type Node = Record<string, any>;
+// Minimal structural typing — the oxc AST is plain JSON-ish objects. We declare
+// the fields we navigate (so accesses stay typed) and fall back to `unknown` for
+// everything else via the index signature.
+export interface Node {
+  type?: string;
+  name?: string;
+  start?: number;
+  end?: number;
+  computed?: boolean;
+  importKind?: string;
+  value?: unknown;
+  callee?: Node;
+  object?: Node;
+  property?: Node;
+  key?: Node;
+  expression?: Node;
+  init?: Node;
+  id?: Node;
+  left?: Node;
+  argument?: Node;
+  declaration?: Node;
+  source?: Node;
+  exported?: Node;
+  imported?: Node;
+  local?: Node;
+  body?: Node[];
+  declarations?: Node[];
+  specifiers?: Node[];
+  properties?: Node[];
+  arguments?: Node[];
+  elements?: Array<Node | null>;
+  [key: string]: unknown;
+}
 
-const SKIP_KEYS = new Set(['type', 'start', 'end', 'range', 'loc', 'parent']);
+const SKIP_KEYS = new Set(["type", "start", "end", "range", "loc", "parent"]);
 
 /**
  * Recursively visit every child node. The callback may return `false` to skip
  * descending into that node's children.
  */
-export function walk(node: any, visit: (node: Node) => void | boolean): void {
-  if (!node || typeof node !== 'object') {
+export function walk(
+  node: unknown,
+  visit: (node: Node) => void | boolean,
+): void {
+  if (!node || typeof node !== "object") {
     return;
   }
 
@@ -27,19 +61,21 @@ export function walk(node: any, visit: (node: Node) => void | boolean): void {
     return;
   }
 
-  if (typeof node.type === 'string') {
-    const descend = visit(node);
+  const n = node as Node;
+
+  if (typeof n.type === "string") {
+    const descend = visit(n);
     if (descend === false) {
       return;
     }
   }
 
-  for (const key in node) {
+  for (const key in n) {
     if (SKIP_KEYS.has(key)) {
       continue;
     }
-    const value = node[key];
-    if (value && typeof value === 'object') {
+    const value = n[key];
+    if (value && typeof value === "object") {
       walk(value, visit);
     }
   }
@@ -47,8 +83,8 @@ export function walk(node: any, visit: (node: Node) => void | boolean): void {
 
 /** Unwrap `(expr)` parenthesized expressions. */
 export function unwrapParens(node: Node | null | undefined): Node | null {
-  let current: any = node;
-  while (current && current.type === 'ParenthesizedExpression') {
+  let current: Node | null | undefined = node;
+  while (current && current.type === "ParenthesizedExpression") {
     current = current.expression;
   }
   return current ?? null;
@@ -61,7 +97,7 @@ export function unwrapParens(node: Node | null | undefined): Node | null {
  */
 export function getCalleeName(callExpr: Node): string | null {
   const callee = unwrapParens(callExpr.callee);
-  if (callee && callee.type === 'Identifier') {
+  if (callee && callee.type === "Identifier") {
     return callee.name as string;
   }
   return null;
@@ -76,7 +112,7 @@ export function getInitCalleeName(
   expr: Node | null | undefined,
 ): string | null {
   const inner = unwrapParens(expr);
-  if (inner && inner.type === 'CallExpression') {
+  if (inner && inner.type === "CallExpression") {
     return getCalleeName(inner);
   }
   return null;
@@ -95,31 +131,31 @@ export function patternNames(
   }
 
   switch (pat.type) {
-    case 'Identifier':
-    case 'BindingIdentifier':
-      out.push(pat.name);
+    case "Identifier":
+    case "BindingIdentifier":
+      out.push(pat.name as string);
       break;
-    case 'AssignmentPattern':
+    case "AssignmentPattern":
       patternNames(pat.left, out);
       break;
-    case 'ArrayPattern':
+    case "ArrayPattern":
       for (const element of pat.elements || []) {
         if (element) {
           patternNames(element, out);
         }
       }
       break;
-    case 'ObjectPattern':
+    case "ObjectPattern":
       for (const prop of pat.properties || []) {
-        if (prop.type === 'RestElement') {
+        if (prop.type === "RestElement") {
           patternNames(prop.argument, out);
         } else {
           // Property: the binding lives in `.value`.
-          patternNames(prop.value, out);
+          patternNames(prop.value as Node, out);
         }
       }
       break;
-    case 'RestElement':
+    case "RestElement":
       patternNames(pat.argument, out);
       break;
     default:
@@ -138,8 +174,8 @@ export function patternNames(
  *    (`{ key: value }` collects `value`, not `key`).
  *  - TypeScript type positions are skipped.
  */
-export function collectArgumentIdents(node: any, out: Set<string>): void {
-  if (!node || typeof node !== 'object') {
+export function collectArgumentIdents(node: unknown, out: Set<string>): void {
+  if (!node || typeof node !== "object") {
     return;
   }
 
@@ -150,46 +186,48 @@ export function collectArgumentIdents(node: any, out: Set<string>): void {
     return;
   }
 
-  switch (node.type) {
-    case 'Identifier':
-    case 'IdentifierReference':
-      out.add(node.name);
+  const n = node as Node;
+
+  switch (n.type) {
+    case "Identifier":
+    case "IdentifierReference":
+      out.add(n.name as string);
       return;
-    case 'MemberExpression':
-    case 'StaticMemberExpression':
-    case 'ComputedMemberExpression': {
-      if (node.computed) {
-        collectArgumentIdents(node.property, out);
+    case "MemberExpression":
+    case "StaticMemberExpression":
+    case "ComputedMemberExpression": {
+      if (n.computed) {
+        collectArgumentIdents(n.property, out);
       }
-      collectArgumentIdents(node.object, out);
+      collectArgumentIdents(n.object, out);
       return;
     }
-    case 'Property':
-    case 'ObjectProperty': {
-      if (node.computed) {
-        collectArgumentIdents(node.key, out);
+    case "Property":
+    case "ObjectProperty": {
+      if (n.computed) {
+        collectArgumentIdents(n.key, out);
       }
-      collectArgumentIdents(node.value, out);
+      collectArgumentIdents(n.value, out);
       return;
     }
     // Skip TypeScript type positions, descend only into the value expression.
-    case 'TSAsExpression':
-    case 'TSSatisfiesExpression':
-    case 'TSNonNullExpression':
-    case 'TSInstantiationExpression':
-    case 'TSTypeAssertion':
-      collectArgumentIdents(node.expression, out);
+    case "TSAsExpression":
+    case "TSSatisfiesExpression":
+    case "TSNonNullExpression":
+    case "TSInstantiationExpression":
+    case "TSTypeAssertion":
+      collectArgumentIdents(n.expression, out);
       return;
     default:
       break;
   }
 
-  for (const key in node) {
+  for (const key in n) {
     if (SKIP_KEYS.has(key)) {
       continue;
     }
-    const value = node[key];
-    if (value && typeof value === 'object') {
+    const value = n[key];
+    if (value && typeof value === "object") {
       collectArgumentIdents(value, out);
     }
   }
@@ -225,9 +263,9 @@ export function createLineColumnLookup(
 export function importedName(spec: Node): string {
   const imported = spec.imported;
   if (!imported) {
-    return spec.local.name;
+    return spec.local.name as string;
   }
-  return imported.type === 'Identifier' || imported.type === 'ImportSpecifier'
-    ? imported.name
-    : imported.value;
+  return imported.type === "Identifier" || imported.type === "ImportSpecifier"
+    ? (imported.name as string)
+    : (imported.value as string);
 }

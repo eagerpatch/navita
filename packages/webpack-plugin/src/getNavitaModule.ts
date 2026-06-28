@@ -1,7 +1,7 @@
-import path from 'node:path';
-import type { Compiler, Module } from 'webpack';
+import path from "node:path";
+import type { Compiler, Module } from "webpack";
 
-export const NAVITA_MODULE_TYPE = 'css/navita';
+export const NAVITA_MODULE_TYPE = "css/navita";
 
 type ModuleProperties = {
   issuerPath: string;
@@ -14,12 +14,12 @@ export type NavitaModule = new (
   cssHash: string,
 ) => Module & ModuleProperties;
 export type NavitaModuleInstance = InstanceType<NavitaModule>;
-const cache = new Map<Compiler['webpack'], NavitaModule>();
+const cache = new Map<Compiler["webpack"], NavitaModule>();
 
 type ObjectToAssign<T> = (values: { issuerPath: string; cssHash: string }) => T;
 
 function createNavitaModule(
-  webpack: Compiler['webpack'],
+  webpack: Compiler["webpack"],
   objectToAssign: ObjectToAssign<unknown>,
 ) {
   const WebpackModule = webpack.Module as unknown as typeof Module;
@@ -69,7 +69,7 @@ function createNavitaModule(
 
   webpack.util.serialization.register(
     NavitaModule,
-    path.resolve(__dirname, 'NavitaModule'),
+    path.resolve(__dirname, "NavitaModule"),
     null,
     {
       serialize(instance, context) {
@@ -94,7 +94,7 @@ function createNavitaModule(
 }
 
 export function getNavitaModule(
-  webpack: Compiler['webpack'],
+  webpack: Compiler["webpack"],
   objectToAssign?: ObjectToAssign<unknown>,
 ) {
   if (!cache.has(webpack)) {

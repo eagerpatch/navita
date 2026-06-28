@@ -1,21 +1,21 @@
-import path from 'node:path';
+import path from "node:path";
 import type {
   Engine,
   EngineOptions,
   ImportMap,
   Renderer,
-} from '@navita/core/createRenderer';
-import { createRenderer } from '@navita/core/createRenderer';
-import { importMap as defaultImportMap } from '@navita/css';
-import type { Chunk, Compilation, Compiler, RuleSetRule } from 'webpack';
-import type { ConcatSource } from 'webpack-sources';
-import { createHashFunction } from './createHashFunction';
-import type { NavitaDependencyInstance } from './getNavitaDependency';
-import { getNavitaDependency } from './getNavitaDependency';
-import type { NavitaModuleInstance } from './getNavitaModule';
-import { getNavitaModule, NAVITA_MODULE_TYPE } from './getNavitaModule';
-import type { CSSOutput, UsedIdCache } from './prepareCssOutput';
-import { prepareCssOutput } from './prepareCssOutput';
+} from "@navita/core/createRenderer";
+import { createRenderer } from "@navita/core/createRenderer";
+import { importMap as defaultImportMap } from "@navita/css";
+import type { Chunk, Compilation, Compiler, RuleSetRule } from "webpack";
+import type { ConcatSource } from "webpack-sources";
+import { createHashFunction } from "./createHashFunction";
+import type { NavitaDependencyInstance } from "./getNavitaDependency";
+import { getNavitaDependency } from "./getNavitaDependency";
+import type { NavitaModuleInstance } from "./getNavitaModule";
+import { getNavitaModule, NAVITA_MODULE_TYPE } from "./getNavitaModule";
+import type { CSSOutput, UsedIdCache } from "./prepareCssOutput";
+import { prepareCssOutput } from "./prepareCssOutput";
 
 export type { Renderer };
 export {
@@ -37,7 +37,7 @@ type MiniCSSExtractPlugin = {
 
 export interface Options {
   outputCss?: boolean;
-  exclude?: NonNullable<RuleSetRule['exclude']>;
+  exclude?: NonNullable<RuleSetRule["exclude"]>;
   importMap?: ImportMap;
   optimizeCSSOutput?: (
     output: CSSOutput,
@@ -63,11 +63,11 @@ const defaultOptions: Options = {
 };
 
 let renderer: Renderer;
-const cacheKey = 'navita';
-const MINI_CSS_EXTRACT_MODULE_TYPE = 'css/mini-extract';
+const cacheKey = "navita";
+const MINI_CSS_EXTRACT_MODULE_TYPE = "css/mini-extract";
 
 export class NavitaPlugin {
-  static pluginName = 'NavitaPlugin';
+  static pluginName = "NavitaPlugin";
   options: Options;
 
   constructor(options?: Options) {
@@ -95,7 +95,7 @@ export class NavitaPlugin {
 
     const importMap = [...defaultImportMap, ...(userImportMap || [])];
 
-    const dev = compiler.options.mode !== 'production';
+    const dev = compiler.options.mode !== "production";
 
     const defaultEngineOptions = {
       enableSourceMaps: dev,
@@ -110,7 +110,7 @@ export class NavitaPlugin {
           return;
         }
 
-        const resolverFactory = compilation.resolverFactory.get('normal', {});
+        const resolverFactory = compilation.resolverFactory.get("normal", {});
         const fileSystem = compiler.inputFileSystem;
 
         renderer = createRenderer({
@@ -183,7 +183,7 @@ export class NavitaPlugin {
     compiler.options.module?.rules.push({
       test: /\.(js|jsx|ts|tsx)$/,
       exclude,
-      loader: require.resolve('@navita/webpack-plugin/loader'),
+      loader: require.resolve("@navita/webpack-plugin/loader"),
       options: {
         importMap,
         get renderer() {
@@ -221,11 +221,11 @@ export class NavitaPlugin {
         ...(compiler.options.optimization.splitChunks || {}),
         cacheGroups: {
           // biome-ignore lint/complexity/useLiteralKeys: bracket access keeps this readable under the `false | OptimizationSplitChunksOptions` union (dot access fails to type-check here).
-          ...(compiler.options.optimization.splitChunks['cacheGroups'] || {}),
+          ...(compiler.options.optimization.splitChunks["cacheGroups"] || {}),
           navita: {
-            chunks: 'all',
+            chunks: "all",
             enforce: true,
-            name: 'navita',
+            name: "navita",
             type: NAVITA_MODULE_TYPE,
           },
         },
@@ -234,8 +234,8 @@ export class NavitaPlugin {
 
     const miniCssExtractPlugin = compiler.options.plugins.find(
       (plugin) =>
-        'getCssModule' in plugin.constructor &&
-        'getCssDependency' in plugin.constructor,
+        "getCssModule" in plugin.constructor &&
+        "getCssDependency" in plugin.constructor,
     ) as unknown as MiniCSSExtractPlugin;
 
     if (!miniCssExtractPlugin) {
@@ -333,7 +333,7 @@ export class NavitaPlugin {
           if (!dev) {
             const entry = result.find(
               (x) =>
-                'pathOptions' in x &&
+                "pathOptions" in x &&
                 x.pathOptions.contentHashType ===
                   MINI_CSS_EXTRACT_MODULE_TYPE &&
                 x.pathOptions.chunk === chunk,

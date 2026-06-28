@@ -1,18 +1,19 @@
-import type { StyleRule } from '@navita/types';
-import type { Cache } from './cache';
-import { generateCombinedAtRules } from './helpers/generateCombinedAtRules';
-import { hyphenateProperty } from './helpers/hyphenateProperty';
-import { isContainerQuery } from './helpers/isContainerQuery';
-import { isMediaQuery } from './helpers/isMediaQuery';
-import { isNestedSelector } from './helpers/isNestedSelector';
-import { isObject } from './helpers/isObject';
-import { isSupportsQuery } from './helpers/isSupportsQuery';
-import { normalizeCSSVarsProperty } from './helpers/normalizeCSSVarsProperty';
-import { normalizeCSSVarsValue } from './helpers/normalizeCSSVarsValue';
-import { normalizeNestedProperty } from './helpers/normalizeNestedProperty';
-import { pixelifyProperties } from './helpers/pixelifyProperties';
-import { transformContentProperty } from './helpers/transformContentProperty';
-import type { StyleBlock } from './types';
+import type { StyleRule } from "@navita/types";
+import type { Cache } from "./cache";
+import { generateCombinedAtRules } from "./helpers/generateCombinedAtRules";
+import { hyphenateProperty } from "./helpers/hyphenateProperty";
+import { isContainerQuery } from "./helpers/isContainerQuery";
+import { isMediaQuery } from "./helpers/isMediaQuery";
+import { isNestedSelector } from "./helpers/isNestedSelector";
+import { isObject } from "./helpers/isObject";
+import { isSupportsQuery } from "./helpers/isSupportsQuery";
+import { normalizeCSSVarsProperty } from "./helpers/normalizeCSSVarsProperty";
+import { normalizeCSSVarsValue } from "./helpers/normalizeCSSVarsValue";
+import { normalizeNestedProperty } from "./helpers/normalizeNestedProperty";
+import { pixelifyProperties } from "./helpers/pixelifyProperties";
+import { splitSelectorList } from "./helpers/splitSelectorList";
+import { transformContentProperty } from "./helpers/transformContentProperty";
+import type { StyleBlock } from "./types";
 
 const transformValuePropertyMap = {
   content: transformContentProperty,
@@ -23,15 +24,15 @@ export function processStyles({
   type,
 }: {
   cache: Cache<StyleBlock>;
-  type: StyleBlock['type'];
+  type: StyleBlock["type"];
 }) {
   return function process({
     styles,
-    pseudo = '',
-    media = '',
-    support = '',
-    container = '',
-    selector = '',
+    pseudo = "",
+    media = "",
+    support = "",
+    container = "",
+    selector = "",
   }: {
     styles: StyleRule;
     pseudo?: string;
@@ -105,10 +106,21 @@ export function processStyles({
         }
 
         if (isNestedSelector(property)) {
-          // This is only allowed in simple pseudos currently.
-          const copies = property.split(',').map((p) => p.trim());
+          // Split the selector list in a paren/bracket/quote-aware way so that
+          // grouped selectors like `&:is(.a, .b)` or `[data-x=","]` are not
+          // mangled by a naive comma split.
+          const copies = splitSelectorList(property);
 
-          for (const copy of copies) {
+          // A leading whitespace combinator (descendant nesting, e.g.
+          // " .child") is significant but gets trimmed away by the split.
+          // Re-attach it to the first segment only — leading whitespace on
+          // later segments is cosmetic spacing after a comma.
+          const hasLeadingDescendant = /^\s/.test(property);
+
+          for (let i = 0; i < copies.length; i++) {
+            const copy =
+              i === 0 && hasLeadingDescendant ? ` ${copies[i]}` : copies[i];
+
             result.push(
               ...process({
                 styles: value,
@@ -124,7 +136,7 @@ export function processStyles({
           continue;
         }
 
-        console.warn('Unknown property', property);
+        console.warn("Unknown property", property);
 
         continue;
       }
@@ -132,12 +144,12 @@ export function processStyles({
       let newProperty = normalizeCSSVarsProperty(property);
       let newValue = value;
 
-      if (typeof value === 'string') {
-        newValue = value.trim().replace(/;[\n\s]*$/, '');
+      if (typeof value === "string") {
+        newValue = value.trim().replace(/;[\n\s]*$/, "");
         newValue = normalizeCSSVarsValue(newValue);
       }
 
-      if (typeof value === 'number') {
+      if (typeof value === "number") {
         newValue = pixelifyProperties(newProperty, value);
       }
 

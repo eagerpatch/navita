@@ -1,10 +1,10 @@
-import * as adapter from '@navita/adapter';
-import { setAdapter } from '@navita/adapter';
-import * as css from '@navita/css';
-import * as engine from '@navita/engine';
-import { ClassList, Engine } from '@navita/engine';
-import type { ImportMap } from '@navita/types';
-import { extraction } from '../src/extraction';
+import * as adapter from "@navita/adapter";
+import { setAdapter } from "@navita/adapter";
+import * as css from "@navita/css";
+import * as engine from "@navita/engine";
+import { ClassList, Engine } from "@navita/engine";
+import type { ImportMap } from "@navita/types";
+import { extraction } from "../src/extraction";
 
 /**
  * The extracted AMD module `require()`s navita packages by source. Resolve those
@@ -14,9 +14,9 @@ import { extraction } from '../src/extraction';
  * whose adapter is never set ("Could not find an adapter").
  */
 const knownModules: Record<string, unknown> = {
-  '@navita/adapter': adapter,
-  '@navita/css': css,
-  '@navita/engine': engine,
+  "@navita/adapter": adapter,
+  "@navita/css": css,
+  "@navita/engine": engine,
 };
 
 export type EvalResult = {
@@ -55,7 +55,7 @@ function wireAdapter(
       resultCache[fp][index] = {
         start,
         end,
-        value: result === undefined ? 'undefined' : JSON.stringify(result),
+        value: result === undefined ? "undefined" : JSON.stringify(result),
       };
       return result;
     },
@@ -78,13 +78,13 @@ export async function evaluate(
     extraModules?: Record<string, any>;
   } = {},
 ): Promise<EvalResult> {
-  const filePath = options.filename ?? '/virtual/entry.tsx';
+  const filePath = options.filename ?? "/virtual/entry.tsx";
   const importMap = options.importMap ?? [
-    { source: '@navita/css', callee: 'style' },
-    { source: '@navita/css', callee: 'globalStyle' },
-    { source: '@navita/css', callee: 'createTheme' },
-    { source: '@navita/css', callee: 'createGlobalTheme' },
-    { source: '@navita/css', callee: 'keyframes' },
+    { source: "@navita/css", callee: "style" },
+    { source: "@navita/css", callee: "globalStyle" },
+    { source: "@navita/css", callee: "createTheme" },
+    { source: "@navita/css", callee: "createGlobalTheme" },
+    { source: "@navita/css", callee: "keyframes" },
   ];
 
   const output = await extraction(code, {
@@ -109,8 +109,8 @@ export async function evaluate(
   const define = (deps: string[], factory: (...args: any[]) => void) => {
     const exports: Record<string, unknown> = {};
     const args = deps.map((dep) => {
-      if (dep === 'require') return resolveDep;
-      if (dep === 'exports') return exports;
+      if (dep === "require") return resolveDep;
+      if (dep === "exports") return exports;
       return resolveDep(dep);
     });
     factory(...args);
@@ -118,7 +118,7 @@ export async function evaluate(
   };
 
   // eslint-disable-next-line no-new-func
-  const fn = new Function('define', 'require', `return (${output});`);
+  const fn = new Function("define", "require", `return (${output});`);
   const { exports } = fn(define, require);
 
   return {

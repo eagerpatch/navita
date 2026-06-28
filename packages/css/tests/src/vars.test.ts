@@ -1,100 +1,100 @@
-import { createVar, fallbackVar } from '../../src';
+import { createVar, fallbackVar } from "../../src";
 
-describe('vars', () => {
-  describe('createVar', () => {
-    it('should create vars', () => {
-      expect(createVar('cool-var-name')).toBe('--cool-var-name');
-      expect(createVar('coolVarName')).toBe('--coolVarName');
+describe("vars", () => {
+  describe("createVar", () => {
+    it("should create vars", () => {
+      expect(createVar("cool-var-name")).toBe("--cool-var-name");
+      expect(createVar("coolVarName")).toBe("--coolVarName");
     });
   });
 
   // These tests are from vanilla-extract:
   // https://github.com/vanilla-extract-css/vanilla-extract/blob/0d0ea3909e7f952f24aafa4c9653853ac5841b8c/packages/css/src/vars.test.ts#LL3C1-L69C4
-  describe('fallbackVar', () => {
-    it('supports a single string fallback', () => {
-      expect(fallbackVar('--foo-bar', 'blue')).toMatchInlineSnapshot(
+  describe("fallbackVar", () => {
+    it("supports a single string fallback", () => {
+      expect(fallbackVar("--foo-bar", "blue")).toMatchInlineSnapshot(
         `"var(--foo-bar, blue)"`,
       );
-      expect(fallbackVar('var(--foo-bar)', 'blue')).toMatchInlineSnapshot(
+      expect(fallbackVar("var(--foo-bar)", "blue")).toMatchInlineSnapshot(
         `"var(--foo-bar, blue)"`,
       );
     });
 
-    it('supports a single numeric fallback', () => {
-      expect(fallbackVar('--foo-bar', '10px')).toMatchInlineSnapshot(
+    it("supports a single numeric fallback", () => {
+      expect(fallbackVar("--foo-bar", "10px")).toMatchInlineSnapshot(
         `"var(--foo-bar, 10px)"`,
       );
-      expect(fallbackVar('var(--foo-bar)', '10px')).toMatchInlineSnapshot(
+      expect(fallbackVar("var(--foo-bar)", "10px")).toMatchInlineSnapshot(
         `"var(--foo-bar, 10px)"`,
       );
     });
 
-    it('supports a single var fallback', () => {
-      expect(fallbackVar('--foo-bar', 'var(--baz)')).toMatchInlineSnapshot(
+    it("supports a single var fallback", () => {
+      expect(fallbackVar("--foo-bar", "var(--baz)")).toMatchInlineSnapshot(
         `"var(--foo-bar, var(--baz))"`,
       );
 
-      expect(fallbackVar('var(--foo-bar)', 'var(--baz)')).toMatchInlineSnapshot(
+      expect(fallbackVar("var(--foo-bar)", "var(--baz)")).toMatchInlineSnapshot(
         `"var(--foo-bar, var(--baz))"`,
       );
     });
 
-    it('supports multiple fallbacks resolving to a string', () => {
+    it("supports multiple fallbacks resolving to a string", () => {
       expect(
-        fallbackVar('--foo', 'var(--bar)', 'var(--baz)', 'blue'),
+        fallbackVar("--foo", "var(--bar)", "var(--baz)", "blue"),
       ).toMatchInlineSnapshot(`"var(--foo, var(--bar, var(--baz, blue)))"`);
 
       expect(
-        fallbackVar('--foo', '--bar', 'var(--baz)', 'blue'),
+        fallbackVar("--foo", "--bar", "var(--baz)", "blue"),
       ).toMatchInlineSnapshot(`"var(--foo, var(--bar, var(--baz, blue)))"`);
 
       expect(
-        fallbackVar('--foo', '--bar', '--baz', 'blue'),
+        fallbackVar("--foo", "--bar", "--baz", "blue"),
       ).toMatchInlineSnapshot(`"var(--foo, var(--bar, var(--baz, blue)))"`);
 
       expect(
-        fallbackVar('var(--foo)', 'var(--bar)', 'var(--baz)', 'blue'),
+        fallbackVar("var(--foo)", "var(--bar)", "var(--baz)", "blue"),
       ).toMatchInlineSnapshot(`"var(--foo, var(--bar, var(--baz, blue)))"`);
     });
 
-    it('supports multiple fallbacks resolving to a number', () => {
+    it("supports multiple fallbacks resolving to a number", () => {
       expect(
-        fallbackVar('--foo', '--bar', '--baz', '10px'),
+        fallbackVar("--foo", "--bar", "--baz", "10px"),
       ).toMatchInlineSnapshot(`"var(--foo, var(--bar, var(--baz, 10px)))"`);
 
       expect(
-        fallbackVar('var(--foo)', 'var(--bar)', 'var(--baz)', '10px'),
+        fallbackVar("var(--foo)", "var(--bar)", "var(--baz)", "10px"),
       ).toMatchInlineSnapshot(`"var(--foo, var(--bar, var(--baz, 10px)))"`);
     });
 
-    it('supports multiple fallbacks resolving to a var', () => {
+    it("supports multiple fallbacks resolving to a var", () => {
       expect(
-        fallbackVar('--foo', '--bar', '--baz', '--final-fallback'),
+        fallbackVar("--foo", "--bar", "--baz", "--final-fallback"),
       ).toMatchInlineSnapshot(
         `"var(--foo, var(--bar, var(--baz, var(--final-fallback))))"`,
       );
 
       expect(
         fallbackVar(
-          'var(--foo)',
-          'var(--bar)',
-          'var(--baz)',
-          'var(--final-fallback)',
+          "var(--foo)",
+          "var(--bar)",
+          "var(--baz)",
+          "var(--final-fallback)",
         ),
       ).toMatchInlineSnapshot(
         `"var(--foo, var(--bar, var(--baz, var(--final-fallback))))"`,
       );
     });
 
-    it('should throw with invalid vars', () => {
+    it("should throw with invalid vars", () => {
       expect(() => {
-        fallbackVar('INVALID', '10px');
+        fallbackVar("INVALID", "10px");
       }).toThrowErrorMatchingInlineSnapshot(
         `[Error: Invalid variable name: INVALID]`,
       );
 
       expect(() => {
-        fallbackVar('INVALID1', 'INVALID2', '10px');
+        fallbackVar("INVALID1", "INVALID2", "10px");
       }).toThrowErrorMatchingInlineSnapshot(
         `[Error: Invalid variable name: INVALID2]`,
       );
@@ -102,19 +102,19 @@ describe('vars', () => {
       expect(() => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
-        fallbackVar('INVALID', 10, 10);
+        fallbackVar("INVALID", 10, 10);
       }).toThrowErrorMatchingInlineSnapshot(
         `[Error: Invalid variable name: 10]`,
       );
 
       expect(() => {
-        fallbackVar('var(--foo-bar)', 'INVALID', '10px');
+        fallbackVar("var(--foo-bar)", "INVALID", "10px");
       }).toThrowErrorMatchingInlineSnapshot(
         `[Error: Invalid variable name: INVALID]`,
       );
 
       expect(() => {
-        fallbackVar('INVALID', 'var(--foo-bar)', '10px');
+        fallbackVar("INVALID", "var(--foo-bar)", "10px");
       }).toThrowErrorMatchingInlineSnapshot(
         `[Error: Invalid variable name: INVALID]`,
       );

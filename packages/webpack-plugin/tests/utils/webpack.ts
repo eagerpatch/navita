@@ -1,16 +1,16 @@
-import * as fs from 'node:fs';
-import { CachedInputFileSystem } from 'enhanced-resolve';
-import { createFsFromVolume, Volume } from 'memfs';
-import { Union } from 'unionfs';
-import type { IFS } from 'unionfs/lib/fs';
-import type { Compiler, Configuration, RuleSetRule, Stats } from 'webpack';
-import { webpack } from 'webpack';
+import * as fs from "node:fs";
+import { CachedInputFileSystem } from "enhanced-resolve";
+import { createFsFromVolume, Volume } from "memfs";
+import { Union } from "unionfs";
+import type { IFS } from "unionfs/lib/fs";
+import type { Compiler, Configuration, RuleSetRule, Stats } from "webpack";
+import { webpack } from "webpack";
 
 type Contents = string | { [path: string]: string };
 
 interface Options {
   rules?: RuleSetRule[];
-  plugins?: Configuration['plugins'];
+  plugins?: Configuration["plugins"];
   contents?: Contents;
 }
 
@@ -24,14 +24,14 @@ export const createWebpack = ({ rules, plugins, contents }: Options) => {
     .use(inputMemoryFileSystem as unknown as IFS);
 
   const files: { [key: string]: string } =
-    typeof contents === 'string'
+    typeof contents === "string"
       ? {
-          '/index.js': contents,
+          "/index.js": contents,
         }
       : contents || {};
 
   for (const [filePath, value] of Object.entries(files)) {
-    inputMemoryFileSystem.writeFileSync(filePath, value || '');
+    inputMemoryFileSystem.writeFileSync(filePath, value || "");
   }
 
   const outputVolume = new Volume();
@@ -39,13 +39,13 @@ export const createWebpack = ({ rules, plugins, contents }: Options) => {
 
   const compiler = webpack({
     cache: false,
-    target: 'node',
-    mode: 'development',
-    entry: './index.js',
+    target: "node",
+    mode: "development",
+    entry: "./index.js",
     devtool: false,
     output: {
-      path: '/dist',
-      filename: 'index.js',
+      path: "/dist",
+      filename: "index.js",
     },
     module: {
       rules: [...(rules || [])],
@@ -59,7 +59,7 @@ export const createWebpack = ({ rules, plugins, contents }: Options) => {
             new CachedInputFileSystem(
               combinedInputFileSystem,
               60000,
-            ) as unknown as Compiler['inputFileSystem'];
+            ) as unknown as Compiler["inputFileSystem"];
 
           compiler.outputFileSystem = outputFileSystem;
         },
@@ -76,7 +76,7 @@ export const createWebpack = ({ rules, plugins, contents }: Options) => {
         }
 
         if (!stats) {
-          return reject(new Error('No stats'));
+          return reject(new Error("No stats"));
         }
 
         if (stats.hasErrors()) {
@@ -94,7 +94,7 @@ export const createWebpack = ({ rules, plugins, contents }: Options) => {
         ?.source();
 
     const getCompiledSource = (fileName: string) =>
-      outputVolume.readFileSync(fileName, 'utf-8');
+      outputVolume.readFileSync(fileName, "utf-8");
 
     return {
       stats,

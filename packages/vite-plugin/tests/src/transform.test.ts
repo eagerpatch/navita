@@ -1,7 +1,7 @@
-import { createRenderer } from '@navita/core/createRenderer';
-import { importMap } from '@navita/css';
-import { type MockInstance, vi } from 'vitest';
-import { navita } from '../../src/index';
+import { createRenderer } from "@navita/core/createRenderer";
+import { importMap } from "@navita/css";
+import { type MockInstance, vi } from "vitest";
+import { navita } from "../../src/index";
 
 /**
  * The navita transform must not re-process RedwoodSDK's already-built worker
@@ -14,12 +14,12 @@ import { navita } from '../../src/index';
  * transformAndProcess to assert whether the transform reaches extraction —
  * full extraction is exercised by @navita/core's own tests.
  */
-describe('navita vite-plugin transform — RedwoodSDK linker pass', () => {
-  const RENDERER_KEY = '__navita_renderer';
+describe("navita vite-plugin transform — RedwoodSDK linker pass", () => {
+  const RENDERER_KEY = "__navita_renderer";
   // Code that references a navita import source, so the transform would otherwise
   // proceed to process it.
   const code = `import { style } from '@navita/css';\nexport const x = style({ color: 'red' });`;
-  const id = '/project/dist/worker/index.js';
+  const id = "/project/dist/worker/index.js";
 
   let processSpy: MockInstance;
 
@@ -28,10 +28,10 @@ describe('navita vite-plugin transform — RedwoodSDK linker pass', () => {
       context: process.cwd(),
       importMap,
       resolver: async () => null,
-      readFile: async () => '',
+      readFile: async () => "",
     });
     processSpy = vi
-      .spyOn(renderer, 'transformAndProcess')
+      .spyOn(renderer, "transformAndProcess")
       .mockResolvedValue({ result: code, sourceMap: null, dependencies: [] });
     (globalThis as Record<string, unknown>)[RENDERER_KEY] = renderer;
   });
@@ -47,7 +47,7 @@ describe('navita vite-plugin transform — RedwoodSDK linker pass', () => {
     // configResolved sets isProduction; production avoids the dev-only watch/HMR path.
     (plugin as { configResolved: (c: unknown) => void }).configResolved({
       root: process.cwd(),
-      mode: 'production',
+      mode: "production",
     });
     const { transform } = plugin as {
       transform: (this: unknown, code: string, id: string) => Promise<unknown>;
@@ -56,8 +56,8 @@ describe('navita vite-plugin transform — RedwoodSDK linker pass', () => {
       transform.call({ addWatchFile: vi.fn() }, c, i);
   };
 
-  it('skips the built worker bundle during the rwsdk linker pass', async () => {
-    process.env.RWSDK_BUILD_PASS = 'linker';
+  it("skips the built worker bundle during the rwsdk linker pass", async () => {
+    process.env.RWSDK_BUILD_PASS = "linker";
 
     const result = await getTransform()(code, id);
 
@@ -65,7 +65,7 @@ describe('navita vite-plugin transform — RedwoodSDK linker pass', () => {
     expect(processSpy).not.toHaveBeenCalled();
   });
 
-  it('processes the same file when NOT in the linker pass', async () => {
+  it("processes the same file when NOT in the linker pass", async () => {
     delete process.env.RWSDK_BUILD_PASS;
 
     const result = (await getTransform()(code, id)) as { code: string } | null;

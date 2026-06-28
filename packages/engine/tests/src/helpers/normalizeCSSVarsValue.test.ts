@@ -1,50 +1,67 @@
-import { normalizeCSSVarsValue } from '../../../src/helpers/normalizeCSSVarsValue';
+import { normalizeCSSVarsValue } from "../../../src/helpers/normalizeCSSVarsValue";
 
-describe('normalizeCSSVarsValue', () => {
-  it('should only replace css var with var() if it is not already', () => {
-    expect(normalizeCSSVarsValue('var(--my-var)')).toBe('var(--my-var)');
-    expect(normalizeCSSVarsValue('--my-var')).toBe('var(--my-var)');
-    expect(normalizeCSSVarsValue('var(--my-var) var(--my-var)')).toBe(
-      'var(--my-var) var(--my-var)',
+describe("normalizeCSSVarsValue", () => {
+  it("should only replace css var with var() if it is not already", () => {
+    expect(normalizeCSSVarsValue("var(--my-var)")).toBe("var(--my-var)");
+    expect(normalizeCSSVarsValue("--my-var")).toBe("var(--my-var)");
+    expect(normalizeCSSVarsValue("var(--my-var) var(--my-var)")).toBe(
+      "var(--my-var) var(--my-var)",
     );
-    expect(normalizeCSSVarsValue('var(--my-var) --my-var')).toBe(
-      'var(--my-var) var(--my-var)',
+    expect(normalizeCSSVarsValue("var(--my-var) --my-var")).toBe(
+      "var(--my-var) var(--my-var)",
     );
-    expect(normalizeCSSVarsValue('--my-var var(--my-var)')).toBe(
-      'var(--my-var) var(--my-var)',
+    expect(normalizeCSSVarsValue("--my-var var(--my-var)")).toBe(
+      "var(--my-var) var(--my-var)",
     );
-    expect(normalizeCSSVarsValue('--my-var --my-var')).toBe(
-      'var(--my-var) var(--my-var)',
+    expect(normalizeCSSVarsValue("--my-var --my-var")).toBe(
+      "var(--my-var) var(--my-var)",
     );
   });
 
-  it('should work with css vars in real life', () => {
-    expect(normalizeCSSVarsValue('0px 2px 0px --box-shadow-color')).toBe(
-      '0px 2px 0px var(--box-shadow-color)',
+  it("should work with css vars in real life", () => {
+    expect(normalizeCSSVarsValue("0px 2px 0px --box-shadow-color")).toBe(
+      "0px 2px 0px var(--box-shadow-color)",
     );
-    expect(normalizeCSSVarsValue('0px 2px 0px var(--box-shadow-color)')).toBe(
-      '0px 2px 0px var(--box-shadow-color)',
+    expect(normalizeCSSVarsValue("0px 2px 0px var(--box-shadow-color)")).toBe(
+      "0px 2px 0px var(--box-shadow-color)",
     );
-    expect(normalizeCSSVarsValue('var(--box-shadow-color) 0px 2px 0px')).toBe(
-      'var(--box-shadow-color) 0px 2px 0px',
-    );
-  });
-
-  it('should work with fallback vars', () => {
-    expect(normalizeCSSVarsValue('var(--my-var, --this-is-wrong)')).toBe(
-      'var(--my-var, var(--this-is-wrong))',
-    );
-    expect(normalizeCSSVarsValue('var(--my-var,--this-is-wrong)')).toBe(
-      'var(--my-var,var(--this-is-wrong))',
+    expect(normalizeCSSVarsValue("var(--box-shadow-color) 0px 2px 0px")).toBe(
+      "var(--box-shadow-color) 0px 2px 0px",
     );
   });
 
-  it('should cover https://github.com/eagerpatch/navita/issues/21#issue-1992454530', () => {
-    expect(normalizeCSSVarsValue('rgba(--color, 0.15)')).toBe(
-      'rgba(var(--color), 0.15)',
+  it("should work with fallback vars", () => {
+    expect(normalizeCSSVarsValue("var(--my-var, --this-is-wrong)")).toBe(
+      "var(--my-var, var(--this-is-wrong))",
     );
-    expect(normalizeCSSVarsValue('rgba(--color,0.15)')).toBe(
-      'rgba(var(--color),0.15)',
+    expect(normalizeCSSVarsValue("var(--my-var,--this-is-wrong)")).toBe(
+      "var(--my-var,var(--this-is-wrong))",
     );
+  });
+
+  it("should cover https://github.com/eagerpatch/navita/issues/21#issue-1992454530", () => {
+    expect(normalizeCSSVarsValue("rgba(--color, 0.15)")).toBe(
+      "rgba(var(--color), 0.15)",
+    );
+    expect(normalizeCSSVarsValue("rgba(--color,0.15)")).toBe(
+      "rgba(var(--color),0.15)",
+    );
+  });
+
+  it('should not corrupt arbitrary strings that merely contain "--"', () => {
+    // A "--" that is part of a larger identifier (e.g. a font family) must be
+    // left untouched — it is not a CSS custom-property reference.
+    expect(normalizeCSSVarsValue("Foo--Bar")).toBe("Foo--Bar");
+    expect(normalizeCSSVarsValue('"Recursive--Mono", monospace')).toBe(
+      '"Recursive--Mono", monospace',
+    );
+    expect(normalizeCSSVarsValue("a-b--c-d")).toBe("a-b--c-d");
+  });
+
+  it("should still wrap a real var that is preceded by a delimiter", () => {
+    expect(normalizeCSSVarsValue("calc(--gap * 2)")).toBe(
+      "calc(var(--gap) * 2)",
+    );
+    expect(normalizeCSSVarsValue("10px --gap")).toBe("10px var(--gap)");
   });
 });

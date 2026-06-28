@@ -1,5 +1,5 @@
-import type { ImportMap } from '@navita/types';
-import MagicString from 'magic-string';
+import type { ImportMap } from "@navita/types";
+import MagicString from "magic-string";
 import {
   collectArgumentIdents,
   createLineColumnLookup,
@@ -9,11 +9,11 @@ import {
   type Node,
   patternNames,
   walk,
-} from './ast';
-import { getParser } from './loadOxc';
+} from "./ast";
+import { getParser } from "./loadOxc";
 
-const COLLECT_RESULT_NAME = 'collectResult';
-const ADAPTER_SOURCE = '@navita/adapter';
+const COLLECT_RESULT_NAME = "collectResult";
+const ADAPTER_SOURCE = "@navita/adapter";
 
 type Options = {
   filename: string;
@@ -21,8 +21,8 @@ type Options = {
 };
 
 type KeptItem =
-  | { kind: 'statement'; node: Node }
-  | { kind: 'exprCall'; node: Node };
+  | { kind: "statement"; node: Node }
+  | { kind: "exprCall"; node: Node };
 
 /**
  * The core extraction rewrite. Produces an ES module (still TypeScript, still
@@ -41,10 +41,10 @@ export function rewrite(
   { filename, importMap }: Options,
 ): string {
   const { program } = getParser().parseSync(filename, code, {
-    lang: 'tsx',
-    sourceType: 'module',
+    lang: "tsx",
+    sourceType: "module",
   });
-  const body: Node[] = program.body;
+  const body = program.body as unknown as Node[];
 
   // ---------------------------------------------------------------------------
   // Phase A — identify the local bindings that refer to navita style callees,
@@ -54,13 +54,13 @@ export function rewrite(
   const importBindings = new Set<string>(); // every import local name
 
   for (const stmt of body) {
-    if (stmt.type !== 'ImportDeclaration' || stmt.importKind === 'type') {
+    if (stmt.type !== "ImportDeclaration" || stmt.importKind === "type") {
       continue;
     }
     const source = stmt.source.value as string;
     for (const spec of stmt.specifiers || []) {
       importBindings.add(spec.local.name);
-      if (spec.type !== 'ImportSpecifier' || spec.importKind === 'type') {
+      if (spec.type !== "ImportSpecifier" || spec.importKind === "type") {
         continue;
       }
       const imported = importedName(spec);
@@ -73,8 +73,8 @@ export function rewrite(
   }
 
   const isMatchedCall = (node: Node): boolean =>
-    node.type === 'CallExpression' &&
-    importCalls.has(getCalleeName(node) ?? '\0');
+    node.type === "CallExpression" &&
+    importCalls.has(getCalleeName(node) ?? "\0");
 
   // ---------------------------------------------------------------------------
   // Phase B — collect identifiers referenced inside the arguments of every
@@ -103,7 +103,7 @@ export function rewrite(
       if (initCallee !== null && importCalls.has(initCallee)) {
         keep = true;
         const names = patternNames(decl.id);
-        const label = names[0] ?? '';
+        const label = names[0] ?? "";
         // Map each matched call in the init to the declared name.
         walkMatched(decl.init, isMatchedCall, (call) => {
           callIdentifier.set(call, label);
@@ -120,8 +120,8 @@ export function rewrite(
     return keep;
   };
 
-  const visit = (node: any): void => {
-    if (!node || typeof node !== 'object') {
+  const visit = (node: unknown): void => {
+    if (!node || typeof node !== "object") {
       return;
     }
     if (Array.isArray(node)) {
@@ -131,73 +131,72 @@ export function rewrite(
       return;
     }
 
-    switch (node.type) {
-      case 'ImportDeclaration': {
-        for (const spec of node.specifiers || []) {
-          usedIdents.delete(spec.local.name);
+    const n = node as Node;
+
+    switch (n.type) {
+      case "ImportDeclaration": {
+        for (const spec of n.specifiers || []) {
+          usedIdents.delete(spec.local.name as string);
         }
-        moduleImports.push(node);
+        moduleImports.push(n);
         return; // imports are leaves here
       }
-      case 'VariableDeclaration': {
-        if (computeVarDeclKeep(node)) {
-          keptItems.push({ kind: 'statement', node });
+      case "VariableDeclaration": {
+        if (computeVarDeclKeep(n)) {
+          keptItems.push({ kind: "statement", node: n });
         } else {
-          visitChildren(node);
+          visitChildren(n);
         }
         return;
       }
-      case 'ExportNamedDeclaration': {
-        if (
-          node.declaration &&
-          node.declaration.type === 'VariableDeclaration'
-        ) {
-          if (computeVarDeclKeep(node.declaration)) {
-            keptItems.push({ kind: 'statement', node });
+      case "ExportNamedDeclaration": {
+        if (n.declaration && n.declaration.type === "VariableDeclaration") {
+          if (computeVarDeclKeep(n.declaration)) {
+            keptItems.push({ kind: "statement", node: n });
           } else {
-            visitChildren(node.declaration);
+            visitChildren(n.declaration);
           }
           return;
         }
-        visitChildren(node);
+        visitChildren(n);
         return;
       }
-      case 'FunctionDeclaration': {
-        visitChildren(node);
-        if (node.id && usedIdents.has(node.id.name)) {
-          keptItems.push({ kind: 'statement', node });
-          usedIdents.delete(node.id.name);
+      case "FunctionDeclaration": {
+        visitChildren(n);
+        if (n.id && usedIdents.has(n.id.name as string)) {
+          keptItems.push({ kind: "statement", node: n });
+          usedIdents.delete(n.id.name as string);
         }
         return;
       }
-      case 'ClassDeclaration': {
-        visitChildren(node);
-        if (node.id && usedIdents.has(node.id.name)) {
-          keptItems.push({ kind: 'statement', node });
-          usedIdents.delete(node.id.name);
+      case "ClassDeclaration": {
+        visitChildren(n);
+        if (n.id && usedIdents.has(n.id.name as string)) {
+          keptItems.push({ kind: "statement", node: n });
+          usedIdents.delete(n.id.name as string);
         }
         return;
       }
-      case 'CallExpression': {
-        if (isMatchedCall(node)) {
-          keptItems.push({ kind: 'exprCall', node });
+      case "CallExpression": {
+        if (isMatchedCall(n)) {
+          keptItems.push({ kind: "exprCall", node: n });
           return; // do not descend into a matched call
         }
-        visitChildren(node);
+        visitChildren(n);
         return;
       }
       default:
-        visitChildren(node);
+        visitChildren(n);
     }
   };
 
   const visitChildren = (node: Node): void => {
     for (const key in node) {
-      if (key === 'type' || key === 'start' || key === 'end') {
+      if (key === "type" || key === "start" || key === "end") {
         continue;
       }
       const value = node[key];
-      if (value && typeof value === 'object') {
+      if (value && typeof value === "object") {
         visit(value);
       }
     }
@@ -218,7 +217,7 @@ export function rewrite(
   let index = 0;
 
   const rewriteCall = (call: Node): void => {
-    const identifier = callIdentifier.get(call) ?? '';
+    const identifier = callIdentifier.get(call) ?? "";
     const start = call.start;
     const end = call.end;
     const { line, column } = lineColumn(start);
@@ -258,10 +257,10 @@ export function rewrite(
   }
   for (const item of keptItems) {
     const sliced = magic.slice(item.node.start, item.node.end);
-    parts.push(item.kind === 'exprCall' ? `${sliced};` : sliced);
+    parts.push(item.kind === "exprCall" ? `${sliced};` : sliced);
   }
 
-  return parts.join('\n');
+  return parts.join("\n");
 }
 
 /**
@@ -269,11 +268,11 @@ export function rewrite(
  * subtree (mirrors the swc visitor which replaces the node without recursing).
  */
 function walkMatched(
-  node: any,
+  node: unknown,
   isMatched: (n: Node) => boolean,
   fn: (call: Node) => void,
 ): void {
-  if (!node || typeof node !== 'object') {
+  if (!node || typeof node !== "object") {
     return;
   }
   if (Array.isArray(node)) {
@@ -282,16 +281,17 @@ function walkMatched(
     }
     return;
   }
-  if (node.type === 'CallExpression' && isMatched(node)) {
-    fn(node);
+  const n = node as Node;
+  if (n.type === "CallExpression" && isMatched(n)) {
+    fn(n);
     return; // do not descend into the matched call
   }
-  for (const key in node) {
-    if (key === 'type' || key === 'start' || key === 'end') {
+  for (const key in n) {
+    if (key === "type" || key === "start" || key === "end") {
       continue;
     }
-    const value = node[key];
-    if (value && typeof value === 'object') {
+    const value = n[key];
+    if (value && typeof value === "object") {
       walkMatched(value, isMatched, fn);
     }
   }

@@ -1,5 +1,5 @@
-import { getNavitaDependency } from '@navita/webpack-plugin';
-import type { LoaderContext } from 'webpack';
+import { getNavitaDependency } from "@navita/webpack-plugin";
+import type { LoaderContext } from "webpack";
 
 export function pitch(this: LoaderContext<unknown>) {
   this._module.loaders = [];
@@ -18,7 +18,7 @@ export function pitch(this: LoaderContext<unknown>) {
   // And are not even included in the final bundle.
   // https://github.com/vercel/next.js/blob/8c6532fa7045879feb13bb21c530bb1517378e29/packages/next/src/build/webpack/plugins/flight-manifest-plugin.ts#L404
   // https://github.com/vercel/next.js/blob/8c6532fa7045879feb13bb21c530bb1517378e29/packages/next/src/lib/constants.ts#L146
-  this._module.layer = 'not-app-pages-browser';
+  this._module.layer = "not-app-pages-browser";
 
-  return '';
+  return "";
 }

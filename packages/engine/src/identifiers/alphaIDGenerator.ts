@@ -1,15 +1,15 @@
-import type { IdentifierGenerator } from '../types';
+import type { IdentifierGenerator } from "../types";
 
-const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const charLength = chars.length;
 
 export class AlphaIDGenerator implements IdentifierGenerator<undefined> {
   private counter = 1;
 
-  constructor(private blacklist = ['ad']) {}
+  constructor(private blacklist = ["ad"]) {}
 
   next() {
-    const nextString = (id, className = '') => {
+    const nextString = (id, className = "") => {
       if (id <= charLength) {
         return chars[id - 1] + className;
       }

@@ -1,9 +1,9 @@
-import { defineConfig } from 'tsdown';
-import { navitaPreset } from '../../scripts/tsdown/navitaPreset';
+import { defineConfig } from "tsdown";
+import { navitaPreset } from "../../scripts/tsdown/navitaPreset";
 
 export default defineConfig(
   navitaPreset({
-    format: ['cjs'],
-    dtsEntry: ['src/index.ts', 'src/fromServerLoader.ts'],
+    format: ["cjs"],
+    dtsEntry: ["src/index.ts", "src/fromServerLoader.ts"],
   }),
 );

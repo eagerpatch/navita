@@ -1,13 +1,13 @@
-import type { Engine, UsedIdCache } from '@navita/core/createRenderer';
+import type { Engine, UsedIdCache } from "@navita/core/createRenderer";
 import type {
   Chunk,
   ChunkGraph,
   Compilation,
   Module,
   ModuleGraph,
-} from 'webpack';
-import type { NavitaModuleInstance } from './getNavitaModule';
-import { getNavitaModule } from './getNavitaModule';
+} from "webpack";
+import type { NavitaModuleInstance } from "./getNavitaModule";
+import { getNavitaModule } from "./getNavitaModule";
 
 type CheckCacheGroup = (
   module: Module,

@@ -1,11 +1,11 @@
-import type { IdentifierGenerator } from './types';
+import type { IdentifierGenerator } from "./types";
 
 export class Cache<T> {
   private _items: Record<string, T & { id: string | number }> = {};
 
   constructor(private _idGenerator: IdentifierGenerator<T>) {}
 
-  getOrStore(value: Omit<T, 'id'>) {
+  getOrStore(value: Omit<T, "id">) {
     const cacheKey = JSON.stringify(value);
 
     if (this._items[cacheKey]) {
@@ -29,6 +29,8 @@ export class Cache<T> {
       return items;
     }
 
-    return items.filter((item) => ids.includes(item.id));
+    const idSet = new Set(ids);
+
+    return items.filter((item) => idSet.has(item.id));
   }
 }

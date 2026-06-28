@@ -1,5 +1,5 @@
-import path from 'node:path';
-import type { Compiler, Dependency } from 'webpack';
+import path from "node:path";
+import type { Compiler, Dependency } from "webpack";
 
 type DependencyProperties = {
   issuerPath: string;
@@ -13,9 +13,9 @@ export type NavitaDependency = new (
 ) => Dependency & DependencyProperties;
 export type NavitaDependencyInstance = InstanceType<NavitaDependency>;
 
-const cache = new WeakMap<Compiler['webpack'], NavitaDependency>();
+const cache = new WeakMap<Compiler["webpack"], NavitaDependency>();
 
-function createNavitaDependency(webpack: Compiler['webpack']) {
+function createNavitaDependency(webpack: Compiler["webpack"]) {
   const WebpackDependency = webpack.Dependency as typeof Dependency;
 
   class NavitaDependency extends WebpackDependency {
@@ -27,7 +27,7 @@ function createNavitaDependency(webpack: Compiler['webpack']) {
     }
 
     get request() {
-      return '.css';
+      return ".css";
     }
 
     getResourceIdentifier() {
@@ -50,7 +50,7 @@ function createNavitaDependency(webpack: Compiler['webpack']) {
 
   webpack.util.serialization.register(
     NavitaDependency,
-    path.resolve(__dirname, 'NavitaDependency'),
+    path.resolve(__dirname, "NavitaDependency"),
     null,
     {
       serialize(instance, context) {
@@ -73,7 +73,7 @@ function createNavitaDependency(webpack: Compiler['webpack']) {
   return NavitaDependency;
 }
 
-export function getNavitaDependency(webpack: Compiler['webpack']) {
+export function getNavitaDependency(webpack: Compiler["webpack"]) {
   if (!cache.has(webpack)) {
     cache.set(webpack, createNavitaDependency(webpack));
   }

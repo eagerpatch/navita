@@ -1,6 +1,6 @@
-import type { CSSKeyframes, CSSProperties } from '@navita/types';
-import { isObject } from './helpers/isObject';
-import { transformContentProperty } from './helpers/transformContentProperty';
+import type { CSSKeyframes, CSSProperties } from "@navita/types";
+import { isObject } from "./helpers/isObject";
+import { transformContentProperty } from "./helpers/transformContentProperty";
 
 const transformValuePropertyMap = {
   content: transformContentProperty,

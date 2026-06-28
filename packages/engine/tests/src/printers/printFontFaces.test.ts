@@ -1,12 +1,12 @@
-import { printFontFaces } from '../../../src/printers/printFontFaces';
-import type { FontFaceBlock } from '../../../src/types';
+import { printFontFaces } from "../../../src/printers/printFontFaces";
+import type { FontFaceBlock } from "../../../src/types";
 
-describe('printFontFaces', () => {
-  it('should print font faces', () => {
+describe("printFontFaces", () => {
+  it("should print font faces", () => {
     const blocks: FontFaceBlock[] = [
       {
-        id: 'a',
-        type: 'fontFace',
+        id: "a",
+        type: "fontFace",
         rule: [
           {
             src: 'local("Gentium")',
@@ -20,11 +20,11 @@ describe('printFontFaces', () => {
     );
   });
 
-  it('should also work with multiple font faces', () => {
+  it("should also work with multiple font faces", () => {
     const blocks: FontFaceBlock[] = [
       {
-        id: 'a',
-        type: 'fontFace',
+        id: "a",
+        type: "fontFace",
         rule: [
           {
             src: 'local("Comic Sans MS")',
@@ -32,16 +32,16 @@ describe('printFontFaces', () => {
         ],
       },
       {
-        id: 'b',
-        type: 'fontFace',
+        id: "b",
+        type: "fontFace",
         rule: [
           {
             src: 'local("Gentium Bold")',
-            fontWeight: 'bold',
+            fontWeight: "bold",
           },
           {
             src: 'local("Gentium")',
-            fontWeight: 'normal',
+            fontWeight: "normal",
           },
         ],
       },
