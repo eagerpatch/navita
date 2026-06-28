@@ -20,8 +20,9 @@
     "linkDirectory": false
   },
   "scripts": {
-    "build": "build",
-    "dev": "build --dev"
+    "build": "tsdown --config-loader unrun",
+    "dev": "tsdown --config-loader unrun --watch",
+    "type-check": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "csstype": "^3.1.1"

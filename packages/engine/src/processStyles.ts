@@ -11,6 +11,7 @@ import { normalizeCSSVarsProperty } from "./helpers/normalizeCSSVarsProperty";
 import { normalizeCSSVarsValue } from "./helpers/normalizeCSSVarsValue";
 import { normalizeNestedProperty } from "./helpers/normalizeNestedProperty";
 import { pixelifyProperties } from "./helpers/pixelifyProperties";
+import { splitSelectorList } from "./helpers/splitSelectorList";
 import { transformContentProperty } from "./helpers/transformContentProperty";
 import type { StyleBlock } from "./types";
 
@@ -20,7 +21,7 @@ const transformValuePropertyMap = {
 
 export function processStyles({
   cache,
-  type
+  type,
 }: {
   cache: Cache<StyleBlock>;
   type: StyleBlock["type"];
@@ -31,7 +32,7 @@ export function processStyles({
     media = "",
     support = "",
     container = "",
-    selector = ""
+    selector = "",
   }: {
     styles: StyleRule;
     pseudo?: string;
@@ -47,7 +48,7 @@ export function processStyles({
         if (isMediaQuery(property)) {
           const combinedMedia = generateCombinedAtRules(
             media,
-            property.slice(6).trim()
+            property.slice(6).trim(),
           );
 
           result.push(
@@ -57,8 +58,8 @@ export function processStyles({
               media: combinedMedia,
               support,
               container,
-              selector
-            })
+              selector,
+            }),
           );
 
           continue;
@@ -67,7 +68,7 @@ export function processStyles({
         if (isSupportsQuery(property)) {
           const combinedSupport = generateCombinedAtRules(
             support,
-            property.slice(9).trim()
+            property.slice(9).trim(),
           );
 
           result.push(
@@ -77,8 +78,8 @@ export function processStyles({
               media,
               support: combinedSupport,
               container,
-              selector
-            })
+              selector,
+            }),
           );
 
           continue;
@@ -87,7 +88,7 @@ export function processStyles({
         if (isContainerQuery(property)) {
           const combinedContainer = generateCombinedAtRules(
             container,
-            property.slice(10).trim()
+            property.slice(10).trim(),
           );
 
           result.push(
@@ -97,18 +98,29 @@ export function processStyles({
               media,
               support,
               container: combinedContainer,
-              selector
-            })
+              selector,
+            }),
           );
 
           continue;
         }
 
         if (isNestedSelector(property)) {
-          // This is only allowed in simple pseudos currently.
-          const copies = property.split(',').map((p) => p.trim());
+          // Split the selector list in a paren/bracket/quote-aware way so that
+          // grouped selectors like `&:is(.a, .b)` or `[data-x=","]` are not
+          // mangled by a naive comma split.
+          const copies = splitSelectorList(property);
 
-          for (const copy of copies) {
+          // A leading whitespace combinator (descendant nesting, e.g.
+          // " .child") is significant but gets trimmed away by the split.
+          // Re-attach it to the first segment only — leading whitespace on
+          // later segments is cosmetic spacing after a comma.
+          const hasLeadingDescendant = /^\s/.test(property);
+
+          for (let i = 0; i < copies.length; i++) {
+            const copy =
+              i === 0 && hasLeadingDescendant ? ` ${copies[i]}` : copies[i];
+
             result.push(
               ...process({
                 styles: value,
@@ -116,8 +128,8 @@ export function processStyles({
                 media,
                 support,
                 container,
-                selector
-              })
+                selector,
+              }),
             );
           }
 
@@ -148,16 +160,18 @@ export function processStyles({
       newProperty = hyphenateProperty(newProperty);
 
       // Remove trailing semicolon and new lines with regex
-      result.push(cache.getOrStore({
-        type,
-        selector,
-        property: newProperty,
-        value: newValue,
-        pseudo,
-        media,
-        support,
-        container,
-      }));
+      result.push(
+        cache.getOrStore({
+          type,
+          selector,
+          property: newProperty,
+          value: newValue,
+          pseudo,
+          media,
+          support,
+          container,
+        }),
+      );
     }
 
     return result as StyleBlock[];

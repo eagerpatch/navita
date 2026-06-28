@@ -1,0 +1,48 @@
+{
+  "name": "@navita/extraction",
+  "version": "0.1.0",
+  "description": "Style extraction transform for Navita (OXC-based)",
+  "keywords": [
+    "oxc",
+    "css-in-js",
+    "navita",
+    "extraction"
+  ],
+  "private": false,
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "types": "./src/index.ts"
+    }
+  },
+  "publishConfig": {
+    "directory": "dist",
+    "linkDirectory": false
+  },
+  "scripts": {
+    "build": "tsdown --config-loader unrun",
+    "dev": "tsdown --config-loader unrun --watch",
+    "test": "vitest run --project @navita/extraction",
+    "type-check": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "magic-string": "^0.30.0",
+    "oxc-parser": "^0.137.0",
+    "oxc-transform": "^0.137.0"
+  },
+  "devDependencies": {
+    "@navita/adapter": "workspace:*",
+    "@navita/css": "workspace:*",
+    "@navita/engine": "workspace:*",
+    "@navita/types": "workspace:*"
+  },
+  "license": "MIT",
+  "author": "Eagerpatch",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eagerpatch/navita.git",
+    "directory": "packages/extraction"
+  }
+}

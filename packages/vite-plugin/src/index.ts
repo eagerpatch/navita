@@ -1,12 +1,15 @@
-import fs from 'fs';
-import type { EngineOptions, ImportMap, Renderer } from "@navita/core/createRenderer";
-import { createRenderer } from '@navita/core/createRenderer';
+import fs from "node:fs";
+import type {
+  EngineOptions,
+  ImportMap,
+  Renderer,
+} from "@navita/core/createRenderer";
+import { createRenderer } from "@navita/core/createRenderer";
 import { importMap as defaultImportMap } from "@navita/css";
-import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite';
+import type { Plugin, ResolvedConfig, ViteDevServer } from "vite";
 
-export const VIRTUAL_MODULE_ID = 'virtual:navita.css';
-const RESOLVED_VIRTUAL_MODULE_ID =
-  '\0' + VIRTUAL_MODULE_ID.replace(/.css$/, '');
+export const VIRTUAL_MODULE_ID = "virtual:navita.css";
+const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID.replace(/.css$/, "")}`;
 
 export interface Options {
   importMap?: ImportMap;
@@ -21,12 +24,12 @@ export function navita(options?: Options): Plugin {
   let cssEmitted = false;
   let isProduction = false;
 
-  return {
-    enforce: 'pre',
-    name: 'navita',
+  const plugin: Plugin = {
+    enforce: "pre",
+    name: "navita",
     configResolved(_resolvedConfig) {
       config = _resolvedConfig;
-      isProduction = config.mode === 'production';
+      isProduction = config.mode === "production";
     },
     configureServer(_server) {
       server = _server;
@@ -50,34 +53,44 @@ export function navita(options?: Options): Plugin {
             return resolved?.id || null;
           },
           readFile: (path: string) => {
-            return fs.promises.readFile(path, 'utf-8');
+            return fs.promises.readFile(path, "utf-8");
           },
         }),
       );
     },
     resolveId(source) {
-      const [id] = source.split('?');
+      const [id] = source.split("?");
 
       if (id.endsWith(VIRTUAL_MODULE_ID)) {
         return RESOLVED_VIRTUAL_MODULE_ID;
       }
     },
     async load(source) {
-      const [id] = source.split('?');
+      const [id] = source.split("?");
 
       if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-        const css = getRenderer()?.engine.renderCssToString() || '';
+        const css = getRenderer()?.engine.renderCssToString() || "";
 
         return {
           code: css,
-          map: { mappings: '' },
+          map: { mappings: "" },
         };
       }
     },
     async transform(code, id) {
       const renderer = getRenderer();
 
-      if (!renderer || id.includes('node_modules')) {
+      // During RedwoodSDK's worker "linker" pass, Vite re-feeds the already-built
+      // worker bundle back through the plugin pipeline. Its navita styles were
+      // already extracted in the first pass, and the bundle imports runtime-only
+      // specifiers (node:*, cloudflare:*, virtual:*) that navita can neither
+      // resolve nor evaluate at build time. Skip it — the navitaRwsdk renderChunk
+      // hook handles CSS-path rewriting in this pass (same RWSDK_BUILD_PASS gate).
+      if (
+        !renderer ||
+        id.includes("node_modules") ||
+        process.env.RWSDK_BUILD_PASS === "linker"
+      ) {
         return null;
       }
 
@@ -90,10 +103,11 @@ export function navita(options?: Options): Plugin {
         return null;
       }
 
-      const { result, sourceMap, dependencies } = await renderer.transformAndProcess({
-        content: code,
-        filePath: id,
-      });
+      const { result, sourceMap, dependencies } =
+        await renderer.transformAndProcess({
+          content: code,
+          filePath: id,
+        });
 
       if (!isProduction) {
         for (const dependency of dependencies) {
@@ -118,10 +132,10 @@ export function navita(options?: Options): Plugin {
 
         return [
           {
-            tag: 'link',
-            injectTo: 'head',
+            tag: "link",
+            injectTo: "head",
             attrs: {
-              rel: 'stylesheet',
+              rel: "stylesheet",
               href: `/${VIRTUAL_MODULE_ID}`,
             },
           },
@@ -136,16 +150,18 @@ export function navita(options?: Options): Plugin {
       chunk.viteMetadata.importedCss.add(
         this.getFileName(
           this.emitFile({
-            name: 'navita.css',
-            type: 'asset',
+            name: "navita.css",
+            type: "asset",
             source: getRenderer()?.engine.renderCssToString(),
-          })
-        )
+          }),
+        ),
       );
 
       cssEmitted = true;
-    }
+    },
   };
+
+  return plugin;
 
   function updateNavitaCSS() {
     if (!server) {
@@ -162,10 +178,10 @@ export function navita(options?: Options): Plugin {
         moduleGraph.invalidateModule(mod);
 
         ws.send({
-          type: 'update',
+          type: "update",
           updates: [
             {
-              type: 'css-update',
+              type: "css-update",
               path: `/${VIRTUAL_MODULE_ID}`,
               acceptedPath: `/${VIRTUAL_MODULE_ID}`,
               timestamp: Date.now(),
@@ -177,7 +193,7 @@ export function navita(options?: Options): Plugin {
   }
 }
 
-const globalNavitaRendererKey = '__navita_renderer';
+const globalNavitaRendererKey = "__navita_renderer";
 
 function setRenderer(renderer: Renderer) {
   globalThis[globalNavitaRendererKey] = renderer;

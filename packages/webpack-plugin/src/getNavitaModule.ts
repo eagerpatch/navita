@@ -1,4 +1,4 @@
-import path from "path";
+import path from "node:path";
 import type { Compiler, Module } from "webpack";
 
 export const NAVITA_MODULE_TYPE = "css/navita";
@@ -9,14 +9,20 @@ type ModuleProperties = {
 };
 
 // All of this is very verbose due to the way webpacks types are defined. Would love to find a fix!
-export type NavitaModule = new (issuerPath: string, cssHash: string) => Module & ModuleProperties;
+export type NavitaModule = new (
+  issuerPath: string,
+  cssHash: string,
+) => Module & ModuleProperties;
 export type NavitaModuleInstance = InstanceType<NavitaModule>;
-const cache = new Map<Compiler['webpack'], NavitaModule>();
+const cache = new Map<Compiler["webpack"], NavitaModule>();
 
 type ObjectToAssign<T> = (values: { issuerPath: string; cssHash: string }) => T;
 
-function createNavitaModule(webpack: Compiler['webpack'], objectToAssign: ObjectToAssign<unknown>) {
-  const WebpackModule = (webpack.Module as unknown) as typeof Module;
+function createNavitaModule(
+  webpack: Compiler["webpack"],
+  objectToAssign: ObjectToAssign<unknown>,
+) {
+  const WebpackModule = webpack.Module as unknown as typeof Module;
 
   class NavitaModule extends WebpackModule {
     constructor(
@@ -81,13 +87,16 @@ function createNavitaModule(webpack: Compiler['webpack'], objectToAssign: Object
 
         return dep;
       },
-    }
+    },
   );
 
   return NavitaModule;
 }
 
-export function getNavitaModule(webpack: Compiler['webpack'], objectToAssign?: ObjectToAssign<unknown>) {
+export function getNavitaModule(
+  webpack: Compiler["webpack"],
+  objectToAssign?: ObjectToAssign<unknown>,
+) {
   if (!cache.has(webpack)) {
     cache.set(webpack, createNavitaModule(webpack, objectToAssign));
   }

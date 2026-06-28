@@ -21,9 +21,10 @@
     "linkDirectory": false
   },
   "scripts": {
-    "build": "build",
-    "dev": "build --dev",
-    "test": "jest --passWithNoTests"
+    "build": "tsdown --config-loader unrun",
+    "dev": "tsdown --config-loader unrun --watch",
+    "test": "echo \"no tests\"",
+    "type-check": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@navita/adapter": "workspace:*",

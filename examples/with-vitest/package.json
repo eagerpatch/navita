@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "name": "navita-example-with-vitest",
+  "version": "0.0.1",
+  "scripts": {
+    "test": "vitest run --project navita-example-with-vitest"
+  },
+  "dependencies": {
+    "@navita/css": "workspace:*"
+  },
+  "devDependencies": {
+    "@navita/vitest": "workspace:*",
+    "vitest": "^4.0.0"
+  }
+}

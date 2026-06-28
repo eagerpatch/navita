@@ -22,39 +22,39 @@ const center = style({
     borderRadius: "50%",
     width: "480px",
     height: "360px",
-    marginLeft: "-400px"
+    marginLeft: "-400px",
   },
 
   "@media (max-width: 700px)": {
     padding: "8rem 0 6rem",
     "::before": {
       transform: "none",
-      height: "300px"
-    }
+      height: "300px",
+    },
   },
 
   "::after": {
     background: vars.primaryGlow,
     width: "240px",
     height: "180px",
-    zIndex: "-1"
-  }
+    zIndex: "-1",
+  },
 });
 
 const logo = style({
   position: "relative",
-  '@media (prefers-color-scheme: dark)': {
-    filter: 'invert(1) drop-shadow(0 0 0.3rem #ffffff70)',
-  }
+  "@media (prefers-color-scheme: dark)": {
+    filter: "invert(1) drop-shadow(0 0 0.3rem #ffffff70)",
+  },
 });
 
 const rotate = keyframes({
   from: {
-    transform: "rotate(360deg)"
+    transform: "rotate(360deg)",
   },
   to: {
-    transform: "rotate(0deg)"
-  }
+    transform: "rotate(0deg)",
+  },
 });
 
 const thirteen = style({
@@ -71,7 +71,7 @@ const thirteen = style({
   overflow: "hidden",
   boxShadow: "0px 2px 8px -1px #0000001a",
   "::before, ::after": {
-    content: '',
+    content: "",
     position: "absolute",
     zIndex: -1,
   },
@@ -79,7 +79,7 @@ const thirteen = style({
     animation: `6s ${rotate} linear infinite`,
     width: "200%",
     height: "200%",
-    background: vars.tileBorder
+    background: vars.tileBorder,
   },
   "::after": {
     inset: 0,
@@ -90,8 +90,8 @@ const thirteen = style({
       rgba(${vars.tileStartRgb}, 1),
       rgba(${vars.tileEndRgb}, 1)
     )`,
-    backgroundClip: "content-box"
-  }
+    backgroundClip: "content-box",
+  },
 });
 
 export const Hero = () => (

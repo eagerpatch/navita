@@ -10,10 +10,16 @@ export function hyphenateProperty(property: string): string {
     return property;
   }
 
-  return property in cache
-    ? cache[property]
-    : (cache[property] = property
-      .replace(uppercasePattern, "-$&")
-      .toLowerCase()
-      .replace(msPattern, "-ms-"));
+  if (property in cache) {
+    return cache[property];
+  }
+
+  const hyphenated = property
+    .replace(uppercasePattern, "-$&")
+    .toLowerCase()
+    .replace(msPattern, "-ms-");
+
+  cache[property] = hyphenated;
+
+  return hyphenated;
 }

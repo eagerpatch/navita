@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "author": "Alexander Liljengård",
+  "packageManager": "pnpm@10.34.4",
   "workspaces": [
     "playground/*",
     "packages/*",
@@ -12,26 +13,27 @@
   "scripts": {
     "build": "turbo --filter=./packages/* build",
     "dev": "turbo --filter=./packages/* dev --concurrency 11",
-    "lint": "turbo run lint --filter=./packages/*",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "lint": "biome check .",
+    "format": "biome format --write .",
     "test": "FORCE_COLOR=1 turbo --filter=./packages/* test --log-prefix=none --color",
+    "type-check": "turbo run type-check --filter=./packages/*",
     "release": "pnpm build && changeset publish"
   },
   "dependencies": {
-    "@changesets/cli": "^2.26.2",
-    "@tsconfig/strictest": "^2.0.1",
-    "build": "workspace:*",
-    "eslint": "^8.43.0",
-    "eslint-config": "workspace:*",
-    "jest": "workspace:*",
-    "prettier": "latest",
-    "turbo": "^1.10.7",
-    "typescript": "5.4.5"
+    "@changesets/cli": "^2.31.0",
+    "@tsconfig/strictest": "^2.0.8",
+    "turbo": "^2.10.0",
+    "typescript": "^6.0.3"
   },
   "devDependencies": {
-    "@types/node": "^18.14.0"
+    "@biomejs/biome": "^2.5.1",
+    "@types/node": "^24",
+    "tsdown": "^0.22.3",
+    "unrun": "^0.3.1",
+    "vite": "^8",
+    "vitest": "^4.1.9"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=22.18.0"
   }
 }

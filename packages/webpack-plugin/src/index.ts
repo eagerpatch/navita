@@ -1,8 +1,13 @@
-import path from "path";
-import type { Renderer, ImportMap, Engine, EngineOptions } from "@navita/core/createRenderer";
+import path from "node:path";
+import type {
+  Engine,
+  EngineOptions,
+  ImportMap,
+  Renderer,
+} from "@navita/core/createRenderer";
 import { createRenderer } from "@navita/core/createRenderer";
 import { importMap as defaultImportMap } from "@navita/css";
-import type { Compiler, RuleSetRule, Compilation, Chunk } from "webpack";
+import type { Chunk, Compilation, Compiler, RuleSetRule } from "webpack";
 import type { ConcatSource } from "webpack-sources";
 import { createHashFunction } from "./createHashFunction";
 import type { NavitaDependencyInstance } from "./getNavitaDependency";
@@ -12,22 +17,33 @@ import { getNavitaModule, NAVITA_MODULE_TYPE } from "./getNavitaModule";
 import type { CSSOutput, UsedIdCache } from "./prepareCssOutput";
 import { prepareCssOutput } from "./prepareCssOutput";
 
-export { getNavitaDependency, getNavitaModule, NAVITA_MODULE_TYPE };
-export { CSSOutput, Engine, Compilation, UsedIdCache };
 export type { Renderer };
+export {
+  type Compilation,
+  type CSSOutput,
+  type Engine,
+  getNavitaDependency,
+  getNavitaModule,
+  NAVITA_MODULE_TYPE,
+  type UsedIdCache,
+};
 
 type MiniCSSExtractPlugin = {
   options: {
     filename: string;
     chunkFilename: string;
-  }
+  };
 };
 
 export interface Options {
   outputCss?: boolean;
   exclude?: NonNullable<RuleSetRule["exclude"]>;
   importMap?: ImportMap;
-  optimizeCSSOutput?: (output: CSSOutput, compilation?: Compilation, engine?: Engine) => CSSOutput;
+  optimizeCSSOutput?: (
+    output: CSSOutput,
+    compilation?: Compilation,
+    engine?: Engine,
+  ) => CSSOutput;
   engineOptions?: EngineOptions;
   onRenderInitialized?: (renderer: Renderer) => Promise<void>;
   /**
@@ -57,7 +73,7 @@ export class NavitaPlugin {
   constructor(options?: Options) {
     this.options = {
       ...defaultOptions,
-      ...(options || {})
+      ...(options || {}),
     };
   }
 
@@ -77,10 +93,7 @@ export class NavitaPlugin {
       onRenderInitialized,
     } = this.options;
 
-    const importMap = [
-      ...defaultImportMap,
-      ...(userImportMap || [])
-    ];
+    const importMap = [...defaultImportMap, ...(userImportMap || [])];
 
     const dev = compiler.options.mode !== "production";
 
@@ -90,66 +103,82 @@ export class NavitaPlugin {
       ...(engineOptions || {}),
     };
 
-    compiler.hooks.make.tapPromise(NavitaPlugin.pluginName, async (compilation) => {
-      if (renderer) {
-        return;
-      }
-
-      const resolverFactory = compilation.resolverFactory.get("normal", {});
-      const fileSystem = compiler.inputFileSystem;
-
-      renderer = createRenderer({
-        context: compiler.options.context,
-        engineOptions: defaultEngineOptions,
-        importMap,
-        async resolver(filepath: string, request: string) {
-          return new Promise<string>((resolve, reject) => {
-            resolverFactory.resolve({}, path.dirname(filepath), request, {}, (error, result) => {
-              if (error || !result) {
-                return reject(error);
-              }
-
-              return resolve(result);
-            });
-          })
-        },
-        async readFile(filepath: string) {
-          return new Promise<string>((resolve, reject) => {
-            fileSystem.readFile(filepath, (error, result) => {
-              if (error || !result) {
-                return reject(error);
-              }
-
-              resolve(result.toString());
-            });
-          });
+    compiler.hooks.make.tapPromise(
+      NavitaPlugin.pluginName,
+      async (compilation) => {
+        if (renderer) {
+          return;
         }
-      });
 
-      if (onRenderInitialized) {
-        await onRenderInitialized(renderer);
-      }
+        const resolverFactory = compilation.resolverFactory.get("normal", {});
+        const fileSystem = compiler.inputFileSystem;
 
-      if (!useWebpackCache) {
-        return;
-      }
+        renderer = createRenderer({
+          context: compiler.options.context,
+          engineOptions: defaultEngineOptions,
+          importMap,
+          async resolver(filepath: string, request: string) {
+            return new Promise<string>((resolve, reject) => {
+              resolverFactory.resolve(
+                {},
+                path.dirname(filepath),
+                request,
+                {},
+                (error, result) => {
+                  if (error || !result) {
+                    return reject(error);
+                  }
 
-      const cacheName = `${NavitaPlugin.pluginName}-${compiler.options.mode}`;
+                  return resolve(result);
+                },
+              );
+            });
+          },
+          async readFile(filepath: string) {
+            return new Promise<string>((resolve, reject) => {
+              fileSystem.readFile(filepath, (error, result) => {
+                if (error || !result) {
+                  return reject(error);
+                }
 
-      const result = await compilation
-        .getCache(cacheName)
-        .getPromise<Buffer>(NavitaPlugin.pluginName, cacheKey);
+                resolve(result.toString());
+              });
+            });
+          },
+        });
 
-      if (result) {
-        await renderer.engine.deserialize(result);
-      }
+        if (onRenderInitialized) {
+          await onRenderInitialized(renderer);
+        }
 
-      compiler.hooks.afterEmit.tapPromise(NavitaPlugin.pluginName, async (compilation) => {
-        await compilation
+        if (!useWebpackCache) {
+          return;
+        }
+
+        const cacheName = `${NavitaPlugin.pluginName}-${compiler.options.mode}`;
+
+        const result = await compilation
           .getCache(cacheName)
-          .storePromise(NavitaPlugin.pluginName, cacheKey, Buffer.from(renderer.engine.serialize()));
-      });
-    });
+          .getPromise<Buffer>(NavitaPlugin.pluginName, cacheKey);
+
+        if (result) {
+          await renderer.engine.deserialize(result);
+        }
+
+        compiler.hooks.afterEmit.tapPromise(
+          NavitaPlugin.pluginName,
+          async (compilation) => {
+            await compilation
+              .getCache(cacheName)
+              .storePromise(
+                NavitaPlugin.pluginName,
+                cacheKey,
+                Buffer.from(renderer.engine.serialize()),
+              );
+          },
+        );
+      },
+    );
 
     compiler.options.module?.rules.push({
       test: /\.(js|jsx|ts|tsx)$/,
@@ -162,46 +191,51 @@ export class NavitaPlugin {
         },
         NavitaDependency,
         outputCss,
-      }
+      },
     });
 
     // Add the NavitaDependency and NavitaModule to the compilation
     compiler.hooks.compilation.tap(NavitaPlugin.pluginName, (compilation) => {
-      compilation.dependencyFactories.set(
-        NavitaDependency,
-        {
-          create(data, callback) {
-            const { dependencies: [dependency] } = data;
-            const { issuerPath, cssHash } = dependency as NavitaDependencyInstance;
+      compilation.dependencyFactories.set(NavitaDependency, {
+        create(data, callback) {
+          const {
+            dependencies: [dependency],
+          } = data;
+          const { issuerPath, cssHash } =
+            dependency as NavitaDependencyInstance;
 
-            callback(undefined, {
-              module: new NavitaModule(issuerPath, cssHash),
-              cacheable: true,
-            });
-          }
-        }
-      );
+          callback(undefined, {
+            module: new NavitaModule(issuerPath, cssHash),
+            cacheable: true,
+          });
+        },
+      });
 
-      compilation.dependencyTemplates.set(NavitaDependency, { apply: () => undefined });
+      compilation.dependencyTemplates.set(NavitaDependency, {
+        apply: () => undefined,
+      });
     });
 
     if (dev) {
       compiler.options.optimization.splitChunks = {
         ...(compiler.options.optimization.splitChunks || {}),
         cacheGroups: {
-          ...(compiler.options.optimization.splitChunks['cacheGroups'] || {}),
+          // biome-ignore lint/complexity/useLiteralKeys: bracket access keeps this readable under the `false | OptimizationSplitChunksOptions` union (dot access fails to type-check here).
+          ...(compiler.options.optimization.splitChunks["cacheGroups"] || {}),
           navita: {
-            chunks: 'all',
+            chunks: "all",
             enforce: true,
-            name: 'navita',
+            name: "navita",
             type: NAVITA_MODULE_TYPE,
-          }
-        }
+          },
+        },
       };
     }
 
     const miniCssExtractPlugin = compiler.options.plugins.find(
-      (plugin) => 'getCssModule' in plugin.constructor && 'getCssDependency' in plugin.constructor
+      (plugin) =>
+        "getCssModule" in plugin.constructor &&
+        "getCssDependency" in plugin.constructor,
     ) as unknown as MiniCSSExtractPlugin;
 
     if (!miniCssExtractPlugin) {
@@ -213,117 +247,129 @@ export class NavitaPlugin {
 
     const { filename, chunkFilename } = miniCssExtractPlugin.options || {};
 
-    const { options: { getCacheGroups: checkCacheGroup } } = new compiler.webpack.optimize.SplitChunksPlugin(
-      compiler.options.optimization?.splitChunks || undefined
+    const {
+      options: { getCacheGroups: checkCacheGroup },
+    } = new compiler.webpack.optimize.SplitChunksPlugin(
+      compiler.options.optimization?.splitChunks || undefined,
     );
 
     compiler.hooks.compilation.tap(NavitaPlugin.pluginName, (compilation) => {
       const hashFn = createHashFunction(compilation);
       let devHash: string | undefined;
 
-      const cssResult = new Map<Chunk, {
-        css: string;
-        hash: string;
-        modules: NavitaModuleInstance[];
-      }>();
+      const cssResult = new Map<
+        Chunk,
+        {
+          css: string;
+          hash: string;
+          modules: NavitaModuleInstance[];
+        }
+      >();
 
-      compilation.hooks.afterOptimizeChunkIds.tap(NavitaPlugin.pluginName, () => {
-        let output = prepareCssOutput({
-          compilation,
-          engine: renderer.engine,
-          checkCacheGroup,
-        });
+      compilation.hooks.afterOptimizeChunkIds.tap(
+        NavitaPlugin.pluginName,
+        () => {
+          let output = prepareCssOutput({
+            compilation,
+            engine: renderer.engine,
+            checkCacheGroup,
+          });
 
-        if (dev) {
-          const css = renderer.engine.renderCssToString();
-          devHash = hashFn(css);
+          if (dev) {
+            const css = renderer.engine.renderCssToString();
+            devHash = hashFn(css);
 
-          for (const chunk of output.keys()) {
+            for (const chunk of output.keys()) {
+              cssResult.set(chunk, {
+                css,
+                hash: devHash,
+                modules: [],
+              });
+            }
+
+            return;
+          }
+
+          if (output.size > 0 && optimizeCSSOutput) {
+            output = optimizeCSSOutput(output, compilation, renderer.engine);
+          }
+
+          for (const [chunk, value] of output) {
+            const { modules, usedIds, filePaths, canUseOpinionatedLayers } =
+              value;
+
+            const css = renderer.engine.renderCssToString({
+              filePaths,
+              usedIds,
+              opinionatedLayers: canUseOpinionatedLayers,
+            });
+
             cssResult.set(chunk, {
               css,
-              hash: devHash,
-              modules: [],
+              hash: hashFn(css),
+              modules,
             });
           }
+        },
+      );
 
-          return;
-        }
-
-        if (output.size > 0 && optimizeCSSOutput) {
-          output = optimizeCSSOutput(output, compilation, renderer.engine);
-        }
-
-        for (const [chunk, value] of output) {
-          const { modules, usedIds, filePaths, canUseOpinionatedLayers } = value;
-
-          const css = renderer.engine.renderCssToString({
-            filePaths,
-            usedIds,
-            opinionatedLayers: canUseOpinionatedLayers,
-          });
-
-          cssResult.set(chunk, {
-            css,
-            hash: hashFn(css),
-            modules,
-          });
-        }
-      });
-
-      compilation.hooks.renderManifest.tap(NavitaPlugin.pluginName, (result, { chunk }) => {
-        if (chunk instanceof webpack.HotUpdateChunk) {
-          return;
-        }
-
-        if (!cssResult.has(chunk)) {
-          return;
-        }
-
-        const { css, hash } = cssResult.get(chunk)!;
-
-        if (!css) {
-          return;
-        }
-
-        if (!dev) {
-          const entry = result.find(
-            (x) => (
-              'pathOptions' in x &&
-              x.pathOptions.contentHashType === MINI_CSS_EXTRACT_MODULE_TYPE &&
-              x.pathOptions.chunk === chunk
-            )
-          );
-
-          if (entry) {
-            const miniCssContentPluginRender = entry.render;
-
-            entry.render = () => {
-              const source = miniCssContentPluginRender() as ConcatSource;
-              source.add(css);
-              return source;
-            };
-
-            entry.hash = chunk.contentHash[MINI_CSS_EXTRACT_MODULE_TYPE];
-
-            return result;
+      compilation.hooks.renderManifest.tap(
+        NavitaPlugin.pluginName,
+        (result, { chunk }) => {
+          if (chunk instanceof webpack.HotUpdateChunk) {
+            return;
           }
-        }
 
-        result.push({
-          render: () => new webpack.sources.RawSource(css),
-          filenameTemplate: chunk.canBeInitial() ? filename : chunkFilename,
-          pathOptions: {
-            chunk,
-            contentHashType: MINI_CSS_EXTRACT_MODULE_TYPE
-          },
-          identifier: `navita.${chunk.id}`,
-          hash: hash,
-        });
+          if (!cssResult.has(chunk)) {
+            return;
+          }
 
-        chunk.contentHash[MINI_CSS_EXTRACT_MODULE_TYPE] = hash;
+          const { css, hash } = cssResult.get(chunk)!;
 
-        return result;
-      });
+          if (!css) {
+            return;
+          }
+
+          if (!dev) {
+            const entry = result.find(
+              (x) =>
+                "pathOptions" in x &&
+                x.pathOptions.contentHashType ===
+                  MINI_CSS_EXTRACT_MODULE_TYPE &&
+                x.pathOptions.chunk === chunk,
+            );
+
+            if (entry) {
+              const miniCssContentPluginRender = entry.render;
+
+              entry.render = () => {
+                const source = miniCssContentPluginRender();
+                (source as unknown as ConcatSource).add(css);
+                return source;
+              };
+
+              entry.hash = chunk.contentHash[MINI_CSS_EXTRACT_MODULE_TYPE];
+
+              return result;
+            }
+          }
+
+          result.push({
+            render: () => new webpack.sources.RawSource(css),
+            filenameTemplate: chunk.canBeInitial() ? filename : chunkFilename,
+            pathOptions: {
+              chunk,
+              contentHashType: MINI_CSS_EXTRACT_MODULE_TYPE,
+            },
+            identifier: `navita.${chunk.id}`,
+            hash: hash,
+          });
+
+          chunk.contentHash[MINI_CSS_EXTRACT_MODULE_TYPE] = hash;
+
+          return result;
+        },
+      );
 
       if (dev) {
         // We're using a RuntimeModule instead of DefinePlugin, because
@@ -338,11 +384,11 @@ export class NavitaPlugin {
           .tap(NavitaPlugin.pluginName, (chunk) => {
             compilation.addRuntimeModule(
               chunk,
-              new class extends RuntimeModule {
+              new (class extends RuntimeModule {
                 generate() {
                   return `${RuntimeGlobals.require}.navitaDevHash = () => "${devHash}"`;
                 }
-              }(NavitaPlugin.pluginName, RuntimeModule.STAGE_NORMAL)
+              })(NavitaPlugin.pluginName, RuntimeModule.STAGE_NORMAL),
             );
           });
 
@@ -353,23 +399,26 @@ export class NavitaPlugin {
 
       const fakeMiniCSSExtractModules: NavitaModuleInstance[] = [];
 
-      compilation.hooks.additionalTreeRuntimeRequirements.tap(NavitaPlugin.pluginName, (mainChunk) => {
-        for (const chunk of mainChunk.getAllAsyncChunks()) {
-          if (!cssResult.has(chunk)) {
-            continue;
+      compilation.hooks.additionalTreeRuntimeRequirements.tap(
+        NavitaPlugin.pluginName,
+        (mainChunk) => {
+          for (const chunk of mainChunk.getAllAsyncChunks()) {
+            if (!cssResult.has(chunk)) {
+              continue;
+            }
+
+            const { modules } = cssResult.get(chunk)!;
+
+            for (const module of modules) {
+              // We set this to trick MiniCssExtractPlugin to include NavitaModules
+              // in its runtime.
+              module.type = MINI_CSS_EXTRACT_MODULE_TYPE;
+            }
+
+            fakeMiniCSSExtractModules.push(...modules);
           }
-
-          const { modules } = cssResult.get(chunk)!;
-
-          for (const module of modules) {
-            // We set this to trick MiniCssExtractPlugin to include NavitaModules
-            // in its runtime.
-            module.type = MINI_CSS_EXTRACT_MODULE_TYPE;
-          }
-
-          fakeMiniCSSExtractModules.push(...modules);
-        }
-      });
+        },
+      );
 
       compilation.hooks.beforeChunkAssets.tap(NavitaPlugin.pluginName, () => {
         for (const module of fakeMiniCSSExtractModules) {
@@ -385,9 +434,9 @@ export class NavitaPlugin {
 
         const { hash: navitaHash } = cssResult.get(chunk)!;
         const miniCssHash = chunk.contentHash[MINI_CSS_EXTRACT_MODULE_TYPE];
-        chunk.contentHash[MINI_CSS_EXTRACT_MODULE_TYPE] = (
-          miniCssHash ? hashFn(miniCssHash, navitaHash) : navitaHash
-        );
+        chunk.contentHash[MINI_CSS_EXTRACT_MODULE_TYPE] = miniCssHash
+          ? hashFn(miniCssHash, navitaHash)
+          : navitaHash;
         chunk.contentHash[NAVITA_MODULE_TYPE] = navitaHash;
       });
     });

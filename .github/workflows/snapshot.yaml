@@ -9,12 +9,12 @@ jobs:
     env:
       CI: true
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v4
 
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
         with:
-          node-version: 18.x
+          node-version: 22.x
 
       - name: Publish
         uses: seek-oss/changesets-snapshot@v0

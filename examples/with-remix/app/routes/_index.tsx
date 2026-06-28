@@ -13,19 +13,16 @@ export const meta: MetaFunction = () => {
 };
 
 const x = style({
-  color: 'white',
+  color: "white",
   backgroundColor: background,
 });
 
 export default function Index() {
-
-
   return (
     <div className={x}>
       Testing
       <Specificity />
       <Button>Testing</Button>
-
       <Box>Hello</Box>
     </div>
   );

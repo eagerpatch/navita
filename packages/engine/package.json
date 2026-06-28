@@ -21,9 +21,10 @@
     "linkDirectory": false
   },
   "scripts": {
-    "build": "build",
-    "dev": "build --dev",
-    "test": "jest"
+    "build": "tsdown --config-loader unrun",
+    "dev": "tsdown --config-loader unrun --watch",
+    "test": "vitest run --project @navita/engine",
+    "type-check": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "sort-css-media-queries": "2.4.0",

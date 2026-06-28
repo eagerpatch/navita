@@ -1,33 +1,34 @@
-import * as fs from 'fs';
-import path from 'path';
+import * as fs from "node:fs";
+import path from "node:path";
 import {
-  collectResult,
-  generateIdentifier,
-  setAdapter,
   addCss,
   addFontFace,
   addKeyframe,
   addStaticCss,
-} from '@navita/adapter';
-import { ClassList, Engine, Static } from '@navita/engine';
-import type { Caches } from '../../src/evaluateAndProcess';
-import { evaluateAndProcess } from '../../src/evaluateAndProcess';
+  collectResult,
+  generateIdentifier,
+  setAdapter,
+} from "@navita/adapter";
+import { ClassList, Engine, Static } from "@navita/engine";
+import { type Mock, vi } from "vitest";
+import type { Caches } from "../../src/evaluateAndProcess";
+import { evaluateAndProcess } from "../../src/evaluateAndProcess";
 
-describe('evaluateAndProcess', () => {
+describe("evaluateAndProcess", () => {
   let engine: Engine;
-  let readFile: jest.Mock;
-  let moduleCache: Caches['moduleCache'];
-  let resolverCache: Caches['resolverCache'];
-  let nodeModuleCache: Caches['nodeModuleCache'];
-  let resultCache: Caches['resultCache'];
+  let readFile: Mock;
+  let moduleCache: Caches["moduleCache"];
+  let resolverCache: Caches["resolverCache"];
+  let nodeModuleCache: Caches["nodeModuleCache"];
+  let resultCache: Caches["resultCache"];
 
   beforeAll(() => {
-    jest.setTimeout(10000);
+    vi.setConfig({ testTimeout: 10000 });
   });
 
   beforeEach(() => {
     engine = new Engine();
-    readFile = jest.fn();
+    readFile = vi.fn();
     moduleCache = new Map();
     resolverCache = {};
     nodeModuleCache = {};
@@ -36,10 +37,7 @@ describe('evaluateAndProcess', () => {
   });
 
   // We'll set a basePath that doesn't force us into isExternal
-  const fakedBasePath = path.resolve(
-    __dirname,
-    '../../../../'
-  );
+  const fakedBasePath = path.resolve(__dirname, "../../../../");
 
   const toFilePath = (fileName: string) =>
     path.resolve(fakedBasePath, fileName);
@@ -62,15 +60,15 @@ describe('evaluateAndProcess', () => {
     );
 
     const [filePath] = Object.keys(files || {});
-    const source = files?.[filePath] || '';
+    const source = files?.[filePath] || "";
 
-    const usedFilePath = path.resolve(basePath, filePath || '');
+    const usedFilePath = path.resolve(basePath, filePath || "");
 
     resultCache[usedFilePath] = [];
     engine.clearCache(usedFilePath);
 
     return evaluateAndProcess({
-      type: 'entryPoint',
+      type: "entryPoint",
       filePath: usedFilePath,
       source,
       engine,
@@ -80,17 +78,17 @@ describe('evaluateAndProcess', () => {
       resultCache,
       importMap: [
         {
-          source: '@navita/css',
-          callee: 'style',
+          source: "@navita/css",
+          callee: "style",
         },
         {
-          source: '@navita/css',
-          callee: 'createGlobalTheme',
+          source: "@navita/css",
+          callee: "createGlobalTheme",
         },
       ],
       readFile: async (filePath: string) => {
         const result =
-          files[filePath] || (await fs.promises.readFile(filePath, 'utf-8'));
+          files[filePath] || (await fs.promises.readFile(filePath, "utf-8"));
 
         // Call our mock
         readFile(result);
@@ -111,7 +109,7 @@ describe('evaluateAndProcess', () => {
 
         const adjustedRequest = path.resolve(
           basePath,
-          request.replace(/^\.\//, ''),
+          request.replace(/^\.\//, ""),
         );
 
         if (files[adjustedRequest]) {
@@ -123,7 +121,7 @@ describe('evaluateAndProcess', () => {
     });
   }
 
-  it('should be defined', async () => {
+  it("should be defined", async () => {
     const result = await createEvaluateAndProcess();
 
     expect(result).toBeDefined();
@@ -131,10 +129,10 @@ describe('evaluateAndProcess', () => {
     expect(result.dependencies).toEqual([]);
   }, 10000);
 
-  it('should transform source', async () => {
+  it("should transform source", async () => {
     const { result, dependencies } = await createEvaluateAndProcess({
       files: {
-        'index.ts': `
+        "index.ts": `
           import { style } from '@navita/css';
           const a = style({
             color: 'red',
@@ -148,63 +146,65 @@ describe('evaluateAndProcess', () => {
         end: 114,
         start: 68,
         value: '"a1"',
-      }
+      },
     ]);
     expect(dependencies).toEqual([]);
-    expect(engine.renderCssToString()).toMatchInlineSnapshot(`".a1{color:red}"`);
+    expect(engine.renderCssToString()).toMatchInlineSnapshot(
+      `".a1{color:red}"`,
+    );
   }, 10000);
 
-  it('set the adapter', async () => {
+  it("set the adapter", async () => {
     setAdapter(undefined);
 
     // This sets the adapter (should we clear it? - hmm)
     await createEvaluateAndProcess();
 
-    expect(generateIdentifier('anything')).toEqual('_a');
+    expect(generateIdentifier("anything")).toEqual("_a");
     // noinspection JSVoidFunctionReturnValueUsed
-    expect(addStaticCss('.foo', {})).toBeInstanceOf(Static);
+    expect(addStaticCss(".foo", {})).toBeInstanceOf(Static);
 
-    const css = addCss({ color: 'red' });
+    const css = addCss({ color: "red" });
     expect(css).toBeInstanceOf(ClassList);
-    expect(css.toString()).toEqual('a1');
+    expect(css.toString()).toEqual("a1");
     expect(
-      addKeyframe({ from: { color: 'red' }, to: { color: 'blue' } }),
-    ).toEqual('a');
-    expect(addFontFace({ src: 'bar' })).toEqual('a');
+      addKeyframe({ from: { color: "red" }, to: { color: "blue" } }),
+    ).toEqual("a");
+    expect(addFontFace({ src: "bar" })).toEqual("a");
     expect(() => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      addFontFace({ fontFamily: 'bar' });
+      // @ts-expect-error
+      addFontFace({ fontFamily: "bar" });
     }).toThrow(
       `This function creates and returns a font-family name, so the "fontFamily" property should not be provided.`,
     );
 
-    engine.clearUsedIds = jest.fn();
-    engine.setFilePath = jest.fn();
+    engine.clearUsedIds = vi.fn();
+    engine.setFilePath = vi.fn();
 
     const result = collectResult({
-      filePath: 'cool-filePath',
-      result: () => 'something',
+      filePath: "cool-filePath",
+      result: () => "something",
       index: 0,
-      identifier: 'something',
+      identifier: "something",
       position: [0, 0],
       sourceMap: {
         line: 0,
         column: 0,
-      }
+      },
     });
 
-    expect(result).toEqual('something');
-    expect(engine.setFilePath).toHaveBeenNthCalledWith(1, 'cool-filePath');
+    expect(result).toEqual("something");
+    expect(engine.setFilePath).toHaveBeenNthCalledWith(1, "cool-filePath");
     expect(engine.setFilePath).toHaveBeenNthCalledWith(2, undefined);
     expect(engine.setFilePath).toHaveBeenCalledTimes(2);
   });
 
-  it('should work with a dependency', async () => {
+  it("should work with a dependency", async () => {
     const { result, dependencies } = await createEvaluateAndProcess({
-      resolver: async (_, request) => request.replace('~/', '') + '.ts',
+      resolver: async (_, request) => `${request.replace("~/", "")}.ts`,
       files: {
-        'index.ts': `
+        "index.ts": `
           import { style } from '@navita/css';
           import { background } from '~/colors';
           const a = style({
@@ -212,37 +212,37 @@ describe('evaluateAndProcess', () => {
             background,
           });
         `,
-        'colors.ts': `
+        "colors.ts": `
           export const background = 'red'; 
         `,
       },
     });
 
     expect(dependencies).toHaveLength(1);
-    expect(dependencies[0].endsWith('colors.ts')).toBe(true);
+    expect(dependencies[0].endsWith("colors.ts")).toBe(true);
     expect(result).toEqual([
       {
         start: 117,
         end: 187,
-        value: '"a1 b1"'
-      }
+        value: '"a1 b1"',
+      },
     ]);
     expect(engine.renderCssToString()).toMatchInlineSnapshot(
       `".a1{color:red}.b1{background:red}"`,
     );
   });
 
-  it('ignores errors in resolver and tries with enhanced-resolve', async () => {
+  it("ignores errors in resolver and tries with enhanced-resolve", async () => {
     const { result, dependencies } = await createEvaluateAndProcess({
       files: {
-        'index.ts': `
+        "index.ts": `
           import { style } from '@navita/css';
           const a = style({ color: 'red' });
           const b = style({ color: 'blue' });
         `,
       },
       resolver: async () => {
-        throw new Error('Resolver error');
+        throw new Error("Resolver error");
       },
     });
 
@@ -257,24 +257,24 @@ describe('evaluateAndProcess', () => {
       {
         start: 113,
         end: 137,
-        value: '"a2"'
-      }
+        value: '"a2"',
+      },
     ]);
     expect(engine.renderCssToString()).toMatchInlineSnapshot(
       `".a1{color:red}.a2{color:blue}"`,
     );
   });
 
-  it('populates the resolverCache and nodeModuleCache', async () => {
+  it("populates the resolverCache and nodeModuleCache", async () => {
     const { result, dependencies } = await createEvaluateAndProcess({
-      resolver: async (_, request) => request.replace('~/', '') + '.ts',
+      resolver: async (_, request) => `${request.replace("~/", "")}.ts`,
       files: {
-        'index.ts': `
+        "index.ts": `
           import { style } from '@navita/css';
           import { vars } from '~/theme';
           const a = style({ color: vars.color });
         `,
-        'theme.ts': `
+        "theme.ts": `
           import { createGlobalTheme } from '@navita/css';
           export const vars = createGlobalTheme(":root", {
             color: "red",
@@ -287,9 +287,9 @@ describe('evaluateAndProcess', () => {
 
     expect(entry).toBeDefined();
     expect(Object.keys(entry)).toEqual([
-      '@navita/adapter',
-      '@navita/css',
-      '~/theme',
+      "@navita/adapter",
+      "@navita/css",
+      "~/theme",
     ]);
     expect(dependencies).toHaveLength(1);
     expect(Object.keys(nodeModuleCache)).toHaveLength(2);
@@ -297,20 +297,22 @@ describe('evaluateAndProcess', () => {
       {
         start: 110,
         end: 138,
-        value: '"a1"'
-      }
+        value: '"a1"',
+      },
     ]);
-    expect(engine.renderCssToString()).toMatchInlineSnapshot(`".a1{color:var(--color)}"`);
+    expect(engine.renderCssToString()).toMatchInlineSnapshot(
+      `".a1{color:var(--color)}"`,
+    );
   });
 
-  it('uses the moduleCache', async () => {
+  it("uses the moduleCache", async () => {
     const files: Record<string, string> = {
-      'index.ts': `
+      "index.ts": `
         import { style } from '@navita/css';
         import { vars } from './theme.ts';
         const a = style({ color: vars.color });
       `,
-      'theme.ts': `
+      "theme.ts": `
         import { createGlobalTheme } from '@navita/css';
         export const vars = createGlobalTheme(":root", {
           color: "red",
@@ -318,9 +320,9 @@ describe('evaluateAndProcess', () => {
       `,
     };
 
-    const hasSpy = jest.spyOn(moduleCache, 'has');
-    const getSpy = jest.spyOn(moduleCache, 'get');
-    const setSpy = jest.spyOn(moduleCache, 'set');
+    const hasSpy = vi.spyOn(moduleCache, "has");
+    const getSpy = vi.spyOn(moduleCache, "get");
+    const setSpy = vi.spyOn(moduleCache, "set");
 
     expect(moduleCache).toEqual(new Map());
 
@@ -329,14 +331,20 @@ describe('evaluateAndProcess', () => {
 
     // First it checks for cache
     expect(hasSpy).toHaveBeenCalledTimes(2);
-    expect(hasSpy).toHaveBeenNthCalledWith(1, toFilePath('index.ts') + ':entryPoint');
-    expect(hasSpy).toHaveBeenNthCalledWith(2, toFilePath('theme.ts') + ':dependency');
+    expect(hasSpy).toHaveBeenNthCalledWith(
+      1,
+      `${toFilePath("index.ts")}:entryPoint`,
+    );
+    expect(hasSpy).toHaveBeenNthCalledWith(
+      2,
+      `${toFilePath("theme.ts")}:dependency`,
+    );
 
     // Then it sets the cache
     expect(setSpy).toHaveBeenCalledTimes(2);
     expect(setSpy).toHaveBeenNthCalledWith(
       1,
-      toFilePath('index.ts') + ':entryPoint',
+      `${toFilePath("index.ts")}:entryPoint`,
       expect.objectContaining({
         source: expect.anything(),
         compiledFn: expect.anything(),
@@ -344,7 +352,7 @@ describe('evaluateAndProcess', () => {
     );
     expect(setSpy).toHaveBeenNthCalledWith(
       2,
-      toFilePath('theme.ts') + ':dependency',
+      `${toFilePath("theme.ts")}:dependency`,
       expect.objectContaining({
         source: expect.anything(),
         compiledFn: expect.anything(),
@@ -362,21 +370,27 @@ describe('evaluateAndProcess', () => {
     expect(setSpy).not.toHaveBeenCalled();
     expect(hasSpy).toHaveBeenCalledTimes(2);
     expect(getSpy).toHaveBeenCalledTimes(2);
-    expect(getSpy).toHaveBeenNthCalledWith(1, toFilePath('index.ts') + ':entryPoint');
-    expect(getSpy).toHaveBeenNthCalledWith(2, toFilePath('theme.ts') + ':dependency');
+    expect(getSpy).toHaveBeenNthCalledWith(
+      1,
+      `${toFilePath("index.ts")}:entryPoint`,
+    );
+    expect(getSpy).toHaveBeenNthCalledWith(
+      2,
+      `${toFilePath("theme.ts")}:dependency`,
+    );
   });
 
   it('ignores dependencies that are not "source" files', async () => {
     const { dependencies } = await createEvaluateAndProcess({
       files: {
-        'index.ts': `
+        "index.ts": `
           import { style } from '@navita/css';
           import * as cssModule from './styles.module.css';
           const a = style({ color: 'red' });
           // Fake usage here:
           cssModule;
         `,
-        'styles.module.css': `.a { color: red; }`,
+        "styles.module.css": `.a { color: red; }`,
       },
     });
 
@@ -384,11 +398,11 @@ describe('evaluateAndProcess', () => {
     expect(dependencies).toHaveLength(0);
   });
 
-  it('should throw if we cannot resolve a dependency', async () => {
+  it("should throw if we cannot resolve a dependency", async () => {
     try {
       await createEvaluateAndProcess({
         files: {
-          'index.ts': `
+          "index.ts": `
             import { style } from '@navita/css';
             import { background } from '~/colors';
             const a = style({ background });
@@ -398,7 +412,9 @@ describe('evaluateAndProcess', () => {
       expect(true).toBe(false);
     } catch (error) {
       expect(error).toBeInstanceOf(Error);
-      expect(error.message.startsWith('Failed to resolve dependency "~/colors" in ')).toBe(true);
+      expect(
+        error.message.startsWith('Failed to resolve dependency "~/colors" in '),
+      ).toBe(true);
     }
   });
 });

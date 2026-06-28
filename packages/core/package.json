@@ -29,18 +29,19 @@
     "linkDirectory": false
   },
   "scripts": {
-    "build": "build",
-    "dev": "build --dev",
-    "test": "jest"
+    "build": "tsdown --config-loader unrun",
+    "dev": "tsdown --config-loader unrun --watch",
+    "test": "vitest run --project @navita/core",
+    "type-check": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@navita/types": "workspace:*",
     "@navita/adapter": "workspace:*",
-    "@navita/swc": "workspace:*",
     "@navita/engine": "workspace:*",
+    "@navita/extraction": "workspace:*",
+    "@navita/types": "workspace:*",
     "enhanced-resolve": "5.15.0",
-    "outdent": "^0.8.0",
-    "magic-string": "^0.30.3"
+    "magic-string": "^0.30.3",
+    "outdent": "^0.8.0"
   },
   "devDependencies": {
     "@navita/css": "workspace:*"

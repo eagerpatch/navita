@@ -1,21 +1,31 @@
 import type { Engine, UsedIdCache } from "@navita/core/createRenderer";
-import type { Chunk, Compilation, ChunkGraph, ModuleGraph, Module } from "webpack";
+import type {
+  Chunk,
+  ChunkGraph,
+  Compilation,
+  Module,
+  ModuleGraph,
+} from "webpack";
 import type { NavitaModuleInstance } from "./getNavitaModule";
 import { getNavitaModule } from "./getNavitaModule";
 
 type CheckCacheGroup = (
   module: Module,
-  context: { chunkGraph: ChunkGraph, moduleGraph: ModuleGraph }
-) => { key?: string; }[];
+  context: { chunkGraph: ChunkGraph; moduleGraph: ModuleGraph },
+) => { key?: string }[];
 
 type Paths = string[];
-export { UsedIdCache };
-export type CSSOutput = Map<Chunk, {
-  filePaths: Paths;
-  usedIds: UsedIdCache;
-  parents: Chunk[];
-  modules: NavitaModuleInstance[];
-}>;
+
+export type { UsedIdCache };
+export type CSSOutput = Map<
+  Chunk,
+  {
+    filePaths: Paths;
+    usedIds: UsedIdCache;
+    parents: Chunk[];
+    modules: NavitaModuleInstance[];
+  }
+>;
 
 export function prepareCssOutput({
   compilation,
@@ -29,18 +39,21 @@ export function prepareCssOutput({
   const { compiler, chunkGraph, moduleGraph } = compilation;
   const NavitaModule = getNavitaModule(compiler.webpack);
 
-  const map = new Map<Chunk, {
-    modules: NavitaModuleInstance[];
-    filePaths: Paths;
-    parents: Chunk[];
-    usedIds: UsedIdCache;
-    canUseOpinionatedLayers?: boolean;
-  }>();
+  const map = new Map<
+    Chunk,
+    {
+      modules: NavitaModuleInstance[];
+      filePaths: Paths;
+      parents: Chunk[];
+      usedIds: UsedIdCache;
+      canUseOpinionatedLayers?: boolean;
+    }
+  >();
 
   const addToMap = (
     chunk: Chunk,
     module: NavitaModuleInstance,
-    intentional?: boolean | undefined
+    intentional?: boolean | undefined,
   ) => {
     if (!map.has(chunk)) {
       map.set(chunk, {
@@ -67,7 +80,7 @@ export function prepareCssOutput({
     if (chunk.chunkReason !== undefined && intentional !== undefined) {
       value.canUseOpinionatedLayers = !intentional;
     }
-  }
+  };
 
   for (const module of compilation.modules) {
     if (!(module instanceof NavitaModule)) {
@@ -82,12 +95,13 @@ export function prepareCssOutput({
       if (chunk.chunkReason !== undefined) {
         if (intentional === undefined) {
           // We'll only check the cache group if we really need to.
-          intentional = checkCacheGroup(module, { chunkGraph, moduleGraph }).length > 0;
+          intentional =
+            checkCacheGroup(module, { chunkGraph, moduleGraph }).length > 0;
         }
 
         if (!intentional) {
           const chunks = Array.from(
-            chunkGraph.moduleGraph.getIncomingConnections(module)
+            chunkGraph.moduleGraph.getIncomingConnections(module),
           ).flatMap((x) => chunkGraph.getModuleChunks(x.originModule));
 
           for (const chunk of chunks) {

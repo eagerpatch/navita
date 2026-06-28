@@ -9,11 +9,11 @@ describe("hypenateProperty", () => {
     expect(hyphenateProperty("backgroundColor")).toBe("background-color");
   });
 
-  it('ms- prefix should be lowercase', () => {
-    expect(hyphenateProperty('msBackground')).toBe('-ms-background');
+  it("ms- prefix should be lowercase", () => {
+    expect(hyphenateProperty("msBackground")).toBe("-ms-background");
   });
 
   it(`doesn't hyphenate css vars`, () => {
-    expect(hyphenateProperty('--myVar')).toBe('--myVar');
+    expect(hyphenateProperty("--myVar")).toBe("--myVar");
   });
 });

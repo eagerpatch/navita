@@ -1,17 +1,17 @@
 import "@/theme";
 import { globalStyle } from "@navita/css";
-import type { AppProps } from 'next/app';
+import type { AppProps } from "next/app";
 import { vars } from "@/theme";
 
 globalStyle("*", {
-  boxSizing: 'border-box',
+  boxSizing: "border-box",
   padding: 0,
   margin: 0,
 });
 
 globalStyle("html, body", {
-  maxWidth: '100vw',
-  overflowX: 'hidden',
+  maxWidth: "100vw",
+  overflowX: "hidden",
 });
 
 globalStyle("body", {
@@ -26,8 +26,8 @@ globalStyle("body", {
 });
 
 globalStyle("a", {
-  color: 'inherit',
-  textDecoration: 'none',
+  color: "inherit",
+  textDecoration: "none",
 });
 
 export default function App({ Component, pageProps }: AppProps) {

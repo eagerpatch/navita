@@ -1,7 +1,7 @@
 import type { CSSKeyframes, FontFaceRule } from "@navita/types";
 
 export interface StyleBlock {
-  type: 'rule' | 'static';
+  type: "rule" | "static";
   selector: string;
   property: string;
   value: string;
@@ -13,13 +13,13 @@ export interface StyleBlock {
 }
 
 export interface KeyframesBlock {
-  type: 'keyframes';
+  type: "keyframes";
   rule: CSSKeyframes;
   id: string;
 }
 
 export interface FontFaceBlock {
-  type: 'fontFace';
+  type: "fontFace";
   rule: FontFaceRule[];
   id: string;
 }

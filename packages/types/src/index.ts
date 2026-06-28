@@ -1,5 +1,9 @@
-import type { Properties, AtRule, SimplePseudos } from 'csstype';
-import type { AdvancedPseudos } from "csstype";
+import type {
+  AdvancedPseudos,
+  AtRule,
+  Properties,
+  SimplePseudos,
+} from "csstype";
 
 export type ImportMap = {
   callee: string;
@@ -21,7 +25,7 @@ type Primitive = string | boolean | number | null | undefined;
 export type MapLeafNodes<Obj, LeafType> = {
   [Prop in keyof Obj]: Obj[Prop] extends Primitive
     ? LeafType
-    : Obj[Prop] extends Record<string | number, any>
+    : Obj[Prop] extends Record<string | number, unknown>
       ? MapLeafNodes<Obj[Prop], LeafType>
       : never;
 };
@@ -39,9 +43,9 @@ export type ThemeVars<ThemeContract extends NullableTokens> = MapLeafNodes<
   CSSVarFunction
 >;
 
-export type GlobalFontFaceRule = Omit<AtRule.FontFaceFallback, 'src'> &
-  Required<Pick<AtRule.FontFaceFallback, 'src'>>;
-export type FontFaceRule = Omit<GlobalFontFaceRule, 'fontFamily'>;
+export type GlobalFontFaceRule = Omit<AtRule.FontFaceFallback, "src"> &
+  Required<Pick<AtRule.FontFaceFallback, "src">>;
+export type FontFaceRule = Omit<GlobalFontFaceRule, "fontFamily">;
 
 // https://github.com/vanilla-extract-css/vanilla-extract/blob/master/packages/css/src/types.ts
 
@@ -50,7 +54,7 @@ export type FontFaceRule = Omit<GlobalFontFaceRule, 'fontFamily'>;
 // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Container_Queries
 interface ContainerProperties {
   container?: string;
-  containerType?: 'size' | 'inline-size' | (string & {});
+  containerType?: "size" | "inline-size" | (string & {});
   containerName?: string;
 }
 
@@ -59,9 +63,9 @@ type CSSTypeProperties = Properties<number | (string & {})> &
 
 export type CSSProperties = {
   [Property in keyof CSSTypeProperties]:
-  | CSSTypeProperties[Property]
-  | CSSVarFunction
-  | RawCSSVarFunction
+    | CSSTypeProperties[Property]
+    | CSSVarFunction
+    | RawCSSVarFunction;
 };
 
 export interface CSSKeyframes {
@@ -82,18 +86,18 @@ interface ContainerQueries<StyleType> {
 
 export type WithQueries<StyleType> = MediaQueries<
   StyleType &
-  FeatureQueries<StyleType & ContainerQueries<StyleType>> &
-  ContainerQueries<StyleType & FeatureQueries<StyleType>>
+    FeatureQueries<StyleType & ContainerQueries<StyleType>> &
+    ContainerQueries<StyleType & FeatureQueries<StyleType>>
 > &
   FeatureQueries<
     StyleType &
-    MediaQueries<StyleType & ContainerQueries<StyleType>> &
-    ContainerQueries<StyleType & MediaQueries<StyleType>>
+      MediaQueries<StyleType & ContainerQueries<StyleType>> &
+      ContainerQueries<StyleType & MediaQueries<StyleType>>
   > &
   ContainerQueries<
     StyleType &
-    MediaQueries<StyleType & FeatureQueries<StyleType>> &
-    FeatureQueries<StyleType & MediaQueries<StyleType>>
+      MediaQueries<StyleType & FeatureQueries<StyleType>> &
+      FeatureQueries<StyleType & MediaQueries<StyleType>>
   >;
 
 interface WithDirectDescendants<StyleType> {
@@ -106,19 +110,19 @@ interface WithNestedSelectors<StyleRule> {
 
 type WithSimplePseudoSelectors<StyleType> = {
   [key in `${SimplePseudos}${string}`]?: StyleType;
-}
+};
 
 type WithAdvancedPseudoSelectors<StyleType> = {
   [key in `${AdvancedPseudos}${string}`]?: StyleType;
-}
+};
 
-export interface StyleRule extends
-  CSSProperties,
-  WithQueries<StyleRule>,
-  WithSimplePseudoSelectors<StyleRule>,
-  WithAdvancedPseudoSelectors<StyleRule>,
-  WithDirectDescendants<StyleRule>,
-  WithNestedSelectors<StyleRule> {
+export interface StyleRule
+  extends CSSProperties,
+    WithQueries<StyleRule>,
+    WithSimplePseudoSelectors<StyleRule>,
+    WithAdvancedPseudoSelectors<StyleRule>,
+    WithDirectDescendants<StyleRule>,
+    WithNestedSelectors<StyleRule> {
   [string: `--${string}`]: string | number;
 }
 

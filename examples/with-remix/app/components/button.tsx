@@ -1,9 +1,9 @@
 import { style } from "@navita/css";
 
 const button = style({
-  background: 'hotpink',
-  color: 'white',
-  padding: '10px',
+  background: "hotpink",
+  color: "white",
+  padding: "10px",
 });
 
 interface Props {
@@ -11,7 +11,5 @@ interface Props {
 }
 
 export const Button = ({ children }: Props) => (
-  <button className={button}>
-    {children}
-  </button>
+  <button className={button}>{children}</button>
 );

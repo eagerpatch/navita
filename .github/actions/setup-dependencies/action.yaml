@@ -9,17 +9,16 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Use Node.js ${{ inputs.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ inputs.node-version }}
-
     - name: Install pnpm
-      uses: pnpm/action-setup@v2
+      uses: pnpm/action-setup@v4
       id: pnpm-install
       with:
-        version: 8
         run_install: false
+
+    - name: Use Node.js ${{ inputs.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
 
     - name: Get pnpm store directory
       shell: bash
@@ -27,7 +26,7 @@ runs:
         echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
 
     - name: Setup pnpm cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ env.STORE_PATH }}
         key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ inputs.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -37,21 +36,6 @@ runs:
     - name: Install dependencies
       run: pnpm install
       shell: bash
-
-    - name: Setup rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: 1.70.0
-        default: true
-
-    - name: Install WASM Target
-      run: rustup target add wasm32-wasi
-      shell: bash
-
-    - name: Rust cache
-      uses: Swatinem/rust-cache@v2
-      with:
-        workspaces: "./packages/swc/ -> target"
 
     - name: Full Turbo
       uses: dtinth/setup-github-actions-caching-for-turbo@v1

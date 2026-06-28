@@ -1,24 +1,31 @@
-import type { ImportMap } from '@navita/core/createRenderer';
+import type { ImportMap } from "@navita/core/createRenderer";
 import { AsyncSeriesHook, SyncHook } from "tapable";
-import type { LoaderContext } from 'webpack';
-import loader from '../../src/loader';
+import { type Mock, vi } from "vitest";
+import type { LoaderContext } from "webpack";
+import loader from "../../src/loader";
 
-describe('loader.tests.ts', () => {
-  let callback: jest.Mock;
-  let clearCacheFn: jest.Mock;
+describe("loader.tests.ts", () => {
+  let callback: Mock;
+  let clearCacheFn: Mock;
 
   let doneHook: AsyncSeriesHook<void>;
   let watchCloseHook: SyncHook<void>;
 
   beforeEach(() => {
-    callback = jest.fn();
-    clearCacheFn = jest.fn();
+    callback = vi.fn();
+    clearCacheFn = vi.fn();
     doneHook = new AsyncSeriesHook();
     watchCloseHook = new SyncHook();
   });
 
-  const createLoaderContext = (options: { importMap?: ImportMap, fileName?: string, watchMode?: boolean, } = {}) => {
-    return ({
+  const createLoaderContext = (
+    options: {
+      importMap?: ImportMap;
+      fileName?: string;
+      watchMode?: boolean;
+    } = {},
+  ) => {
+    return {
       async: () => callback,
       cacheable: () => undefined,
       getOptions: () => ({
@@ -29,7 +36,7 @@ describe('loader.tests.ts', () => {
       }),
       resourcePath: options.fileName || undefined,
       _module: {
-        matchResource: '',
+        matchResource: "",
         resource: options.fileName || undefined,
       },
       _compilation: {
@@ -45,43 +52,43 @@ describe('loader.tests.ts', () => {
           watchClose: watchCloseHook,
         },
       },
-    } as unknown as LoaderContext<unknown>);
+    } as unknown as LoaderContext<unknown>;
   };
 
-  it('should bail if matchResource', async () => {
-    const input = '// this is the input';
-    const sourceMap = '// this is the sourcemap';
+  it("should bail if matchResource", async () => {
+    const input = "// this is the input";
+    const sourceMap = "// this is the sourcemap";
 
     const context = createLoaderContext();
-    context._module.matchResource = 'something';
+    context._module.matchResource = "something";
 
     await loader.call(context, input, sourceMap);
     expect(callback).toHaveBeenCalledWith(null, input, sourceMap);
     expect(clearCacheFn).toHaveBeenCalledWith(undefined);
   });
 
-  it('should bail if no callExpressions', async () => {
-    const input = '// this is the input';
-    const sourceMap = '// this is the sourcemap';
+  it("should bail if no callExpressions", async () => {
+    const input = "// this is the input";
+    const sourceMap = "// this is the sourcemap";
 
     await loader.call(createLoaderContext(), input, sourceMap);
     expect(callback).toHaveBeenCalledWith(null, input, sourceMap);
     expect(clearCacheFn).toHaveBeenCalledWith(undefined);
   });
 
-  it('should bail if no import found', async () => {
+  it("should bail if no import found", async () => {
     const input = `
       import { something } from "something";
       something();
     `;
-    const sourceMap = '// this is the sourcemap';
+    const sourceMap = "// this is the sourcemap";
 
     await loader.call(createLoaderContext(), input, sourceMap);
     expect(callback).toHaveBeenCalledWith(null, input, sourceMap);
     expect(clearCacheFn).toHaveBeenCalledWith(undefined);
   });
 
-  it('should callback with errors on errors', async () => {
+  it("should callback with errors on errors", async () => {
     const input = `
       import { valid } from "valid";
       valid();
@@ -92,13 +99,13 @@ describe('loader.tests.ts', () => {
       createLoaderContext({
         importMap: [
           {
-            source: 'valid',
-            callee: 'valid',
+            source: "valid",
+            callee: "valid",
           },
         ],
       }),
       input,
-      ''
+      "",
     );
 
     expect(callback).toHaveBeenCalledWith(expect.objectContaining(new Error()));

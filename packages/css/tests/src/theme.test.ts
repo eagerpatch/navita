@@ -1,10 +1,15 @@
-import type { Adapter} from "@navita/adapter";
+import type { Adapter } from "@navita/adapter";
 import { setAdapter } from "@navita/adapter";
-import { createGlobalThemeContract, createTheme, createThemeContract } from "../../src";
+import { vi } from "vitest";
+import {
+  createGlobalThemeContract,
+  createTheme,
+  createThemeContract,
+} from "../../src";
 
-describe('theme', () => {
-  describe('createThemeContract', () => {
-    it('should create a theme contract', () => {
+describe("theme", () => {
+  describe("createThemeContract", () => {
+    it("should create a theme contract", () => {
       const theme = createThemeContract({
         color: {
           primary: null,
@@ -31,10 +36,10 @@ describe('theme', () => {
     });
   });
 
-  describe('createTheme', () => {
-    it('should create a theme', () => {
-      const addStaticCss = jest.fn();
-      const generatedIdentifier = 'theme-identifier';
+  describe("createTheme", () => {
+    it("should create a theme", () => {
+      const addStaticCss = vi.fn();
+      const generatedIdentifier = "theme-identifier";
 
       setAdapter({
         generateIdentifier: () => generatedIdentifier,
@@ -43,7 +48,7 @@ describe('theme', () => {
 
       const [className, vars] = createTheme({
         color: {
-          primary: 'red',
+          primary: "red",
         },
       });
 
@@ -62,14 +67,14 @@ describe('theme', () => {
   });
 
   // All of these tests are from vanilla-extract
-  describe('createGlobalThemeContract', () => {
-    it('supports defining css vars via object properties', () => {
+  describe("createGlobalThemeContract", () => {
+    it("supports defining css vars via object properties", () => {
       expect(
         createGlobalThemeContract({
           color: {
-            red: 'color-red',
-            blue: 'color-blue',
-            green: 'color-green',
+            red: "color-red",
+            blue: "color-blue",
+            green: "color-green",
           },
         }),
       ).toMatchInlineSnapshot(`
@@ -83,13 +88,13 @@ describe('theme', () => {
     `);
     });
 
-    it('ignores leading double hyphen', () => {
+    it("ignores leading double hyphen", () => {
       expect(
         createGlobalThemeContract({
           color: {
-            red: '--color-red',
-            blue: '--color-blue',
-            green: '--color-green',
+            red: "--color-red",
+            blue: "--color-blue",
+            green: "--color-green",
           },
         }),
       ).toMatchInlineSnapshot(`
@@ -103,14 +108,14 @@ describe('theme', () => {
     `);
     });
 
-    it('supports adding a prefix', () => {
+    it("supports adding a prefix", () => {
       expect(
         createGlobalThemeContract(
           {
             color: {
-              red: 'color-red',
-              blue: 'color-blue',
-              green: 'color-green',
+              red: "color-red",
+              blue: "color-blue",
+              green: "color-green",
             },
           },
           (value) => `prefix-${value}`,
@@ -126,14 +131,14 @@ describe('theme', () => {
     `);
     });
 
-    it('ignores leading double hyphen when adding a prefix', () => {
+    it("ignores leading double hyphen when adding a prefix", () => {
       expect(
         createGlobalThemeContract(
           {
             color: {
-              red: 'color-red',
-              blue: 'color-blue',
-              green: 'color-green',
+              red: "color-red",
+              blue: "color-blue",
+              green: "color-green",
             },
           },
           (value) => `--prefix-${value}`,
@@ -149,7 +154,7 @@ describe('theme', () => {
     `);
     });
 
-    it('supports path based names', () => {
+    it("supports path based names", () => {
       expect(
         createGlobalThemeContract(
           {
@@ -159,7 +164,7 @@ describe('theme', () => {
               green: null,
             },
           },
-          (_, path) => `prefix-${path.join('-')}`,
+          (_, path) => `prefix-${path.join("-")}`,
         ),
       ).toMatchInlineSnapshot(`
       {
@@ -172,62 +177,62 @@ describe('theme', () => {
     `);
     });
 
-    it('errors when invalid property value', () => {
+    it("errors when invalid property value", () => {
       expect(() =>
         createGlobalThemeContract({
           color: {
             red: null,
-            blue: 'color-blue',
-            green: 'color-green',
+            blue: "color-blue",
+            green: "color-green",
           },
         }),
       ).toThrowErrorMatchingInlineSnapshot(
-        `"Invalid variable name for "color.red": null"`,
+        `[Error: Invalid variable name for "color.red": null]`,
       );
     });
 
-    it('errors when escaped property value', () => {
+    it("errors when escaped property value", () => {
       expect(() =>
         createGlobalThemeContract({
           color: {
-            red: 'color-red',
+            red: "color-red",
             blue: "color'blue",
-            green: 'color-green',
+            green: "color-green",
           },
         }),
       ).toThrowErrorMatchingInlineSnapshot(
-        `"Invalid variable name for "color.blue": color'blue"`,
+        `[Error: Invalid variable name for "color.blue": color'blue]`,
       );
     });
 
-    it('errors when property value starts with a number', () => {
+    it("errors when property value starts with a number", () => {
       expect(() =>
         createGlobalThemeContract({
           color: {
-            red: 'color-red',
-            blue: 'color-blue',
-            green: '123-color-green',
+            red: "color-red",
+            blue: "color-blue",
+            green: "123-color-green",
           },
         }),
       ).toThrowErrorMatchingInlineSnapshot(
-        `"Invalid variable name for "color.green": 123-color-green"`,
+        `[Error: Invalid variable name for "color.green": 123-color-green]`,
       );
     });
 
-    it('errors when invalid map value', () => {
+    it("errors when invalid map value", () => {
       expect(() =>
         createGlobalThemeContract(
           {
             color: {
-              red: 'color-red',
-              blue: 'color-blue',
-              green: 'color-green',
+              red: "color-red",
+              blue: "color-blue",
+              green: "color-green",
             },
           },
           () => null,
         ),
       ).toThrowErrorMatchingInlineSnapshot(
-        `"Invalid variable name for "color.red": null"`,
+        `[Error: Invalid variable name for "color.red": null]`,
       );
     });
   });

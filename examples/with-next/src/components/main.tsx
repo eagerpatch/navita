@@ -1,13 +1,13 @@
 import { style } from "@navita/css";
-import React from "react";
+import type React from "react";
 
 const main = style({
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  padding: '6rem',
-  minHeight: '100vh',
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  alignItems: "center",
+  padding: "6rem",
+  minHeight: "100vh",
 });
 
 interface Props {
@@ -16,4 +16,4 @@ interface Props {
 
 export const Main = ({ children }: Props) => (
   <main className={main}>{children}</main>
-)
+);

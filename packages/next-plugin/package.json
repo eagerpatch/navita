@@ -28,19 +28,20 @@
     "linkDirectory": false
   },
   "scripts": {
-    "build": "build",
-    "dev": "build --dev",
-    "test": "jest --passWithNoTests"
+    "build": "tsdown --config-loader unrun",
+    "dev": "tsdown --config-loader unrun --watch",
+    "test": "vitest run --project @navita/next-plugin --passWithNoTests",
+    "type-check": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@navita/webpack-plugin": "workspace:*",
     "browserslist": "^4.21.5"
   },
   "devDependencies": {
-    "next": "14.1.4",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "webpack": "5.91.0",
+    "next": "^16",
+    "react": "^19",
+    "react-dom": "^19",
+    "webpack": "^5.108.0",
     "mini-css-extract-plugin": "^2.7.6"
   },
   "peerDependencies": {

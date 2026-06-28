@@ -1,13 +1,13 @@
 import { style } from "@navita/css";
-import React from "react";
+import type React from "react";
 
 const styles = {
   button: style({
-    background: 'red',
-    color: 'white',
-    padding: '10px',
+    background: "red",
+    color: "white",
+    padding: "10px",
   }),
-}
+};
 
 interface Props {
   children: React.ReactNode;

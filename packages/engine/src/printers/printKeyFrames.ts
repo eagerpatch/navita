@@ -14,7 +14,7 @@ function keyframesToBlock(keyframes: CSSKeyframes): string {
 }
 
 export function printKeyFrames(blocks: KeyframesBlock[]): string {
-  let keyframes = '';
+  let keyframes = "";
 
   for (const block of blocks) {
     keyframes += `@keyframes ${block.id}{${keyframesToBlock(block.rule)}}`;

@@ -1,4 +1,4 @@
-import { createNavitaStylePlugin } from '@navita/next-plugin';
+import { createNavitaStylePlugin } from "@navita/next-plugin";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -7,7 +7,7 @@ const nextConfig = {
   },
   typescript: {
     ignoreBuildErrors: true,
-  }
+  },
 };
 
 export default createNavitaStylePlugin()(nextConfig);

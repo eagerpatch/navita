@@ -1,12 +1,12 @@
+import type { Options as EngineOptions, UsedIdCache } from "@navita/engine";
 import { Engine } from "@navita/engine";
-import type { UsedIdCache, Options as EngineOptions } from "@navita/engine";
 import type { ImportMap } from "@navita/types";
 import MagicString from "magic-string";
+import type { Caches } from "./evaluateAndProcess";
 import { evaluateAndProcess } from "./evaluateAndProcess";
 import type { ResultCache } from "./helpers/setAdapter";
 
-export type { Engine, UsedIdCache, EngineOptions };
-export type { ImportMap };
+export type { Engine, EngineOptions, ImportMap, UsedIdCache };
 
 export interface Options {
   resolver: (filepath: string, request: string) => Promise<string>;
@@ -15,8 +15,6 @@ export interface Options {
   engineOptions?: EngineOptions;
   context?: string;
 }
-
-const resultCache: ResultCache = {};
 
 export function createRenderer({
   resolver,
@@ -29,6 +27,16 @@ export function createRenderer({
     context,
     ...(engineOptions || {}),
   });
+
+  // Caches are scoped to the renderer instance. They MUST NOT be shared across
+  // renderers: a cached compiled module closes over the engine/resultCache of
+  // whichever renderer first compiled it, so reusing it from another renderer
+  // would write to the wrong engine (cross-renderer leakage). See createRenderer
+  // tests for the isolation guarantee.
+  const resultCache: ResultCache = {};
+  const moduleCache: NonNullable<Caches["moduleCache"]> = new Map();
+  const nodeModuleCache: NonNullable<Caches["nodeModuleCache"]> = {};
+  const resolverCache: NonNullable<Caches["resolverCache"]> = {};
 
   const clearCache = (filePath: string) => {
     engine.clearCache(filePath);
@@ -48,14 +56,17 @@ export function createRenderer({
       clearCache(filePath);
 
       const { result, dependencies } = await evaluateAndProcess({
-        type: 'entryPoint',
+        type: "entryPoint",
         source: content,
         filePath,
         resolver,
         readFile,
         importMap,
         engine,
-        resultCache
+        resultCache,
+        moduleCache,
+        nodeModuleCache,
+        resolverCache,
       });
 
       const newSource = new MagicString(content, {
@@ -72,7 +83,7 @@ export function createRenderer({
         usedIds: engine.getCacheIds([filePath]),
         sourceMap: newSource.generateMap(),
       };
-    }
+    },
   };
 }
 

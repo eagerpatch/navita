@@ -1,6 +1,5 @@
 import type { createRenderer, ImportMap } from "@navita/core/createRenderer";
-import type { LoaderContext } from "webpack";
-import type { LoaderDefinitionFunction } from "webpack";
+import type { LoaderContext, LoaderDefinitionFunction } from "webpack";
 import { createHashFunction } from "./createHashFunction";
 import type { NavitaDependency } from "./getNavitaDependency";
 
@@ -20,20 +19,27 @@ export default async function loader(
 ) {
   const callback = this.async();
   const { resourcePath } = this;
-  const { importMap, renderer, NavitaDependency, outputCss } = this.getOptions();
+  const { importMap, renderer, NavitaDependency, outputCss } =
+    this.getOptions();
 
   // Bail as early as we can.
   if (
     this._module.matchResource ||
-    !importMap.map((x) => x.source).some(
-      (value) => content.indexOf(value) !== -1
-    )) {
+    !importMap
+      .map((x) => x.source)
+      .some((value) => content.indexOf(value) !== -1)
+  ) {
     renderer.clearCache(resourcePath);
     return callback(null, content, sourceMap);
   }
 
   try {
-    const { result, dependencies, usedIds, sourceMap } = await renderer.transformAndProcess({
+    const {
+      result,
+      dependencies,
+      usedIds,
+      sourceMap: outputSourceMap,
+    } = await renderer.transformAndProcess({
       content,
       filePath: resourcePath,
     });
@@ -46,7 +52,7 @@ export default async function loader(
 
     if (outputCss) {
       const hash = createHashFunction(this._compilation)(
-        JSON.stringify(usedIds)
+        JSON.stringify(usedIds),
       );
 
       this._module.addDependency(new NavitaDependency(this.resourcePath, hash));
@@ -63,11 +69,7 @@ export default async function loader(
       }
     }
 
-    callback(
-      null,
-      contents.filter(Boolean).join('\n').trim(),
-      sourceMap,
-    );
+    callback(null, contents.filter(Boolean).join("\n").trim(), outputSourceMap);
   } catch (error) {
     callback(error as Error);
   }

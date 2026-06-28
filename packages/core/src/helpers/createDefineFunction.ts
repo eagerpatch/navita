@@ -1,5 +1,5 @@
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 import enhancedResolve from "enhanced-resolve";
 
 const { ResolverFactory, CachedInputFileSystem } = enhancedResolve;
@@ -7,21 +7,30 @@ const { ResolverFactory, CachedInputFileSystem } = enhancedResolve;
 const resolver = ResolverFactory.createResolver({
   fileSystem: new CachedInputFileSystem(fs, 4000),
   extensions: [".js", ".cjs", ".mjs"],
-  conditionNames: ["import", "require"]
+  conditionNames: ["import", "require"],
 });
 
-const requireResolveLike = (request: string, paths: string[] = []) => Promise.any(paths.map((path) => new Promise<string>((resolve, reject) => {
-  resolver.resolve({}, path, request, {}, (err, result) => {
-    if (err || !result) {
-      return reject(err);
-    }
+const requireResolveLike = (request: string, paths: string[] = []) =>
+  Promise.any(
+    paths.map(
+      (path) =>
+        new Promise<string>((resolve, reject) => {
+          resolver.resolve({}, path, request, {}, (err, result) => {
+            if (err || !result) {
+              return reject(err);
+            }
 
-    resolve(result);
-  });
-})));
+            resolve(result);
+          });
+        }),
+    ),
+  );
 
-const importWithRequireResolution = async (request: string, startPath: string = __dirname) => {
-  return import(await requireResolveLike(request, [startPath]) || request);
+const importWithRequireResolution = async (
+  request: string,
+  startPath: string = __dirname,
+) => {
+  return import((await requireResolveLike(request, [startPath])) || request);
 };
 
 type FilePath = string;
@@ -37,22 +46,28 @@ interface Params {
   setAdapter: () => void;
 }
 
-export function createDefineFunction({
-  filePath,
-  resolver,
-  isExternal,
-  resolverCache,
-  nodeModuleCache,
-  setAdapter
-}: Params, resolveDependency: (dependency: string) => Promise<Record<string, unknown>>) {
+export function createDefineFunction(
+  {
+    filePath,
+    resolver,
+    isExternal,
+    resolverCache,
+    nodeModuleCache,
+    setAdapter,
+  }: Params,
+  resolveDependency: (dependency: string) => Promise<Record<string, unknown>>,
+) {
   const filepathDirectory = path.dirname(filePath);
 
-  return async function define(dependencies: string[], factoryFn: (...args) => void) {
+  return async function define(
+    dependencies: string[],
+    factoryFn: (...args) => void,
+  ) {
     const exports: Record<string, unknown> = {};
 
     const dependencyMap = {
       require: importWithRequireResolution,
-      exports
+      exports,
     };
 
     const resolvedDependencies: string[] = await Promise.all(
@@ -71,8 +86,13 @@ export function createDefineFunction({
             .catch(() => undefined)
             .then((resolvedDependency) => {
               if (!resolvedDependency || isExternal(resolvedDependency)) {
-                return requireResolveLike(dependency, [filepathDirectory, __dirname]).catch(() => {
-                  throw new Error(`Failed to resolve dependency "${dependency}" in ${filePath}`);
+                return requireResolveLike(dependency, [
+                  filepathDirectory,
+                  __dirname,
+                ]).catch(() => {
+                  throw new Error(
+                    `Failed to resolve dependency "${dependency}" in ${filePath}`,
+                  );
                 });
               }
 
@@ -81,10 +101,8 @@ export function createDefineFunction({
 
           resolverCache[filepathDirectory][dependency] = resolved;
           return resolved;
-        })
-    ).catch((error: Error) => {
-      throw error;
-    });
+        }),
+    );
 
     for (const dependency of resolvedDependencies) {
       if (nodeModuleCache[dependency]) {
@@ -102,7 +120,10 @@ export function createDefineFunction({
       }
 
       if (isExternal(dependency)) {
-        const module = importWithRequireResolution(dependency, filepathDirectory);
+        const module = importWithRequireResolution(
+          dependency,
+          filepathDirectory,
+        );
 
         if (!nodeModuleCache[dependency]) {
           nodeModuleCache[dependency] = module;
@@ -123,7 +144,7 @@ export function createDefineFunction({
 
     return {
       dependencies: resolvedDependencies.filter((x) => !isExternal(x)),
-      exports
+      exports,
     };
   };
 }

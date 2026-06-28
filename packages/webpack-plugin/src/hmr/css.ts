@@ -17,12 +17,17 @@ export function css() {
 
   previousHash = currentHash;
 
-  const styleSheets = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
-    .map((element) => [element.getAttribute('href').split('?')[0], element as LinkElement] as const);
+  const styleSheets = Array.from(
+    document.querySelectorAll('link[rel="stylesheet"]'),
+  ).map(
+    (element) =>
+      [
+        element.getAttribute("href").split("?")[0],
+        element as LinkElement,
+      ] as const,
+  );
 
-  const targets = styleSheets.filter(([href]) => href.endsWith('navita.css'));
-
-  console.log('[Navita HMR] Reloading %s stylesheet.', targets.length === 0 ? 'all': 'navita');
+  const targets = styleSheets.filter(([href]) => href.endsWith("navita.css"));
 
   for (const [href, element] of targets.length > 0 ? targets : styleSheets) {
     if (element.loaded === false) {
@@ -39,16 +44,16 @@ export function css() {
 
       newElement.loaded = true;
       element.remove();
-    }
+    };
 
-    newElement.addEventListener('load', handler);
-    newElement.addEventListener('error', handler);
-    newElement.setAttribute('href', `${href}?${Date.now()}`);
+    newElement.addEventListener("load", handler);
+    newElement.addEventListener("error", handler);
+    newElement.setAttribute("href", `${href}?${Date.now()}`);
 
     if (element.nextSibling) {
       element.parentNode.insertBefore(newElement, element.nextSibling);
     } else {
-      element.parentNode.appendChild(element);
+      element.parentNode.appendChild(newElement);
     }
   }
 }

@@ -1,4 +1,4 @@
-import path from "path";
+import path from "node:path";
 import type { Compiler, Dependency } from "webpack";
 
 type DependencyProperties = {
@@ -7,13 +7,16 @@ type DependencyProperties = {
 };
 
 // All of this is very verbose due to the way webpacks types are defined. Would love to find a fix!
-export type NavitaDependency = new (issuerPath: string, cssHash: string) => Dependency & DependencyProperties;
+export type NavitaDependency = new (
+  issuerPath: string,
+  cssHash: string,
+) => Dependency & DependencyProperties;
 export type NavitaDependencyInstance = InstanceType<NavitaDependency>;
 
-const cache = new WeakMap<Compiler['webpack'], NavitaDependency>();
+const cache = new WeakMap<Compiler["webpack"], NavitaDependency>();
 
-function createNavitaDependency(webpack: Compiler['webpack']) {
-  const WebpackDependency = (webpack.Dependency) as typeof Dependency;
+function createNavitaDependency(webpack: Compiler["webpack"]) {
+  const WebpackDependency = webpack.Dependency as typeof Dependency;
 
   class NavitaDependency extends WebpackDependency {
     constructor(
@@ -24,7 +27,7 @@ function createNavitaDependency(webpack: Compiler['webpack']) {
     }
 
     get request() {
-      return '.css';
+      return ".css";
     }
 
     getResourceIdentifier() {
@@ -58,22 +61,19 @@ function createNavitaDependency(webpack: Compiler['webpack']) {
         const issuerPath = read();
         const cssHash = read();
 
-        const dep = new NavitaDependency(
-          issuerPath,
-          cssHash,
-        );
+        const dep = new NavitaDependency(issuerPath, cssHash);
 
         dep.deserialize(context);
 
         return dep;
       },
-    }
+    },
   );
 
   return NavitaDependency;
 }
 
-export function getNavitaDependency(webpack: Compiler['webpack']) {
+export function getNavitaDependency(webpack: Compiler["webpack"]) {
   if (!cache.has(webpack)) {
     cache.set(webpack, createNavitaDependency(webpack));
   }

@@ -1,11 +1,11 @@
-import path from "path";
-import hash from '@emotion/hash';
+import path from "node:path";
+import hash from "@emotion/hash";
 import type { CSSKeyframes, FontFaceRule, StyleRule } from "@navita/types";
 import { Cache } from "./cache";
 import { isObject } from "./helpers/isObject";
 import { splitStyleBlocks } from "./helpers/splitStyleBlocks";
-import { IDGenerator } from "./identifiers/IDGenerator";
 import { AlphaIDGenerator } from "./identifiers/alphaIDGenerator";
+import { IDGenerator } from "./identifiers/IDGenerator";
 import { PropertyValueIDGenerator } from "./identifiers/propertyValueIDGenerator";
 import { printFontFaces } from "./printers/printFontFaces";
 import { printKeyFrames } from "./printers/printKeyFrames";
@@ -74,11 +74,11 @@ export class Engine {
       "static",
       processStyles({
         type: "static",
-        cache: this.caches.static
+        cache: this.caches.static,
       })({
         styles,
         selector,
-      }).map((style) => style.id)
+      }).map((style) => style.id),
     );
 
     return new Static();
@@ -87,7 +87,7 @@ export class Engine {
   addStyle(styles: StyleRule) {
     const rules = processStyles({
       type: "rule",
-      cache: this.caches.rule
+      cache: this.caches.rule,
     })({ styles });
 
     const ids = rules.map((rule) => rule.id);
@@ -125,7 +125,7 @@ export class Engine {
     classList,
     line,
     column,
-    index
+    index,
   }: {
     index: number;
     identifier: string;
@@ -139,15 +139,22 @@ export class Engine {
     }
 
     const { name } = path.parse(filePath);
-    const extraClass = this.options.enableDebugIdentifiers ? `${name}_${identifier}` : '';
-    const selector = '.' + classList
-      .toString()
-      .split(' ')
-      .concat(extraClass)
-      .filter(Boolean)
-      .join('.');
+    const extraClass = this.options.enableDebugIdentifiers
+      ? `${name}_${identifier}`
+      : "";
+    const selector =
+      "." +
+      classList
+        .toString()
+        .split(" ")
+        .concat(extraClass)
+        .filter(Boolean)
+        .join(".");
 
-    const newFilePath = path.relative(this.options.context || process.cwd(), filePath);
+    const newFilePath = path.relative(
+      this.options.context || process.cwd(),
+      filePath,
+    );
 
     if (index === 0 || !this.sourceMapReferences[newFilePath]) {
       this.sourceMapReferences[newFilePath] = [];
@@ -163,7 +170,10 @@ export class Engine {
   }
 
   private clearSourceMapReferences(filePath: string) {
-    const newFilePath = path.relative(this.options.context || process.cwd(), filePath);
+    const newFilePath = path.relative(
+      this.options.context || process.cwd(),
+      filePath,
+    );
     this.sourceMapReferences[newFilePath] = [];
   }
 
@@ -173,7 +183,7 @@ export class Engine {
   }
 
   generateIdentifier(value: unknown) {
-    if (typeof value === 'undefined') {
+    if (typeof value === "undefined") {
       let identifier = hash((this.identifierCount++).toString(36));
 
       if (identifier.match(/^\d/)) {
@@ -186,7 +196,7 @@ export class Engine {
     const newValue = JSON.stringify(value);
 
     const { id } = this.caches.identifiers.getOrStore({
-      value: newValue
+      value: newValue,
     });
 
     this.addUsedIds("identifiers", [id]);
@@ -195,9 +205,9 @@ export class Engine {
   }
 
   renderCssToString(options?: {
-    filePaths?: string[],
-    usedIds?: UsedIdCache,
-    opinionatedLayers?: boolean,
+    filePaths?: string[];
+    usedIds?: UsedIdCache;
+    opinionatedLayers?: boolean;
   }) {
     const { filePaths, usedIds, opinionatedLayers = false } = options || {};
 
@@ -206,26 +216,31 @@ export class Engine {
       keyframes: keyframesCache,
       fontFace: fontFaceCache,
       static: staticCache,
-      rule: ruleCache
+      rule: ruleCache,
     } = usedIds ?? this.getCacheIds(filePaths ?? Object.keys(this.usedIds));
 
-    const { atRules, lowPrioRules, rules } = splitStyleBlocks(this.caches.rule.items(ruleCache));
+    const { atRules, lowPrioRules, rules } = splitStyleBlocks(
+      this.caches.rule.items(ruleCache),
+    );
 
-    const keyFrameCss = printKeyFrames(this.caches.keyframes.items(keyframesCache));
-    const fontFaceCss = printFontFaces(this.caches.fontFace.items(fontFaceCache));
+    const keyFrameCss = printKeyFrames(
+      this.caches.keyframes.items(keyframesCache),
+    );
+    const fontFaceCss = printFontFaces(
+      this.caches.fontFace.items(fontFaceCache),
+    );
     const staticCss = printStyleBlocks(this.caches.static.items(staticCache));
     const atRulesCss = printStyleBlocks(sortAtRules(atRules));
     const lowPrioRulesCss = printStyleBlocks(lowPrioRules);
     const rulesCss = printStyleBlocks(rules);
 
     if (opinionatedLayers) {
-      const result = (
+      const result =
         `${keyFrameCss}${fontFaceCss}` +
-        (staticCss.length > 0 ? `@layer s{${staticCss}}` : '') +
-        (lowPrioRulesCss.length > 0 ? `@layer lpr{${lowPrioRulesCss}}` : '') +
-        (rulesCss.length > 0 ? `@layer r{${rulesCss}}` : '') +
-        (atRulesCss.length > 0 ? `@layer at{${atRulesCss}}` : '')
-      );
+        (staticCss.length > 0 ? `@layer s{${staticCss}}` : "") +
+        (lowPrioRulesCss.length > 0 ? `@layer lpr{${lowPrioRulesCss}}` : "") +
+        (rulesCss.length > 0 ? `@layer r{${rulesCss}}` : "") +
+        (atRulesCss.length > 0 ? `@layer at{${atRulesCss}}` : "");
 
       if (result.length > 0) {
         // s - static
@@ -235,32 +250,35 @@ export class Engine {
         return `@layer s,lpr,r,at;${result}`;
       }
 
-      return '';
+      return "";
     }
 
-    const content = (
+    const content =
       keyFrameCss +
       fontFaceCss +
       staticCss +
       lowPrioRulesCss +
       rulesCss +
-      atRulesCss
-    );
+      atRulesCss;
 
     if (this.options.enableSourceMaps) {
-      return printSourceMap(
-        this.sourceMapReferences,
-        content,
-      );
+      return printSourceMap(this.sourceMapReferences, content);
     }
 
     return content;
   }
 
   serialize() {
-    const { caches, usedIds, identifierCount, sourceMapReferences: sourceMapReferencesData } = this;
+    const {
+      caches,
+      usedIds,
+      identifierCount,
+      sourceMapReferences: sourceMapReferencesData,
+    } = this;
 
-    const sourceMapReferences = this.options.enableSourceMaps ? sourceMapReferencesData : undefined;
+    const sourceMapReferences = this.options.enableSourceMaps
+      ? sourceMapReferencesData
+      : undefined;
 
     return JSON.stringify({
       caches,
@@ -297,12 +315,15 @@ export class Engine {
   }
 
   getItems(caches: UsedIdCache) {
-    return Object.keys(caches).reduce((acc, key) => ({
-      ...acc,
-      [key]: this.caches[key as CacheKeys].items(caches[key as CacheKeys]),
-    }), {} as {
-      [K in CacheKeys]?: ReturnType<Engine['caches'][K]['items']>;
-    });
+    const result = {} as {
+      [K in CacheKeys]?: ReturnType<Engine["caches"][K]["items"]>;
+    };
+
+    for (const key of Object.keys(caches) as CacheKeys[]) {
+      result[key] = this.caches[key].items(caches[key]) as never;
+    }
+
+    return result;
   }
 
   clearUsedIds(filePath: string) {
@@ -313,10 +334,7 @@ export class Engine {
     this.usedIds[filePath] = {};
   }
 
-  private addUsedIds(
-    cacheType: CacheKeys,
-    identifiers: (string | number)[]
-  ) {
+  private addUsedIds(cacheType: CacheKeys, identifiers: (string | number)[]) {
     const { filePath } = this;
 
     if (filePath === undefined) {
@@ -332,23 +350,29 @@ export class Engine {
     }
 
     this.usedIds[filePath][cacheType] = [
-      ...new Set([
-        ...this.usedIds[filePath][cacheType],
-        ...identifiers,
-      ]),
+      ...new Set([...this.usedIds[filePath][cacheType], ...identifiers]),
     ];
   }
 
   getCacheIds(filePaths: string[] = []) {
-    return filePaths.reduce((acc, filePath) => ({
-      ...acc,
-      ...Object.keys(this.usedIds[filePath] || []).reduce((cache, key) => ({
-        ...cache,
-        [key]: [...(acc[key] || []), ...(this.usedIds[filePath][key] || [])],
-      }), {})
-    }), Object.keys(this.caches).reduce((acc, key) => ({
-      ...acc,
-      [key]: [],
-    }), {}) as UsedIdCache);
+    const result = {} as UsedIdCache;
+
+    for (const key of Object.keys(this.caches) as CacheKeys[]) {
+      result[key] = [];
+    }
+
+    for (const filePath of filePaths) {
+      const used = this.usedIds[filePath];
+
+      if (!used) {
+        continue;
+      }
+
+      for (const key of Object.keys(used) as CacheKeys[]) {
+        result[key] = [...(result[key] || []), ...(used[key] || [])];
+      }
+    }
+
+    return result;
   }
 }

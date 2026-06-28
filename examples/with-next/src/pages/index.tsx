@@ -1,5 +1,5 @@
-import dynamic from 'next/dynamic'
-import Head from 'next/head'
+import dynamic from "next/dynamic";
+import Head from "next/head";
 import { Byline } from "@/components/byline";
 import { Card } from "@/components/card";
 import { Code } from "@/components/code";
@@ -7,9 +7,12 @@ import { Description } from "@/components/description";
 import { Grid } from "@/components/grid";
 import { Main } from "@/components/main";
 
-const DynamicHero = dynamic(() => import('@/components/hero').then((x) => x.Hero), {
-  loading: () => <p>Loading...</p>,
-});
+const DynamicHero = dynamic(
+  () => import("@/components/hero").then((x) => x.Hero),
+  {
+    loading: () => <p>Loading...</p>,
+  },
+);
 
 export default function Home() {
   return (
@@ -60,5 +63,5 @@ export default function Home() {
         </Grid>
       </Main>
     </>
-  )
+  );
 }

@@ -1,12 +1,19 @@
 import { SourceMapGenerator } from "source-map";
-type FilePath = string;
-export type SourceMapReference = Record<FilePath, {
-  selector: string;
-  line: number;
-  column: number;
-}[]>;
 
-export function printSourceMap(sourceMapReferences: SourceMapReference, content: string) {
+type FilePath = string;
+export type SourceMapReference = Record<
+  FilePath,
+  {
+    selector: string;
+    line: number;
+    column: number;
+  }[]
+>;
+
+export function printSourceMap(
+  sourceMapReferences: SourceMapReference,
+  content: string,
+) {
   if (content.length === 0) {
     return content;
   }
@@ -22,12 +29,9 @@ export function printSourceMap(sourceMapReferences: SourceMapReference, content:
     skipValidation: true,
   });
 
-  const references = entries
-    .flatMap(
-      ([filePath, references]) => references.map(
-        (reference) => ({ filePath, ...reference })
-      )
-    );
+  const references = entries.flatMap(([filePath, references]) =>
+    references.map((reference) => ({ filePath, ...reference })),
+  );
 
   for (const reference of references) {
     const { filePath, selector, line, column } = reference;
@@ -42,7 +46,7 @@ export function printSourceMap(sourceMapReferences: SourceMapReference, content:
     });
   }
 
-  const sourceMapContent = Buffer.from(sourceMap.toString()).toString('base64');
+  const sourceMapContent = Buffer.from(sourceMap.toString()).toString("base64");
 
   content += `\n/*# sourceMappingURL=data:application/json;base64,${sourceMapContent} */`;
 

@@ -49,7 +49,10 @@ const UNITLESS = {
 };
 
 export function pixelifyProperties(property: string, value: number) {
-  if (value !== 0 && !UNITLESS[property]) {
+  // Custom properties (`--foo`) stay unitless, matching vanilla-extract — the
+  // engine can't know how the var is consumed, so appending `px` would be
+  // wrong (e.g. `--z-index: 10`).
+  if (value !== 0 && !property.startsWith("--") && !UNITLESS[property]) {
     return `${value}px`;
   }
 

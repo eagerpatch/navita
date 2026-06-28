@@ -11,17 +11,19 @@ describe("declarationsToBlock", () => {
   });
 
   it("should ignore non string and non number values", () => {
-    expect(declarationsToBlock({
-      a: 1,
-      b: "2",
-      // @ts-ignore
-      c: true,
-      d: undefined,
-      e: null,
-      // @ts-ignore
-      f: {},
-      // @ts-ignore
-      g: []
-    })).toEqual("a:1;b:2");
+    expect(
+      declarationsToBlock({
+        a: 1,
+        b: "2",
+        // @ts-expect-error
+        c: true,
+        d: undefined,
+        e: null,
+        // @ts-expect-error
+        f: {},
+        // @ts-expect-error
+        g: [],
+      }),
+    ).toEqual("a:1;b:2");
   });
 });
