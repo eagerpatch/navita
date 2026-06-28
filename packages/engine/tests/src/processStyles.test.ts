@@ -1,3 +1,4 @@
+import { vi } from "vitest";
 import { Cache } from "../../src/cache";
 import { IDGenerator } from "../../src/identifiers/IDGenerator";
 import { processStyles as processStylesUnderTest } from "../../src/processStyles";
@@ -456,7 +457,7 @@ describe('processStyles', () => {
       type: "rule",
     });
 
-    const warn = jest.spyOn(console, "warn").mockImplementation(() => undefined);
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
 
     const result = processStyles({
       styles: {

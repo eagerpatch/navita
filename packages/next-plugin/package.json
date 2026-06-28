@@ -30,7 +30,7 @@
   "scripts": {
     "build": "build",
     "dev": "build --dev",
-    "test": "jest --passWithNoTests"
+    "test": "vitest run --project @navita/next-plugin --passWithNoTests"
   },
   "dependencies": {
     "@navita/webpack-plugin": "workspace:*",

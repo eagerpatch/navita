@@ -33,7 +33,7 @@
   "scripts": {
     "build": "build",
     "dev": "build --dev",
-    "test": "jest --passWithNoTests"
+    "test": "vitest run --project @navita/vite-plugin --passWithNoTests"
   },
   "dependencies": {
     "@navita/core": "workspace:*",

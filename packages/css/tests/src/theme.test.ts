@@ -1,5 +1,6 @@
 import type { Adapter} from "@navita/adapter";
 import { setAdapter } from "@navita/adapter";
+import { vi } from "vitest";
 import { createGlobalThemeContract, createTheme, createThemeContract } from "../../src";
 
 describe('theme', () => {
@@ -33,7 +34,7 @@ describe('theme', () => {
 
   describe('createTheme', () => {
     it('should create a theme', () => {
-      const addStaticCss = jest.fn();
+      const addStaticCss = vi.fn();
       const generatedIdentifier = 'theme-identifier';
 
       setAdapter({
@@ -182,7 +183,7 @@ describe('theme', () => {
           },
         }),
       ).toThrowErrorMatchingInlineSnapshot(
-        `"Invalid variable name for "color.red": null"`,
+        `[Error: Invalid variable name for "color.red": null]`,
       );
     });
 
@@ -196,7 +197,7 @@ describe('theme', () => {
           },
         }),
       ).toThrowErrorMatchingInlineSnapshot(
-        `"Invalid variable name for "color.blue": color'blue"`,
+        `[Error: Invalid variable name for "color.blue": color'blue]`,
       );
     });
 
@@ -210,7 +211,7 @@ describe('theme', () => {
           },
         }),
       ).toThrowErrorMatchingInlineSnapshot(
-        `"Invalid variable name for "color.green": 123-color-green"`,
+        `[Error: Invalid variable name for "color.green": 123-color-green]`,
       );
     });
 
@@ -227,7 +228,7 @@ describe('theme', () => {
           () => null,
         ),
       ).toThrowErrorMatchingInlineSnapshot(
-        `"Invalid variable name for "color.red": null"`,
+        `[Error: Invalid variable name for "color.red": null]`,
       );
     });
   });

@@ -3,15 +3,13 @@
   "name": "navita-example-with-jest",
   "version": "0.0.1",
   "scripts": {
-    "test": "jest"
-  },
-  "jest": {
-    "setupFilesAfterEnv": ["@navita/jest"]
+    "test": "vitest run --project navita-example-with-jest"
   },
   "dependencies": {
     "@navita/css": "workspace:*"
   },
   "devDependencies": {
-    "@navita/jest": "workspace:*"
+    "@navita/jest": "workspace:*",
+    "vitest": "^4.0.0"
   }
 }

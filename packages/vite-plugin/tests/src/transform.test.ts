@@ -1,5 +1,6 @@
 import { createRenderer } from '@navita/core/createRenderer';
 import { importMap } from '@navita/css';
+import { type MockInstance, vi } from 'vitest';
 import { navita } from '../../src/index';
 
 /**
@@ -20,7 +21,7 @@ describe('navita vite-plugin transform — RedwoodSDK linker pass', () => {
   const code = `import { style } from '@navita/css';\nexport const x = style({ color: 'red' });`;
   const id = '/project/dist/worker/index.js';
 
-  let processSpy: jest.SpyInstance;
+  let processSpy: MockInstance;
 
   beforeEach(() => {
     const renderer = createRenderer({
@@ -29,7 +30,7 @@ describe('navita vite-plugin transform — RedwoodSDK linker pass', () => {
       resolver: async () => null,
       readFile: async () => '',
     });
-    processSpy = jest
+    processSpy = vi
       .spyOn(renderer, 'transformAndProcess')
       .mockResolvedValue({ result: code, sourceMap: null, dependencies: [] });
     (globalThis as Record<string, unknown>)[RENDERER_KEY] = renderer;
@@ -51,7 +52,7 @@ describe('navita vite-plugin transform — RedwoodSDK linker pass', () => {
     const { transform } = plugin as {
       transform: (this: unknown, code: string, id: string) => Promise<unknown>;
     };
-    return (c: string, i: string) => transform.call({ addWatchFile: jest.fn() }, c, i);
+    return (c: string, i: string) => transform.call({ addWatchFile: vi.fn() }, c, i);
   };
 
   it('skips the built worker bundle during the rwsdk linker pass', async () => {

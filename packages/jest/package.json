@@ -23,14 +23,17 @@
   "scripts": {
     "build": "build",
     "dev": "build --dev",
-    "test": "jest --passWithNoTests"
+    "test": "vitest run --project @navita/jest --passWithNoTests"
   },
   "dependencies": {
     "@navita/adapter": "workspace:*",
     "@navita/engine": "workspace:*"
   },
+  "peerDependencies": {
+    "vitest": "^3.0.0 || ^4.0.0"
+  },
   "devDependencies": {
-    "@types/jest": "^29.5.1"
+    "vitest": "^4.0.0"
   },
   "license": "MIT",
   "author": "Eagerpatch",

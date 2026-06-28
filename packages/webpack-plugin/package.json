@@ -31,7 +31,7 @@
     "linkDirectory": false
   },
   "scripts": {
-    "test": "jest",
+    "test": "vitest run --project @navita/webpack-plugin",
     "dev": "build --dev",
     "build": "build"
   },

@@ -20,7 +20,7 @@
   "scripts": {
     "build": "build",
     "dev": "build --dev",
-    "test": "jest"
+    "test": "vitest run --project @navita/adapter"
   },
   "devDependencies": {
     "@navita/types": "workspace:*"

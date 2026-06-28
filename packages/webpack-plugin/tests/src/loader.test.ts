@@ -1,18 +1,19 @@
 import type { ImportMap } from '@navita/core/createRenderer';
 import { AsyncSeriesHook, SyncHook } from "tapable";
 import type { LoaderContext } from 'webpack';
+import { type Mock, vi } from 'vitest';
 import loader from '../../src/loader';
 
 describe('loader.tests.ts', () => {
-  let callback: jest.Mock;
-  let clearCacheFn: jest.Mock;
+  let callback: Mock;
+  let clearCacheFn: Mock;
 
   let doneHook: AsyncSeriesHook<void>;
   let watchCloseHook: SyncHook<void>;
 
   beforeEach(() => {
-    callback = jest.fn();
-    clearCacheFn = jest.fn();
+    callback = vi.fn();
+    clearCacheFn = vi.fn();
     doneHook = new AsyncSeriesHook();
     watchCloseHook = new SyncHook();
   });

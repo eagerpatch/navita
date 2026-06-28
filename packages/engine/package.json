@@ -23,7 +23,7 @@
   "scripts": {
     "build": "build",
     "dev": "build --dev",
-    "test": "jest"
+    "test": "vitest run --project @navita/engine"
   },
   "dependencies": {
     "sort-css-media-queries": "2.4.0",

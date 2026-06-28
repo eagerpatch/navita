@@ -1,7 +1,23 @@
+import * as adapter from "@navita/adapter";
 import { setAdapter } from "@navita/adapter";
+import * as css from "@navita/css";
+import * as engine from "@navita/engine";
 import { ClassList, Engine } from "@navita/engine";
 import type { ImportMap } from "@navita/types";
 import { extraction } from "../src/extraction";
+
+/**
+ * The extracted AMD module `require()`s navita packages by source. Resolve those
+ * to the ESM instances this test already imports so the adapter the test wires
+ * (via `setAdapter`) is the same one the extracted code observes. Falling back to
+ * the runtime `require` would load the CJS build — a separate module instance
+ * whose adapter is never set ("Could not find an adapter").
+ */
+const knownModules: Record<string, unknown> = {
+  "@navita/adapter": adapter,
+  "@navita/css": css,
+  "@navita/engine": engine,
+};
 
 export type EvalResult = {
   output: string;
@@ -64,14 +80,19 @@ export async function evaluate(
 
   const extraModules = options.extraModules ?? {};
 
+  const resolveDep = (id: string) => {
+    if (id in extraModules) return extraModules[id];
+    if (id in knownModules) return knownModules[id];
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    return require(id);
+  };
+
   const define = (deps: string[], factory: (...args: any[]) => void) => {
     const exports: Record<string, unknown> = {};
     const args = deps.map((dep) => {
-      if (dep === "require") return (id: string) => require(id);
+      if (dep === "require") return resolveDep;
       if (dep === "exports") return exports;
-      if (dep in extraModules) return extraModules[dep];
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      return require(dep);
+      return resolveDep(dep);
     });
     factory(...args);
     return { exports };

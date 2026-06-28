@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import path from 'path';
+import { type Mock, vi } from 'vitest';
 import {
   collectResult,
   generateIdentifier,
@@ -15,19 +16,19 @@ import { evaluateAndProcess } from '../../src/evaluateAndProcess';
 
 describe('evaluateAndProcess', () => {
   let engine: Engine;
-  let readFile: jest.Mock;
+  let readFile: Mock;
   let moduleCache: Caches['moduleCache'];
   let resolverCache: Caches['resolverCache'];
   let nodeModuleCache: Caches['nodeModuleCache'];
   let resultCache: Caches['resultCache'];
 
   beforeAll(() => {
-    jest.setTimeout(10000);
+    vi.setConfig({ testTimeout: 10000 });
   });
 
   beforeEach(() => {
     engine = new Engine();
-    readFile = jest.fn();
+    readFile = vi.fn();
     moduleCache = new Map();
     resolverCache = {};
     nodeModuleCache = {};
@@ -179,8 +180,8 @@ describe('evaluateAndProcess', () => {
       `This function creates and returns a font-family name, so the "fontFamily" property should not be provided.`,
     );
 
-    engine.clearUsedIds = jest.fn();
-    engine.setFilePath = jest.fn();
+    engine.clearUsedIds = vi.fn();
+    engine.setFilePath = vi.fn();
 
     const result = collectResult({
       filePath: 'cool-filePath',
@@ -318,9 +319,9 @@ describe('evaluateAndProcess', () => {
       `,
     };
 
-    const hasSpy = jest.spyOn(moduleCache, 'has');
-    const getSpy = jest.spyOn(moduleCache, 'get');
-    const setSpy = jest.spyOn(moduleCache, 'set');
+    const hasSpy = vi.spyOn(moduleCache, 'has');
+    const getSpy = vi.spyOn(moduleCache, 'get');
+    const setSpy = vi.spyOn(moduleCache, 'set');
 
     expect(moduleCache).toEqual(new Map());
 

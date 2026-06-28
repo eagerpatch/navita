@@ -24,7 +24,7 @@
   "scripts": {
     "build": "build",
     "dev": "build --dev",
-    "test": "jest"
+    "test": "vitest run --project @navita/css"
   },
   "dependencies": {
     "@navita/adapter": "workspace:*",
