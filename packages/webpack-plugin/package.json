@@ -32,8 +32,8 @@
   },
   "scripts": {
     "test": "vitest run --project @navita/webpack-plugin",
-    "dev": "build --dev",
-    "build": "build",
+    "dev": "tsdown --config-loader unrun --watch",
+    "build": "tsdown --config-loader unrun",
     "type-check": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {

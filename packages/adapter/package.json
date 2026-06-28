@@ -18,8 +18,8 @@
     "linkDirectory": false
   },
   "scripts": {
-    "build": "build",
-    "dev": "build --dev",
+    "build": "tsdown --config-loader unrun",
+    "dev": "tsdown --config-loader unrun --watch",
     "test": "vitest run --project @navita/adapter",
     "type-check": "tsc --noEmit -p tsconfig.json"
   },

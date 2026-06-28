@@ -21,8 +21,8 @@
     "linkDirectory": false
   },
   "scripts": {
-    "build": "build",
-    "dev": "build --dev",
+    "build": "tsdown --config-loader unrun",
+    "dev": "tsdown --config-loader unrun --watch",
     "test": "vitest run --project @navita/jest --passWithNoTests",
     "type-check": "tsc --noEmit -p tsconfig.json"
   },
