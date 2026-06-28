@@ -1,13 +1,13 @@
-import { style } from '@navita/css';
-import type React from 'react';
+import { style } from "@navita/css";
+import type React from "react";
 
 const main = style({
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  padding: '6rem',
-  minHeight: '100vh',
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  alignItems: "center",
+  padding: "6rem",
+  minHeight: "100vh",
 });
 
 interface Props {

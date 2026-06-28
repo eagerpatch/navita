@@ -1,9 +1,9 @@
-import { style } from '@navita/css';
-import type React from 'react';
+import { style } from "@navita/css";
+import type React from "react";
 
 const box = style({
-  background: 'green',
-  color: 'white',
+  background: "green",
+  color: "white",
   fontSize: 20,
   padding: 20,
 });

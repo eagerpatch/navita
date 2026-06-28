@@ -1,12 +1,12 @@
-import { style } from '@navita/css';
+import { style } from "@navita/css";
 
 const container = style({
   width: 500,
   height: 500,
-  background: 'rebeccapurple',
+  background: "rebeccapurple",
 
-  '@media (min-width: 600px)': {
-    background: 'royalblue',
+  "@media (min-width: 600px)": {
+    background: "royalblue",
   },
 });
 

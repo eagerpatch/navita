@@ -1,43 +1,43 @@
-import path from 'node:path';
-import { NavitaPlugin } from '@navita/webpack-plugin';
-import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
-import HtmlWebpackPlugin from 'html-webpack-plugin';
-import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import path from "node:path";
+import { NavitaPlugin } from "@navita/webpack-plugin";
+import ReactRefreshWebpackPlugin from "@pmmmwh/react-refresh-webpack-plugin";
+import HtmlWebpackPlugin from "html-webpack-plugin";
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
 
-const isDevelopment = process.env.NODE_ENV !== 'production';
+const isDevelopment = process.env.NODE_ENV !== "production";
 
 export default {
-  entry: './src/index.js',
-  mode: isDevelopment ? 'development' : 'production',
+  entry: "./src/index.js",
+  mode: isDevelopment ? "development" : "production",
   module: {
     rules: [
       {
         test: /\.(js|jsx|tsx|ts)$/,
         exclude: /node_modules/,
-        loader: 'babel-loader',
+        loader: "babel-loader",
         options: {
           presets: [
-            '@babel/preset-env',
-            '@babel/preset-typescript',
-            '@babel/preset-react',
+            "@babel/preset-env",
+            "@babel/preset-typescript",
+            "@babel/preset-react",
           ],
-          plugins: [isDevelopment && 'react-refresh/babel'].filter(Boolean),
+          plugins: [isDevelopment && "react-refresh/babel"].filter(Boolean),
         },
       },
       {
         test: /\.css$/i,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
       },
     ],
   },
   resolve: {
-    extensions: ['.js', '.jsx', '.tsx', '.ts'],
+    extensions: [".js", ".jsx", ".tsx", ".ts"],
   },
   output: {
-    path: path.resolve('dist'),
+    path: path.resolve("dist"),
     clean: true,
   },
-  devtool: isDevelopment ? 'eval-source-map' : false,
+  devtool: isDevelopment ? "eval-source-map" : false,
   devServer: {
     hot: true,
     devMiddleware: {
@@ -46,7 +46,7 @@ export default {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: path.join('src', 'index.html'),
+      template: path.join("src", "index.html"),
     }),
     new MiniCssExtractPlugin(),
     new NavitaPlugin(),

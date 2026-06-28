@@ -1,14 +1,14 @@
-import { style } from '@navita/css';
-import { useState } from 'react';
-import { Button } from './components/button.tsx';
+import { style } from "@navita/css";
+import { useState } from "react";
+import { Button } from "./components/button.tsx";
 
 const x = style({
-  background: 'orange',
-  color: 'blue',
+  background: "orange",
+  color: "blue",
 });
 
 const button = style({
-  background: 'lawngreen',
+  background: "lawngreen",
 });
 
 function App() {

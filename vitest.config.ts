@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from "vitest/config";
 
 // Each project's `root` is made absolute (resolved against this config file's
 // directory) so it works no matter which directory `vitest` runs from — turbo
@@ -9,24 +9,24 @@ const abs = (p: string) => new URL(p, import.meta.url).pathname;
 // these are spread into every project explicitly.
 const shared = {
   globals: true,
-  environment: 'node' as const,
+  environment: "node" as const,
   clearMocks: true,
-  include: ['**/*.test.?(c|m)[jt]s?(x)'],
-  exclude: ['**/dist/**', '**/node_modules/**'],
+  include: ["**/*.test.?(c|m)[jt]s?(x)"],
+  exclude: ["**/dist/**", "**/node_modules/**"],
 };
 
 // [project name, project root]. The name doubles as the displayName and as the
 // `--project <name>` filter each package's `test` script passes.
 const packages: Array<[string, string]> = [
-  ['@navita/adapter', 'packages/adapter'],
-  ['@navita/core', 'packages/core'],
-  ['@navita/css', 'packages/css'],
-  ['@navita/engine', 'packages/engine'],
-  ['@navita/jest', 'packages/jest'],
-  ['@navita/next-plugin', 'packages/next-plugin'],
-  ['@navita/extraction', 'packages/extraction'],
-  ['@navita/vite-plugin', 'packages/vite-plugin'],
-  ['@navita/webpack-plugin', 'packages/webpack-plugin'],
+  ["@navita/adapter", "packages/adapter"],
+  ["@navita/core", "packages/core"],
+  ["@navita/css", "packages/css"],
+  ["@navita/engine", "packages/engine"],
+  ["@navita/next-plugin", "packages/next-plugin"],
+  ["@navita/extraction", "packages/extraction"],
+  ["@navita/vite-plugin", "packages/vite-plugin"],
+  ["@navita/vitest", "packages/vitest"],
+  ["@navita/webpack-plugin", "packages/webpack-plugin"],
 ];
 
 export default defineConfig({
@@ -39,9 +39,9 @@ export default defineConfig({
       {
         test: {
           ...shared,
-          name: 'navita-example-with-jest',
-          root: abs('examples/with-jest'),
-          setupFiles: ['@navita/jest'],
+          name: "navita-example-with-vitest",
+          root: abs("examples/with-vitest"),
+          setupFiles: ["@navita/vitest"],
         },
       },
     ],

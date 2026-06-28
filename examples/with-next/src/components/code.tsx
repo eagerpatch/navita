@@ -1,14 +1,14 @@
-import { style } from '@navita/css';
-import type React from 'react';
-import { vars } from '@/theme';
+import { style } from "@navita/css";
+import type React from "react";
+import { vars } from "@/theme";
 
 const code = style({
   fontFamily: vars.fontMono,
-  color: 'white',
-  borderRadius: '0.25rem',
-  padding: '0.25rem',
-  fontWeight: 'bold',
-  background: 'purple',
+  color: "white",
+  borderRadius: "0.25rem",
+  padding: "0.25rem",
+  fontWeight: "bold",
+  background: "purple",
 });
 
 interface Props {

@@ -1,7 +1,7 @@
-import { style } from '@navita/css';
+import { style } from "@navita/css";
 
 const wow = style({
-  background: 'blue',
+  background: "blue",
 });
 
 export const Something = () => <div className={wow}>Super cool test</div>;

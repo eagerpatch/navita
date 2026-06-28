@@ -1,11 +1,11 @@
-import { style } from '@navita/css';
-import type React from 'react';
+import { style } from "@navita/css";
+import type React from "react";
 
 const styles = {
   button: style({
-    background: 'red',
-    color: 'white',
-    padding: '10px',
+    background: "red",
+    color: "white",
+    padding: "10px",
   }),
 };
 
