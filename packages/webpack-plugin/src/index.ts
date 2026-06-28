@@ -343,8 +343,8 @@ export class NavitaPlugin {
               const miniCssContentPluginRender = entry.render;
 
               entry.render = () => {
-                const source = miniCssContentPluginRender() as ConcatSource;
-                source.add(css);
+                const source = miniCssContentPluginRender();
+                (source as unknown as ConcatSource).add(css);
                 return source;
               };
 

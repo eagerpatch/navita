@@ -24,7 +24,7 @@ export function navita(options?: Options): Plugin {
   let cssEmitted = false;
   let isProduction = false;
 
-  return {
+  const plugin: Plugin = {
     enforce: 'pre',
     name: 'navita',
     configResolved(_resolvedConfig) {
@@ -160,6 +160,8 @@ export function navita(options?: Options): Plugin {
       cssEmitted = true;
     },
   };
+
+  return plugin;
 
   function updateNavitaCSS() {
     if (!server) {

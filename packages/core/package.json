@@ -31,7 +31,8 @@
   "scripts": {
     "build": "build",
     "dev": "build --dev",
-    "test": "vitest run --project @navita/core"
+    "test": "vitest run --project @navita/core",
+    "type-check": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@navita/types": "workspace:*",

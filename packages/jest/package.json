@@ -23,7 +23,8 @@
   "scripts": {
     "build": "build",
     "dev": "build --dev",
-    "test": "vitest run --project @navita/jest --passWithNoTests"
+    "test": "vitest run --project @navita/jest --passWithNoTests",
+    "type-check": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@navita/adapter": "workspace:*",

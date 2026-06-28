@@ -21,7 +21,8 @@
   },
   "scripts": {
     "build": "build",
-    "dev": "build --dev"
+    "dev": "build --dev",
+    "type-check": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "csstype": "^3.1.1"

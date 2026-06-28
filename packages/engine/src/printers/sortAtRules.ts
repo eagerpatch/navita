@@ -1,8 +1,7 @@
-import type * as sortCSSmq from 'sort-css-media-queries';
 import createSort from 'sort-css-media-queries/lib/create-sort.js';
 import type { StyleBlock } from '../types';
 
-const sortCSSMediaQueries = createSort() as typeof sortCSSmq;
+const sortCSSMediaQueries = createSort() as (a: string, b: string) => number;
 
 export function sortAtRules(blocks: StyleBlock[]) {
   return blocks.sort(

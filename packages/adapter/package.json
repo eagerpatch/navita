@@ -20,7 +20,8 @@
   "scripts": {
     "build": "build",
     "dev": "build --dev",
-    "test": "vitest run --project @navita/adapter"
+    "test": "vitest run --project @navita/adapter",
+    "type-check": "tsc --noEmit -p tsconfig.json"
   },
   "devDependencies": {
     "@navita/types": "workspace:*"
