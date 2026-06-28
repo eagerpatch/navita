@@ -310,9 +310,9 @@ importers:
       '@navita/engine':
         specifier: workspace:*
         version: link:../engine
-      '@navita/swc':
+      '@navita/extraction':
         specifier: workspace:*
-        version: link:../swc
+        version: link:../extraction
       '@navita/types':
         specifier: workspace:*
         version: link:../types
@@ -368,6 +368,32 @@ importers:
         version: link:../types
     publishDirectory: dist
 
+  packages/extraction:
+    dependencies:
+      magic-string:
+        specifier: ^0.30.0
+        version: 0.30.21
+      oxc-parser:
+        specifier: ^0.137.0
+        version: 0.137.0
+      oxc-transform:
+        specifier: ^0.137.0
+        version: 0.137.0
+    devDependencies:
+      '@navita/adapter':
+        specifier: workspace:*
+        version: link:../adapter
+      '@navita/css':
+        specifier: workspace:*
+        version: link:../css
+      '@navita/engine':
+        specifier: workspace:*
+        version: link:../engine
+      '@navita/types':
+        specifier: workspace:*
+        version: link:../types
+    publishDirectory: dist
+
   packages/jest:
     dependencies:
       '@navita/adapter':
@@ -406,32 +432,6 @@ importers:
       webpack:
         specifier: ^5.108.0
         version: 5.108.1
-    publishDirectory: dist
-
-  packages/swc:
-    dependencies:
-      magic-string:
-        specifier: ^0.30.0
-        version: 0.30.17
-      oxc-parser:
-        specifier: ^0.137.0
-        version: 0.137.0
-      oxc-transform:
-        specifier: ^0.137.0
-        version: 0.137.0
-    devDependencies:
-      '@navita/adapter':
-        specifier: workspace:*
-        version: link:../adapter
-      '@navita/css':
-        specifier: workspace:*
-        version: link:../css
-      '@navita/engine':
-        specifier: workspace:*
-        version: link:../engine
-      '@navita/types':
-        specifier: workspace:*
-        version: link:../types
     publishDirectory: dist
 
   packages/types:

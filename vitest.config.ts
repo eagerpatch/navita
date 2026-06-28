@@ -24,7 +24,7 @@ const packages: Array<[string, string]> = [
   ['@navita/engine', 'packages/engine'],
   ['@navita/jest', 'packages/jest'],
   ['@navita/next-plugin', 'packages/next-plugin'],
-  ['@navita/swc', 'packages/swc'],
+  ['@navita/extraction', 'packages/extraction'],
   ['@navita/vite-plugin', 'packages/vite-plugin'],
   ['@navita/webpack-plugin', 'packages/webpack-plugin'],
 ];

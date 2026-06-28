@@ -1,6 +1,6 @@
 import path from 'node:path';
 import type { Engine } from '@navita/engine';
-import { extraction } from '@navita/swc';
+import { extraction } from '@navita/extraction';
 import type { ImportMap } from '@navita/types';
 import { createCompiledFunction } from './helpers/createCompiledFunction';
 import type {

@@ -1,11 +1,12 @@
 {
-  "name": "@navita/swc",
+  "name": "@navita/extraction",
   "version": "0.1.0",
-  "description": "Style extraction transform for Navita",
+  "description": "Style extraction transform for Navita (OXC-based)",
   "keywords": [
+    "oxc",
     "css-in-js",
     "navita",
-    "oxc"
+    "extraction"
   ],
   "private": false,
   "sideEffects": false,
@@ -23,7 +24,7 @@
   "scripts": {
     "build": "tsdown --config-loader unrun",
     "dev": "tsdown --config-loader unrun --watch",
-    "test": "vitest run --project @navita/swc",
+    "test": "vitest run --project @navita/extraction",
     "type-check": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
@@ -42,6 +43,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/eagerpatch/navita.git",
-    "directory": "packages/swc"
+    "directory": "packages/extraction"
   }
 }

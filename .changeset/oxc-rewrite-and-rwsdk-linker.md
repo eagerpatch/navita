@@ -1,9 +1,9 @@
 ---
-"@navita/swc": minor
+"@navita/extraction": minor
 "@navita/vite-plugin": patch
 ---
 
-**`@navita/swc`: rewritten in pure JavaScript on top of OXC**, replacing the Rust
+**`@navita/extraction`: rewritten in pure JavaScript on top of OXC**, replacing the Rust
 crate that compiled to a `@swc/core` wasm plugin. Extraction now uses
 `oxc-parser` + `magic-string` + `oxc-transform` — no Rust toolchain, no cargo/wasm
 build, and the `@swc/core` dependency (and its version lock) is gone. The public
