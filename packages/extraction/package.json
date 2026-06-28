@@ -1,6 +1,6 @@
 {
   "name": "@navita/extraction",
-  "version": "0.1.0",
+  "version": "3.0.0-next.0",
   "description": "Style extraction transform for Navita (OXC-based)",
   "keywords": [
     "oxc",

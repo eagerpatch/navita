@@ -11,7 +11,15 @@
     "@navita/swc": "0.1.0",
     "@navita/types": "0.1.0",
     "@navita/vite-plugin": "2.1.0",
-    "@navita/webpack-plugin": "0.4.4"
+    "@navita/webpack-plugin": "0.4.4",
+    "@navita/extraction": "0.1.0",
+    "@navita/vitest": "0.1.0",
+    "@navita/tsdown-config": "0.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "audit-bug-fixes",
+    "navita-v3",
+    "navita-vitest-package",
+    "oxc-rewrite-and-rwsdk-linker"
+  ]
 }
