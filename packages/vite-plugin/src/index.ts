@@ -77,7 +77,17 @@ export function navita(options?: Options): Plugin {
     async transform(code, id) {
       const renderer = getRenderer();
 
-      if (!renderer || id.includes('node_modules')) {
+      // During RedwoodSDK's worker "linker" pass, Vite re-feeds the already-built
+      // worker bundle back through the plugin pipeline. Its navita styles were
+      // already extracted in the first pass, and the bundle imports runtime-only
+      // specifiers (node:*, cloudflare:*, virtual:*) that navita can neither
+      // resolve nor evaluate at build time. Skip it — the navitaRwsdk renderChunk
+      // hook handles CSS-path rewriting in this pass (same RWSDK_BUILD_PASS gate).
+      if (
+        !renderer ||
+        id.includes('node_modules') ||
+        process.env.RWSDK_BUILD_PASS === 'linker'
+      ) {
         return null;
       }
 

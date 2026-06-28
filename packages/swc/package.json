@@ -16,7 +16,7 @@
       "types": "./src/index.ts"
     },
     "./_extraction.wasm": {
-      "default": "./target/wasm32-wasi/release/extraction.wasm"
+      "default": "./target/wasm32-wasip1/release/extraction.wasm"
     }
   },
   "publishConfig": {
