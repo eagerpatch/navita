@@ -1,7 +1,7 @@
 import type { ImportMap } from "@navita/types";
-import { transform } from "@swc/core";
-import { defaultCompressOptions } from "./utils/defaultCompressOptions";
-import { findAndCreateCacheDir } from "./utils/findAndCreateCacheDir";
+import { rewrite } from "./rewrite";
+import { stripTypes } from "./stripTypes";
+import { esmToAmd } from "./toAmd";
 
 type Options = {
   filename: string;
@@ -9,47 +9,25 @@ type Options = {
   entryPoint?: boolean;
 };
 
+/**
+ * Transform a TypeScript/TSX module into an evaluatable AMD module for
+ * `@navita/core`.
+ *
+ * For entry points, navita style calls are extracted into `collectResult(...)`
+ * wrappers and the module is pruned to only what's needed to evaluate them.
+ * For dependencies (`entryPoint: false`), the module is returned unchanged
+ * except for TypeScript stripping and AMD wrapping.
+ */
 export async function extraction(
   code: string,
-  { filename, importMap = [], entryPoint = true }: Options
-) {
-  return transform(code, {
-    filename,
-    swcrc: false,
-    module: {
-      type: "amd",
-    },
-    jsc: {
-      target: "es2022",
-      parser: {
-        syntax: "typescript",
-        tsx: true,
-      },
-      transform: {
-        optimizer: {
-          // This exists, but it's not in the types
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          simplify: {
-            preserveImportsWithSideEffects: false
-          },
-        },
-      },
-      minify: {
-        compress: {
-          ...defaultCompressOptions,
-          unused: true,
-        },
-        mangle: false
-      },
-      experimental: {
-        cacheRoot: await findAndCreateCacheDir(),
-        plugins: entryPoint === false ? [] : [
-          [require.resolve('@navita/swc/_extraction.wasm'), {
-            importMap,
-          }],
-        ],
-      },
-    },
-  }).then((result) => result.code);
+  { filename, importMap = [], entryPoint = true }: Options,
+): Promise<string> {
+  if (entryPoint === false) {
+    const js = stripTypes(filename, code);
+    return esmToAmd(js, { dropUnusedImports: false });
+  }
+
+  const rewritten = rewrite(code, { filename, importMap });
+  const js = stripTypes(filename, rewritten);
+  return esmToAmd(js, { dropUnusedImports: true });
 }

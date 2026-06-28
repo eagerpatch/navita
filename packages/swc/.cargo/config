@@ -1,3 +1,0 @@
-[alias]
-build-wasi = "build --target wasm32-wasip1"
-check-wasi = "check --target wasm32-wasip1"

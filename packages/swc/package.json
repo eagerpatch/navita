@@ -1,11 +1,11 @@
 {
   "name": "@navita/swc",
   "version": "0.1.0",
-  "description": "SWC transformers for Navita",
+  "description": "Style extraction transform for Navita",
   "keywords": [
-    "swc",
     "css-in-js",
-    "navita"
+    "navita",
+    "oxc"
   ],
   "private": false,
   "sideEffects": false,
@@ -14,9 +14,6 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs",
       "types": "./src/index.ts"
-    },
-    "./_extraction.wasm": {
-      "default": "./target/wasm32-wasip1/release/extraction.wasm"
     }
   },
   "publishConfig": {
@@ -24,20 +21,19 @@
     "linkDirectory": false
   },
   "scripts": {
-    "test": "cargo test",
-    "fmt": "cargo fmt",
-    "fix": "cargo fix --allow-dirty",
-    "check": "cargo fmt --check",
-    "cargo-build": "cargo build-wasi --release",
-    "build": "pnpm cargo-build && build",
-    "dev": "build --dev"
+    "build": "build",
+    "dev": "build --dev",
+    "test": "jest"
   },
   "dependencies": {
-    "@swc/core": "1.3.63",
-    "find-cache-dir": "^3.3.2"
+    "magic-string": "^0.30.0",
+    "oxc-parser": "^0.137.0",
+    "oxc-transform": "^0.137.0"
   },
   "devDependencies": {
-    "@types/find-cache-dir": "^3.2.1",
+    "@navita/adapter": "workspace:*",
+    "@navita/css": "workspace:*",
+    "@navita/engine": "workspace:*",
     "@navita/types": "workspace:*"
   },
   "license": "MIT",
