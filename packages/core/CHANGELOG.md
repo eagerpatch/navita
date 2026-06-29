@@ -1,5 +1,19 @@
 # @navita/core
 
+## 3.0.0-next.1
+
+### Patch Changes
+
+- 6537ac8: Fix module resolution for the `.css.ts` theme convention. The fallback resolver
+  (enhancedResolve) now also tries `.ts/.mts/.cts/.tsx/.jsx`, so an
+  `import "../styles/theme.css"` whose file is `theme.css.ts` resolves. Previously it
+  threw "Failed to resolve dependency" under rolldown / Vite 8, where the bundler's
+  `this.resolve` returns null for that request and the fallback couldn't append `.ts`.
+  - @navita/adapter@3.0.0-next.1
+  - @navita/engine@3.0.0-next.1
+  - @navita/extraction@3.0.0-next.1
+  - @navita/types@3.0.0-next.1
+
 ## 3.0.0-next.0
 
 ### Major Changes
