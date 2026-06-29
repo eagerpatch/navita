@@ -417,4 +417,25 @@ describe("evaluateAndProcess", () => {
       ).toBe(true);
     }
   });
+
+  it("resolves a `.css.ts` import that drops the .ts (the theme.css convention)", async () => {
+    // Regression: the fallback resolver (enhancedResolve) used to carry only
+    // .js/.cjs/.mjs, so `import { vars } from './theme.css'` (real file:
+    // theme.css.ts) threw "Failed to resolve dependency" under rolldown / Vite 8,
+    // where the bundler's `this.resolve` returns null for that request. The
+    // resolver now also tries .ts/.mts/.cts/.tsx/.jsx, so the fixture resolves.
+    const fixturesDir = path.resolve(__dirname, "../fixtures");
+    const { result } = await createEvaluateAndProcess({
+      basePath: fixturesDir,
+      files: {
+        "entry.ts": `
+          import { style } from '@navita/css';
+          import { vars } from './theme.css';
+          const a = style({ color: vars.primary });
+        `,
+      },
+    });
+
+    expect(result.length).toBeGreaterThan(0);
+  });
 });

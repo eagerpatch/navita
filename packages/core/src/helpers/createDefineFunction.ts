@@ -6,7 +6,12 @@ const { ResolverFactory, CachedInputFileSystem } = enhancedResolve;
 
 const resolver = ResolverFactory.createResolver({
   fileSystem: new CachedInputFileSystem(fs, 4000),
-  extensions: [".js", ".cjs", ".mjs"],
+  // Include TS/JSX extensions so the fallback resolver can find source files the
+  // bundler's `this.resolve` may not (notably the `.css.ts` theme convention: an
+  // `import "../styles/theme.css"` whose file is `theme.css.ts`). Under rolldown/
+  // Vite 8 `this.resolve` returns null for that import, so without these the
+  // fallback can't append `.ts` and throws "Failed to resolve dependency".
+  extensions: [".js", ".cjs", ".mjs", ".ts", ".mts", ".cts", ".tsx", ".jsx"],
   conditionNames: ["import", "require"],
 });
 
