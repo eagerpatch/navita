@@ -21,6 +21,7 @@
     "css-ts-resolve",
     "navita-v3",
     "navita-vitest-package",
-    "oxc-rewrite-and-rwsdk-linker"
+    "oxc-rewrite-and-rwsdk-linker",
+    "transform-node-modules"
   ]
 }

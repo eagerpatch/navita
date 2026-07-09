@@ -1,5 +1,12 @@
 # @navita/jest
 
+## 3.0.0-next.2
+
+### Patch Changes
+
+- @navita/adapter@3.0.0-next.2
+- @navita/engine@3.0.0-next.2
+
 ## 3.0.0-next.1
 
 ### Patch Changes
