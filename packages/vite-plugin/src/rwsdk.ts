@@ -2,7 +2,7 @@ import * as fsp from "node:fs/promises";
 import * as path from "node:path";
 import type { Plugin } from "vite";
 import type { Options } from "./index";
-import { navita, VIRTUAL_MODULE_ID } from "./index";
+import { getRenderer, navita, VIRTUAL_MODULE_ID } from "./index";
 
 export function navitaRwsdk(options?: Options): Plugin[] {
   let projectRootDir: string;
@@ -19,8 +19,34 @@ export function navitaRwsdk(options?: Options): Plugin[] {
       base = config.base;
     },
 
+    // Gap 1 — dev: serve `/virtual:navita.css` directly as text/css.
+    //
+    // rwsdk evaluates a module that resolves to `.css` in its worker env, which
+    // has no CSS transform pipeline: it runs JS import-analysis over the raw CSS
+    // and throws "invalid JS syntax", so the browser's stylesheet request 500s
+    // and the page renders unstyled. Answering the request from a middleware —
+    // before Vite's transform middleware — keeps the CSS out of the worker env.
+    //
+    // navita is source-served, so a route's components are compiled during SSR
+    // (before its HTML, hence before this fetch), so the renderer's output is
+    // complete for the route by the time the browser asks for the stylesheet.
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        if (req.url?.split("?")[0] !== `/${VIRTUAL_MODULE_ID}`) {
+          return next();
+        }
+
+        res.setHeader("Content-Type", "text/css");
+        res.setHeader("Cache-Control", "no-cache");
+        res.end(getRenderer()?.engine.renderCssToString() ?? "");
+      });
+    },
+
     async renderChunk(code) {
-      // Only run during the linker pass on the worker environment
+      // Build: rewrite the `virtual:navita.css` link href to the hashed asset
+      // path. The base navita plugin emits `navita.css` in the client build
+      // (gated to the client env, so rwsdk's early empty worker pass can't
+      // consume it); here we only patch references in the linker pass.
       const environmentName = this.environment?.name;
 
       if (

@@ -6,6 +6,17 @@ import { navitaRwsdk } from "../../src/rwsdk";
 
 type AnyPlugin = Record<string, any>;
 
+/** Stub the global renderer singleton to return a fixed CSS string. */
+function stubRenderer(css: string | undefined) {
+  const prev = (globalThis as any).__navita_renderer;
+  (globalThis as any).__navita_renderer = {
+    engine: { renderCssToString: () => css },
+  };
+  return () => {
+    (globalThis as any).__navita_renderer = prev;
+  };
+}
+
 const tmpRoots: string[] = [];
 
 /** Create a throwaway project root, optionally seeded with a client manifest. */
@@ -40,10 +51,67 @@ describe("navitaRwsdk", () => {
   it("returns the navita plugin plus a post-enforced navita-rwsdk plugin", () => {
     const [navitaPlugin, rwsdkPlugin] = navitaRwsdk() as AnyPlugin[];
     expect(navitaPlugin.name).toBe("navita");
-    // The base navita plugin keeps its own renderChunk under rwsdk.
+    // The base navita plugin owns CSS emission under rwsdk (client env).
     expect(navitaPlugin.renderChunk).toBeDefined();
     expect(rwsdkPlugin.name).toBe("navita-rwsdk");
     expect(rwsdkPlugin.enforce).toBe("post");
+  });
+
+  describe("configureServer — dev CSS middleware (Gap 1)", () => {
+    /** Drive the registered middleware with a fake req/res. */
+    function runMiddleware(url: string) {
+      const [, rwsdk] = navitaRwsdk() as AnyPlugin[];
+      let handler: any;
+      rwsdk.configureServer({
+        middlewares: { use: (fn: any) => (handler = fn) },
+      });
+
+      const headers: Record<string, string> = {};
+      const res = {
+        setHeader: (k: string, v: string) => {
+          headers[k] = v;
+        },
+        end: vi.fn(),
+      };
+      const next = vi.fn();
+      handler({ url }, res, next);
+      return { headers, res, next };
+    }
+
+    it("serves /virtual:navita.css as text/css from the renderer", () => {
+      const restore = stubRenderer(".a{color:red}");
+      const { headers, res, next } = runMiddleware("/virtual:navita.css");
+      restore();
+
+      expect(next).not.toHaveBeenCalled();
+      expect(headers["Content-Type"]).toBe("text/css");
+      expect(headers["Cache-Control"]).toBe("no-cache");
+      expect(res.end).toHaveBeenCalledWith(".a{color:red}");
+    });
+
+    it("ignores the query string when matching the stylesheet URL", () => {
+      const restore = stubRenderer(".a{color:red}");
+      const { res, next } = runMiddleware("/virtual:navita.css?t=123");
+      restore();
+
+      expect(next).not.toHaveBeenCalled();
+      expect(res.end).toHaveBeenCalledWith(".a{color:red}");
+    });
+
+    it("serves an empty stylesheet when the renderer has no output yet", () => {
+      const restore = stubRenderer(undefined);
+      const { res, next } = runMiddleware("/virtual:navita.css");
+      restore();
+
+      expect(next).not.toHaveBeenCalled();
+      expect(res.end).toHaveBeenCalledWith("");
+    });
+
+    it("passes unrelated requests through to the next middleware", () => {
+      const { res, next } = runMiddleware("/some/other/path");
+      expect(next).toHaveBeenCalled();
+      expect(res.end).not.toHaveBeenCalled();
+    });
   });
 
   describe("renderChunk", () => {

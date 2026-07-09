@@ -168,7 +168,22 @@ export function navita(options?: Options): Plugin {
       },
     },
     renderChunk(_, chunk) {
-      if (cssEmitted) {
+      // CSS is a client asset, so emit it once in the client environment.
+      // Gating on the environment (rather than a global "first chunk wins"
+      // latch) is what keeps this correct under rwsdk: its first rendered pass
+      // is an empty throwaway worker build, and a bare latch would be consumed
+      // there — leaving the real client build unstyled. The renderer is a
+      // global singleton that has accumulated every prior pass (ssr runs before
+      // client), so server-only components are covered too.
+      if (this.environment?.name !== "client" || cssEmitted) {
+        return;
+      }
+
+      const css = getRenderer()?.engine.renderCssToString();
+
+      // Nothing compiled yet (e.g. an early empty pass): leave the latch unset
+      // so a later, populated client chunk still emits.
+      if (!css) {
         return;
       }
 
@@ -177,7 +192,7 @@ export function navita(options?: Options): Plugin {
           this.emitFile({
             name: "navita.css",
             type: "asset",
-            source: getRenderer()?.engine.renderCssToString(),
+            source: css,
           }),
         ),
       );
@@ -201,19 +216,24 @@ export function navita(options?: Options): Plugin {
 
       if (mod) {
         moduleGraph.invalidateModule(mod);
-
-        ws.send({
-          type: "update",
-          updates: [
-            {
-              type: "css-update",
-              path: `/${VIRTUAL_MODULE_ID}`,
-              acceptedPath: `/${VIRTUAL_MODULE_ID}`,
-              timestamp: Date.now(),
-            },
-          ],
-        });
       }
+
+      // Send the css-update even when the virtual module isn't in the graph.
+      // Under rwsdk the stylesheet is served by a middleware, so it never
+      // enters the module graph — gating the notification on `mod` would drop
+      // every style HMR. In a normal Vite app `mod` exists once the page has
+      // loaded, so this is unchanged there.
+      ws.send({
+        type: "update",
+        updates: [
+          {
+            type: "css-update",
+            path: `/${VIRTUAL_MODULE_ID}`,
+            acceptedPath: `/${VIRTUAL_MODULE_ID}`,
+            timestamp: Date.now(),
+          },
+        ],
+      });
     }, 20);
   }
 }

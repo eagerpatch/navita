@@ -164,7 +164,16 @@ describe("navita() — virtual module (resolveId / load)", () => {
 });
 
 describe("navita() — renderChunk", () => {
-  it("emits the navita CSS asset once and registers it on the chunk", async () => {
+  /** A plugin context for the given build environment. */
+  function makeCtx(environmentName: string) {
+    return {
+      environment: { name: environmentName },
+      emitFile: vi.fn().mockReturnValue("ref-1"),
+      getFileName: vi.fn().mockReturnValue("assets/navita-abc.css"),
+    };
+  }
+
+  it("emits the navita CSS asset once in the client environment", async () => {
     const renderer = makeRenderer();
     (globalThis as Record<string, unknown>)[RENDERER_KEY] = renderer;
     const plugin = setupPlugin();
@@ -175,27 +184,71 @@ describe("navita() — renderChunk", () => {
       "/project/src/chunk.ts",
     );
 
-    const emitFile = vi.fn().mockReturnValue("ref-1");
-    const getFileName = vi.fn().mockReturnValue("assets/navita-abc.css");
-    const ctx = { emitFile, getFileName };
-
+    const ctx = makeCtx("client");
     const importedCss = new Set<string>();
     plugin.renderChunk.call(ctx, "", { viteMetadata: { importedCss } });
 
-    expect(emitFile).toHaveBeenCalledTimes(1);
-    expect(emitFile.mock.calls[0][0]).toMatchObject({
+    expect(ctx.emitFile).toHaveBeenCalledTimes(1);
+    expect(ctx.emitFile.mock.calls[0][0]).toMatchObject({
       name: "navita.css",
       type: "asset",
     });
-    expect(emitFile.mock.calls[0][0].source).toContain("color:red");
-    expect(getFileName).toHaveBeenCalledWith("ref-1");
+    expect(ctx.emitFile.mock.calls[0][0].source).toContain("color:red");
+    expect(ctx.getFileName).toHaveBeenCalledWith("ref-1");
     expect(importedCss.has("assets/navita-abc.css")).toBe(true);
 
-    // The cssEmitted guard makes subsequent calls no-ops.
+    // The cssEmitted guard makes subsequent client calls no-ops.
     plugin.renderChunk.call(ctx, "", {
       viteMetadata: { importedCss: new Set<string>() },
     });
-    expect(emitFile).toHaveBeenCalledTimes(1);
+    expect(ctx.emitFile).toHaveBeenCalledTimes(1);
+  });
+
+  it("is a no-op outside the client environment", async () => {
+    const renderer = makeRenderer();
+    (globalThis as Record<string, unknown>)[RENDERER_KEY] = renderer;
+    const plugin = setupPlugin();
+
+    await plugin.transform.call(
+      { addWatchFile: vi.fn() },
+      navitaCode("srv"),
+      "/project/src/srv.ts",
+    );
+
+    // rwsdk's throwaway worker / ssr passes must not consume the emission.
+    for (const env of ["worker", "ssr"]) {
+      const ctx = makeCtx(env);
+      plugin.renderChunk.call(ctx, "", {
+        viteMetadata: { importedCss: new Set<string>() },
+      });
+      expect(ctx.emitFile).not.toHaveBeenCalled();
+    }
+  });
+
+  it("does not flip the latch when the renderer is still empty", async () => {
+    // A client chunk that renders before anything compiled (empty CSS) must not
+    // consume the single emission — a later populated client chunk still emits.
+    (globalThis as Record<string, unknown>)[RENDERER_KEY] = makeRenderer();
+    const plugin = setupPlugin();
+
+    const empty = makeCtx("client");
+    plugin.renderChunk.call(empty, "", {
+      viteMetadata: { importedCss: new Set<string>() },
+    });
+    expect(empty.emitFile).not.toHaveBeenCalled();
+
+    // Now some styles get compiled, and the next client chunk emits.
+    await plugin.transform.call(
+      { addWatchFile: vi.fn() },
+      navitaCode("late"),
+      "/project/src/late.ts",
+    );
+
+    const populated = makeCtx("client");
+    plugin.renderChunk.call(populated, "", {
+      viteMetadata: { importedCss: new Set<string>() },
+    });
+    expect(populated.emitFile).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -272,6 +325,57 @@ describe("navita() — dev HMR (updateNavitaCSS debounce)", () => {
             type: "css-update",
             path: `/${VIRTUAL_MODULE_ID}`,
             acceptedPath: `/${VIRTUAL_MODULE_ID}`,
+          }),
+        ],
+      }),
+    );
+  });
+
+  it("still sends the css-update when the virtual module isn't in the graph", async () => {
+    // Under rwsdk the stylesheet is served by a middleware, so the virtual
+    // module never enters the graph. The notification must fire regardless, or
+    // style HMR silently stops (Gap 2).
+    vi.useFakeTimers();
+
+    const renderer = makeRenderer();
+    vi.spyOn(renderer, "transformAndProcess").mockResolvedValue({
+      result: 'export const x = "a1";',
+      sourceMap: null as never,
+      dependencies: [],
+    });
+    (globalThis as Record<string, unknown>)[RENDERER_KEY] = renderer;
+
+    const invalidateModule = vi.fn();
+    const send = vi.fn();
+    const server = {
+      moduleGraph: {
+        getModuleById: vi.fn().mockReturnValue(undefined),
+        invalidateModule,
+      },
+      ws: { send },
+    };
+
+    const plugin = setupPlugin({ mode: "development" });
+    plugin.configureServer(server);
+
+    await plugin.transform.call(
+      { addWatchFile: vi.fn() },
+      navitaCode("a"),
+      "/p/a.ts",
+    );
+
+    vi.advanceTimersByTime(25);
+
+    // No module to invalidate, but the browser is still told to re-fetch.
+    expect(invalidateModule).not.toHaveBeenCalled();
+    expect(send).toHaveBeenCalledTimes(1);
+    expect(send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "update",
+        updates: [
+          expect.objectContaining({
+            type: "css-update",
+            path: `/${VIRTUAL_MODULE_ID}`,
           }),
         ],
       }),
