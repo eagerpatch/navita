@@ -2,11 +2,17 @@ import type { Options as EngineOptions, UsedIdCache } from "@navita/engine";
 import { Engine } from "@navita/engine";
 import type { ImportMap } from "@navita/types";
 import MagicString from "magic-string";
-import type { Caches } from "./evaluateAndProcess";
+import type { Caches, NodeModuleMatcher } from "./evaluateAndProcess";
 import { evaluateAndProcess } from "./evaluateAndProcess";
 import type { ResultCache } from "./helpers/setAdapter";
 
-export type { Engine, EngineOptions, ImportMap, UsedIdCache };
+export type {
+  Engine,
+  EngineOptions,
+  ImportMap,
+  NodeModuleMatcher,
+  UsedIdCache,
+};
 
 export interface Options {
   resolver: (filepath: string, request: string) => Promise<string>;
@@ -14,6 +20,12 @@ export interface Options {
   importMap: ImportMap;
   engineOptions?: EngineOptions;
   context?: string;
+  /**
+   * `node_modules` paths that should be recursively evaluated instead of
+   * imported as opaque modules — a library authored WITH navita. Each matcher
+   * is a substring (`id.includes(...)`) or a `RegExp` tested against the id.
+   */
+  transformNodeModules?: NodeModuleMatcher[];
 }
 
 export function createRenderer({
@@ -22,6 +34,7 @@ export function createRenderer({
   importMap = [],
   engineOptions,
   context,
+  transformNodeModules = [],
 }: Options) {
   const engine = new Engine({
     context,
@@ -62,6 +75,7 @@ export function createRenderer({
         resolver,
         readFile,
         importMap,
+        transformNodeModules,
         engine,
         resultCache,
         moduleCache,

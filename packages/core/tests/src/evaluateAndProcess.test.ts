@@ -47,6 +47,7 @@ describe("evaluateAndProcess", () => {
       basePath?: string;
       files?: Record<string, string>;
       resolver?: (filePath: string, request: string) => Promise<string>;
+      transformNodeModules?: (string | RegExp)[];
     } = {},
   ) {
     const { basePath = fakedBasePath, resolver } = options || {};
@@ -76,6 +77,7 @@ describe("evaluateAndProcess", () => {
       resolverCache,
       nodeModuleCache,
       resultCache,
+      transformNodeModules: options.transformNodeModules,
       importMap: [
         {
           source: "@navita/css",
@@ -437,5 +439,59 @@ describe("evaluateAndProcess", () => {
     });
 
     expect(result.length).toBeGreaterThan(0);
+  });
+
+  describe("transformNodeModules", () => {
+    // A navita-authored library ships two files under node_modules: a theme
+    // (createGlobalTheme) and a component importing it. The component is the
+    // entry point; the theme is a cross-file dependency that must be recursively
+    // evaluated (not import()-ed as an opaque module) for its vars + CSS to
+    // resolve and for the file to be tracked as a watchable dependency.
+    const nodeModulesBase = path.resolve(
+      fakedBasePath,
+      "node_modules/@acme/ui",
+    );
+    const files = {
+      "button.ts": `
+        import { style } from '@navita/css';
+        import { vars } from './theme';
+        const a = style({ color: vars.color });
+      `,
+      "theme.ts": `
+        import { createGlobalTheme } from '@navita/css';
+        export const vars = createGlobalTheme(":root", { color: "red" });
+      `,
+    };
+    const resolver = async (_: string, request: string) =>
+      `${request.replace(/^\.\//, "")}.ts`;
+
+    it("recursively evaluates a matched library instead of importing it", async () => {
+      const { result, dependencies } = await createEvaluateAndProcess({
+        basePath: nodeModulesBase,
+        resolver,
+        files,
+        transformNodeModules: ["@acme/ui"],
+      });
+
+      // The theme was evaluated (vars resolved to a CSS var, theme CSS emitted)…
+      expect(result).toHaveLength(1);
+      expect(engine.renderCssToString()).toMatchInlineSnapshot(
+        `".a1{color:var(--color)}"`,
+      );
+      // …and tracked as a dependency so the bundler can watch it for HMR.
+      expect(dependencies).toHaveLength(1);
+      expect(dependencies[0].endsWith("theme.ts")).toBe(true);
+    });
+
+    it("supports RegExp matchers", async () => {
+      const { dependencies } = await createEvaluateAndProcess({
+        basePath: nodeModulesBase,
+        resolver,
+        files,
+        transformNodeModules: [/node_modules\/@acme\//],
+      });
+
+      expect(dependencies).toHaveLength(1);
+    });
   });
 });

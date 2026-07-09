@@ -42,8 +42,8 @@ describe("navita vite-plugin transform — RedwoodSDK linker pass", () => {
     delete process.env.RWSDK_BUILD_PASS;
   });
 
-  const getTransform = () => {
-    const plugin = navita();
+  const getTransform = (options?: Parameters<typeof navita>[0]) => {
+    const plugin = navita(options);
     // configResolved sets isProduction; production avoids the dev-only watch/HMR path.
     (plugin as { configResolved: (c: unknown) => void }).configResolved({
       root: process.cwd(),
@@ -74,5 +74,82 @@ describe("navita vite-plugin transform — RedwoodSDK linker pass", () => {
     // result — proving it's the linker gate, not some other guard, doing the skip.
     expect(processSpy).toHaveBeenCalledTimes(1);
     expect(result).not.toBeNull();
+  });
+});
+
+describe("navita vite-plugin transform — transformNodeModules", () => {
+  const RENDERER_KEY = "__navita_renderer";
+  // A navita-authored library ships un-compiled `style()` calls under node_modules.
+  const code = `import { style } from '@navita/css';\nexport const x = style({ color: 'red' });`;
+  const id = "/project/node_modules/@acme/ui/dist/navita/button.js";
+
+  let processSpy: MockInstance;
+
+  beforeEach(() => {
+    const renderer = createRenderer({
+      context: process.cwd(),
+      importMap,
+      resolver: async () => null,
+      readFile: async () => "",
+    });
+    processSpy = vi
+      .spyOn(renderer, "transformAndProcess")
+      .mockResolvedValue({ result: code, sourceMap: null, dependencies: [] });
+    (globalThis as Record<string, unknown>)[RENDERER_KEY] = renderer;
+  });
+
+  afterEach(() => {
+    processSpy.mockRestore();
+    delete (globalThis as Record<string, unknown>)[RENDERER_KEY];
+    delete process.env.RWSDK_BUILD_PASS;
+  });
+
+  const getTransform = (options?: Parameters<typeof navita>[0]) => {
+    const plugin = navita(options);
+    (plugin as { configResolved: (c: unknown) => void }).configResolved({
+      root: process.cwd(),
+      mode: "production",
+    });
+    const { transform } = plugin as {
+      transform: (this: unknown, code: string, id: string) => Promise<unknown>;
+    };
+    return (c: string, i: string) =>
+      transform.call({ addWatchFile: vi.fn() }, c, i);
+  };
+
+  it("skips node_modules by default", async () => {
+    const result = await getTransform()(code, id);
+
+    expect(result).toBeNull();
+    expect(processSpy).not.toHaveBeenCalled();
+  });
+
+  it("transforms a node_modules file matched by a substring matcher", async () => {
+    const result = await getTransform({ transformNodeModules: ["@acme/ui"] })(
+      code,
+      id,
+    );
+
+    expect(processSpy).toHaveBeenCalledTimes(1);
+    expect(result).not.toBeNull();
+  });
+
+  it("transforms a node_modules file matched by a RegExp matcher", async () => {
+    const result = await getTransform({
+      transformNodeModules: [/@acme\/[^/]+\/dist\/navita\//],
+    })(code, id);
+
+    expect(processSpy).toHaveBeenCalledTimes(1);
+    expect(result).not.toBeNull();
+  });
+
+  it("still skips node_modules files that do not match any matcher", async () => {
+    const result = await getTransform({ transformNodeModules: ["@other/lib"] })(
+      code,
+      id,
+    );
+
+    expect(result).toBeNull();
+    expect(processSpy).not.toHaveBeenCalled();
   });
 });

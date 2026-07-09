@@ -12,8 +12,33 @@ import type { ResultCache } from "./helpers/setAdapter";
 import { setAdapter } from "./helpers/setAdapter";
 
 const rootDir = path.resolve(__dirname, "../../");
-const isExternal = (dependency: string) =>
-  dependency.startsWith(rootDir) || dependency.includes("node_modules");
+
+/**
+ * A dependency is "external" when navita imports it as an opaque module (native
+ * `import()`, exports used as-is) instead of recursively evaluating its source
+ * to extract navita styles from it. By default that's navita's own packages
+ * (`rootDir`) and everything under `node_modules`.
+ *
+ * `transformNodeModules` carves specific `node_modules` paths back OUT of that
+ * set — a component library authored WITH navita ships un-compiled `style()`/
+ * theme calls in files that DO need recursive evaluation (and dependency
+ * tracking for HMR). navita's own packages stay external regardless, so a broad
+ * matcher can never make navita try to evaluate `@navita/css` itself.
+ */
+export type NodeModuleMatcher = string | RegExp;
+
+const matches = (matchers: NodeModuleMatcher[], dependency: string) =>
+  matchers.some((matcher) =>
+    matcher instanceof RegExp
+      ? matcher.test(dependency)
+      : dependency.includes(matcher),
+  );
+
+const createIsExternal =
+  (transformNodeModules: NodeModuleMatcher[]) => (dependency: string) =>
+    dependency.startsWith(rootDir) ||
+    (dependency.includes("node_modules") &&
+      !matches(transformNodeModules, dependency));
 
 type FilePathWithType = string;
 type ModuleCache = Map<
@@ -58,6 +83,7 @@ export async function evaluateAndProcess<
   resolver,
   readFile,
   importMap,
+  transformNodeModules = [],
   nodeModuleCache = defaultNodeModuleCache,
   resolverCache = defaultResolverCache,
   moduleCache = defaultModuleCache,
@@ -70,8 +96,10 @@ export async function evaluateAndProcess<
   resolver: (filePath: string, request: string) => Promise<string>;
   readFile: (filePath: string) => Promise<string>;
   importMap: ImportMap;
+  transformNodeModules?: NodeModuleMatcher[];
 } & Caches): Promise<Output<Type>> {
   const cacheKey = `${filePath}:${type}`;
+  const isExternal = createIsExternal(transformNodeModules);
 
   const compiledFn = await (async () => {
     if (moduleCache.has(cacheKey)) {
@@ -111,6 +139,7 @@ export async function evaluateAndProcess<
               resolver,
               readFile,
               importMap,
+              transformNodeModules,
               nodeModuleCache,
               resolverCache,
               moduleCache,

@@ -14,10 +14,34 @@ const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID.replace(/.css$/, "")}`
 export interface Options {
   importMap?: ImportMap;
   engineOptions?: EngineOptions;
+  /**
+   * By default the transform skips every file under `node_modules`, since most
+   * dependencies ship plain CSS or no navita styles at all. A component library
+   * authored WITH navita, however, ships un-compiled `style()` calls that must
+   * still be transformed — otherwise they throw "Could not find an adapter" at
+   * runtime.
+   *
+   * Provide matchers here for the `node_modules` paths that should be treated
+   * as navita source. Each matcher is a substring (matched with
+   * `id.includes(...)`) or a `RegExp` tested against the module id. A matched
+   * path is both transformed AND recursively evaluated, so the library's own
+   * cross-file imports (a theme/tokens file it ships) resolve correctly instead
+   * of being imported as an opaque module. navita's own packages (`@navita/*`)
+   * stay external regardless.
+   *
+   * @example
+   * navita({ transformNodeModules: ["@acme/ui", /@acme\/.*\/navita\//] })
+   */
+  transformNodeModules?: (string | RegExp)[];
 }
 
 export function navita(options?: Options): Plugin {
   const importMap = [...defaultImportMap, ...(options?.importMap || [])];
+  const transformNodeModules = options?.transformNodeModules || [];
+  const isForcedNodeModule = (id: string) =>
+    transformNodeModules.some((matcher) =>
+      matcher instanceof RegExp ? matcher.test(id) : id.includes(matcher),
+    );
   let server: ViteDevServer;
   let config: ResolvedConfig;
   let updateTimer: ReturnType<typeof setTimeout> | null = null;
@@ -48,6 +72,7 @@ export function navita(options?: Options): Plugin {
             ...(options?.engineOptions || {}),
           },
           importMap,
+          transformNodeModules,
           resolver: async (filepath: string, request: string) => {
             const resolved = await this.resolve(request, filepath);
             return resolved?.id || null;
@@ -88,7 +113,7 @@ export function navita(options?: Options): Plugin {
       // hook handles CSS-path rewriting in this pass (same RWSDK_BUILD_PASS gate).
       if (
         !renderer ||
-        id.includes("node_modules") ||
+        (id.includes("node_modules") && !isForcedNodeModule(id)) ||
         process.env.RWSDK_BUILD_PASS === "linker"
       ) {
         return null;
