@@ -1,5 +1,12 @@
 # @navita/webpack-plugin
 
+## 3.0.0-next.3
+
+### Patch Changes
+
+- @navita/core@3.0.0-next.3
+- @navita/css@3.0.0-next.3
+
 ## 3.0.0-next.2
 
 ### Patch Changes

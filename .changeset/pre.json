@@ -22,6 +22,7 @@
     "navita-v3",
     "navita-vitest-package",
     "oxc-rewrite-and-rwsdk-linker",
+    "rwsdk-self-contained",
     "transform-node-modules"
   ]
 }

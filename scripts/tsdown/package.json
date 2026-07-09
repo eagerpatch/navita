@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@navita/tsdown-config",
-  "version": "3.0.0-next.2",
+  "version": "3.0.0-next.3",
   "type": "module",
   "exports": {
     "./preset": "./navitaPreset.ts"
