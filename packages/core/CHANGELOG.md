@@ -1,5 +1,14 @@
 # @navita/core
 
+## 3.0.0-next.4
+
+### Patch Changes
+
+- @navita/adapter@3.0.0-next.4
+- @navita/engine@3.0.0-next.4
+- @navita/extraction@3.0.0-next.4
+- @navita/types@3.0.0-next.4
+
 ## 3.0.0-next.3
 
 ### Patch Changes
