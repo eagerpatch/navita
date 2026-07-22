@@ -47,6 +47,18 @@ export function navita(options?: Options): Plugin {
   let updateTimer: ReturnType<typeof setTimeout> | null = null;
   let cssEmitted = false;
   let isProduction = false;
+  // The renderer is created once in buildStart, but its resolver closure must
+  // not capture that hook's plugin context: under rolldown (Vite 8) calling
+  // this.resolve on a stale context fails, which silently drops alias-based
+  // imports (e.g. "@/lib/theme") down to the enhanced-resolve fallback that
+  // doesn't know the bundler's aliases. Track the most recent live context
+  // instead — transform refreshes it before any style evaluation runs.
+  let resolveCtx: {
+    resolve(
+      source: string,
+      importer?: string,
+    ): Promise<{ id: string } | null>;
+  };
 
   const plugin: Plugin = {
     enforce: "pre",
@@ -59,6 +71,8 @@ export function navita(options?: Options): Plugin {
       server = _server;
     },
     buildStart() {
+      resolveCtx = this;
+
       if (getRenderer()) {
         return;
       }
@@ -74,7 +88,7 @@ export function navita(options?: Options): Plugin {
           importMap,
           transformNodeModules,
           resolver: async (filepath: string, request: string) => {
-            const resolved = await this.resolve(request, filepath);
+            const resolved = await resolveCtx.resolve(request, filepath);
             return resolved?.id || null;
           },
           readFile: (path: string) => {
@@ -103,6 +117,8 @@ export function navita(options?: Options): Plugin {
       }
     },
     async transform(code, id) {
+      resolveCtx = this;
+
       const renderer = getRenderer();
 
       // During RedwoodSDK's worker "linker" pass, Vite re-feeds the already-built
