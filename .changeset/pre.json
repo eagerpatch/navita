@@ -23,6 +23,7 @@
     "navita-vitest-package",
     "oxc-rewrite-and-rwsdk-linker",
     "rwsdk-self-contained",
-    "transform-node-modules"
+    "transform-node-modules",
+    "vite-plugin-live-resolve-context"
   ]
 }
