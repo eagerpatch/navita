@@ -22,6 +22,7 @@
     "navita-v3",
     "navita-vitest-package",
     "oxc-rewrite-and-rwsdk-linker",
+    "reexports-as-dependencies",
     "rwsdk-self-contained",
     "transform-node-modules",
     "vite-plugin-live-resolve-context"
