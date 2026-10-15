@@ -40,7 +40,35 @@ export function esmToAmd(code: string, { dropUnusedImports }: Options): string {
     return info;
   };
 
+  // Re-exports (`export { a } from "x"`, `export * from "x"`) become module
+  // dependencies too, bound to a per-statement namespace temporary. They must
+  // NOT go through the AMD `require` parameter: @navita/core's `require` is an
+  // async import shim, so `require("x").a` is a property read off a Promise and
+  // every re-exported name comes back undefined.
+  const reexportNs = new Map<Node, string>();
+  let reexportCounter = 0;
+
   for (const stmt of body) {
+    if (
+      stmt.type === "ExportNamedDeclaration" ||
+      stmt.type === "ExportAllDeclaration"
+    ) {
+      if (!stmt.source) {
+        continue;
+      }
+      // Entry points only yield extraction results; their `exports` are never
+      // read, so a re-export has nothing to contribute — skip the dependency.
+      if (dropUnusedImports) {
+        continue;
+      }
+      const local = `_navita_reexport_${reexportCounter++}`;
+      reexportNs.set(stmt, local);
+      sourceInfoFor(stmt.source.value as string).specs.push({
+        kind: "namespace",
+        local,
+      });
+      continue;
+    }
     if (stmt.type !== "ImportDeclaration") {
       continue;
     }
@@ -82,7 +110,10 @@ export function esmToAmd(code: string, { dropUnusedImports }: Options): string {
   const keptSources: SourceInfo[] = [];
   for (const info of sources) {
     const specs = dropUnusedImports
-      ? info.specs.filter((s) => referenced.has(s.local))
+      ? info.specs.filter(
+          (s) =>
+            referenced.has(s.local) || s.local.startsWith("_navita_reexport_"),
+        )
       : info.specs;
     if (specs.length === 0) {
       continue;
@@ -116,13 +147,6 @@ export function esmToAmd(code: string, { dropUnusedImports }: Options): string {
   // Build the factory body.
   const lines: string[] = [];
 
-  // Per-call counter for re-export namespace temporaries. Kept local to this
-  // invocation so generated `_navita_reexport_N` names are deterministic across
-  // calls (a module-global counter leaks state and produces nondeterministic
-  // names depending on how many prior modules were converted).
-  let reexportCounter = 0;
-  const nextReexportNs = (): string => `_navita_reexport_${reexportCounter++}`;
-
   for (const info of keptSources) {
     lines.push(...destructure(info));
   }
@@ -131,7 +155,7 @@ export function esmToAmd(code: string, { dropUnusedImports }: Options): string {
     if (stmt.type === "ImportDeclaration") {
       continue;
     }
-    emitStatement(stmt, code, lines, nextReexportNs);
+    emitStatement(stmt, code, lines, reexportNs);
   }
 
   const bodyText = lines.join("\n");
@@ -169,7 +193,7 @@ function emitStatement(
   stmt: Node,
   code: string,
   lines: string[],
-  nextReexportNs: () => string,
+  reexportNs: Map<Node, string>,
 ): void {
   switch (stmt.type) {
     case "ExportNamedDeclaration": {
@@ -183,11 +207,12 @@ function emitStatement(
       }
       // export { a, b as c } [from "source"]
       if (stmt.source) {
-        // Re-export from another module: pull values off its namespace.
-        const ns = nextReexportNs();
-        lines.push(
-          `const ${ns} = require(${JSON.stringify(stmt.source.value)});`,
-        );
+        // Re-export from another module: pull values off the dependency
+        // namespace bound in the import pass (absent for entry points).
+        const ns = reexportNs.get(stmt);
+        if (!ns) {
+          return;
+        }
         for (const spec of stmt.specifiers || []) {
           lines.push(
             `exports.${spec.exported.name} = ${ns}.${spec.local.name};`,
@@ -218,10 +243,10 @@ function emitStatement(
       return;
     }
     case "ExportAllDeclaration": {
-      const ns = nextReexportNs();
-      lines.push(
-        `const ${ns} = require(${JSON.stringify(stmt.source.value)});`,
-      );
+      const ns = reexportNs.get(stmt);
+      if (!ns) {
+        return;
+      }
       if (stmt.exported) {
         lines.push(`exports.${stmt.exported.name} = ${ns};`);
       } else {

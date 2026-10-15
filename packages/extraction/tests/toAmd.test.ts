@@ -64,11 +64,12 @@ describe("esmToAmd — export declaration forms", () => {
     expect(exports).toEqual({ a: 1, c: 2 });
   });
 
-  it('export { a, b as c } from "x" pulls off the required namespace', () => {
+  it('export { a, b as c } from "x" binds the module as a dependency', () => {
     const out = toAmd(`export { a, b as c } from "x";`);
     expect(out).toBe(
-      noImp(
-        `const _navita_reexport_0 = require("x");\n` +
+      oneImp(
+        "x",
+        `const _navita_reexport_0 = _navita_import_0;\n` +
           `exports.a = _navita_reexport_0.a;\n` +
           `exports.c = _navita_reexport_0.b;`,
       ),
@@ -80,8 +81,9 @@ describe("esmToAmd — export declaration forms", () => {
   it('export * from "x" copies all keys except default', () => {
     const out = toAmd(`export * from "x";`);
     expect(out).toBe(
-      noImp(
-        `const _navita_reexport_0 = require("x");\n` +
+      oneImp(
+        "x",
+        `const _navita_reexport_0 = _navita_import_0;\n` +
           `for (const _k in _navita_reexport_0) { if (_k !== "default") exports[_k] = _navita_reexport_0[_k]; }`,
       ),
     );
@@ -94,14 +96,56 @@ describe("esmToAmd — export declaration forms", () => {
   it('export * as ns from "x" binds the whole namespace', () => {
     const out = toAmd(`export * as ns from "x";`);
     expect(out).toBe(
-      noImp(
-        `const _navita_reexport_0 = require("x");\n` +
+      oneImp(
+        "x",
+        `const _navita_reexport_0 = _navita_import_0;\n` +
           `exports.ns = _navita_reexport_0;`,
       ),
     );
     const mod = { foo: 1, default: 2 };
     const exports = runAmd(out, { x: mod });
     expect(exports.ns).toBe(mod);
+  });
+
+  it("a re-export shares the dependency with an import of the same source", () => {
+    const out = toAmd(
+      `import { a } from "x";\nexport { b } from "x";\nexport const v = a;`,
+    );
+    expect(out).toBe(
+      oneImp(
+        "x",
+        `const _navita_reexport_0 = _navita_import_0;\n` +
+          `const { a } = _navita_import_0;\n` +
+          `exports.b = _navita_reexport_0.b;\n` +
+          `const v = a;\n` +
+          `exports.v = v;`,
+      ),
+    );
+    expect(runAmd(out, { x: { a: 1, b: 2 } })).toEqual({ v: 1, b: 2 });
+  });
+
+  it("never routes a re-export through the require shim", () => {
+    // @navita/core's `require` is an async import: reading `.a` off it yields
+    // undefined, which is how `export { style } from "@navita/css"` barrels
+    // used to lose every name ("style is not a function").
+    const out = toAmd(
+      `export { style } from "@navita/css";\nexport * from "y";`,
+    );
+    expect(out).not.toContain("require(");
+    const exports = runAmd(out, {
+      "@navita/css": { style: () => "cls" },
+      y: { other: 1 },
+    });
+    expect(typeof exports.style).toBe("function");
+    expect(exports.other).toBe(1);
+  });
+
+  it("drops re-exports from entry points (their exports are never read)", () => {
+    const out = toAmd(
+      `export { a } from "x";\nexport * from "y";\nexport const v = 1;`,
+      true,
+    );
+    expect(out).toBe(noImp(`const v = 1;\nexports.v = v;`));
   });
 });
 
@@ -230,12 +274,12 @@ describe("esmToAmd — re-export namespace counter (C10)", () => {
   it("numbers multiple re-exports within one call deterministically", () => {
     const out = toAmd(`export { a } from "x";\nexport * from "y";`);
     expect(out).toBe(
-      noImp(
-        `const _navita_reexport_0 = require("x");\n` +
-          `exports.a = _navita_reexport_0.a;\n` +
-          `const _navita_reexport_1 = require("y");\n` +
-          `for (const _k in _navita_reexport_1) { if (_k !== "default") exports[_k] = _navita_reexport_1[_k]; }`,
-      ),
+      `define(["require", "exports", "x", "y"], function (require, exports, _navita_import_0, _navita_import_1) {\n` +
+        `const _navita_reexport_0 = _navita_import_0;\n` +
+        `const _navita_reexport_1 = _navita_import_1;\n` +
+        `exports.a = _navita_reexport_0.a;\n` +
+        `for (const _k in _navita_reexport_1) { if (_k !== "default") exports[_k] = _navita_reexport_1[_k]; }\n` +
+        `})`,
     );
   });
 
