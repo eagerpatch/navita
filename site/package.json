@@ -3,17 +3,20 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "rimraf .contentlayer && next build",
+    "dev": "qino build && next dev --webpack",
+    "build": "qino build && next build --webpack",
     "start": "next start",
-    "lint": "next lint",
-    "postinstall": "rimraf documentation && shx ln -s ../documentation documentation"
+    "lint": "eslint .",
+    "postinstall": "rimraf content/documentation && shx ln -s ../../documentation content/documentation"
   },
   "dependencies": {
+    "@mdx-js/mdx": "^3.1.1",
     "@navita/css": "workspace:*",
-    "next": "13.4.19",
-    "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "@qino/cms": "^0.16.0",
+    "next": "16.4.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@navita/core": "workspace:*",
@@ -21,22 +24,19 @@
     "@types/hast": "3.0.0",
     "@types/mdx": "^2.0.5",
     "@types/node": "20.4.8",
-    "@types/react": "18.2.18",
-    "@types/react-dom": "18.2.7",
-    "contentlayer": "^0.3.4",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
     "eslint": "8.46.0",
-    "eslint-config-next": "13.4.12",
+    "eslint-config-next": "15.5.28",
     "mdast-util-toc": "^7.0.0",
-    "next-contentlayer": "^0.3.4",
     "prettier": "^3.0.2",
     "rehype-autolink-headings": "^7.0.0",
-    "rehype-mdx-code-props": "^1.0.0",
     "rehype-pretty-code": "^0.10.0",
     "rehype-slug": "^6.0.0",
     "remark": "^14.0.3",
     "rimraf": "^5.0.1",
     "shx": "^0.3.4",
-    "typescript": "5.1.6",
+    "typescript": "~5.9.3",
     "unist-util-visit": "^5.0.0"
   }
 }

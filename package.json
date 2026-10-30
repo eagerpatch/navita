@@ -33,5 +33,19 @@
   },
   "engines": {
     "node": ">=14.0.0"
+  },
+  "pnpm": {
+    "packageExtensions": {
+      "next": {
+        "peerDependencies": {
+          "@types/react": "*",
+          "@types/react-dom": "*"
+        },
+        "peerDependenciesMeta": {
+          "@types/react": { "optional": true },
+          "@types/react-dom": { "optional": true }
+        }
+      }
+    }
   }
 }

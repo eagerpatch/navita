@@ -33,11 +33,11 @@ But Navita is written from the ground up.
 
 There are two main differences between Navita and Vanilla-Extract:
 
-1. Navita generates [Atomic CSS](300-styling.md#atomic-css) classes by default.
+1. Navita generates [Atomic CSS](styling.md#atomic-css) classes by default.
 2. Navita doesn't require a special extension to work. You can co-locate your styles with your components.
 
 Navita is also fully compatible with React Server Components, and we
-have [first-class support](../200-integrations/300-next.md) for [Next.js](https://nextjs.org/)!
+have [first-class support](../integrations/next.md) for [Next.js](https://nextjs.org/)!
 
 We've also tried to make Navita as fast as possible.
 Smart caching, and no internal bundler has allowed us to have minimal development performance impact.

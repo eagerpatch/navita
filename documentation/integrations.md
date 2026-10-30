@@ -1,4 +1,3 @@
 ---
 title: Integrations
-display: false
 ---

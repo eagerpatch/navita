@@ -42,13 +42,14 @@ type Pager = ComponentProps<typeof Pager>;
 
 interface Props {
   title: string;
-  code: string;
+  source: string;
+  flattenedPath: string;
   length?: number;
   description?: string;
   pager?: Pager;
 }
 
-export const Article = ({ title, description, code, pager, length }: Props) => {
+export const Article = ({ title, description, source, flattenedPath, pager, length }: Props) => {
   return (
     <article>
       <div>
@@ -58,7 +59,7 @@ export const Article = ({ title, description, code, pager, length }: Props) => {
       {length === undefined || length > 0 && (
         <>
           <hr className={hr} />
-          <Mdx code={code} />
+          <Mdx source={source} flattenedPath={flattenedPath} />
         </>
       )}
       {pager && (

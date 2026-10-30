@@ -19,7 +19,7 @@ As you can see, no CSS is generated when you create a variable; it is only a ref
 ## Setting the variable
 
 You can now set the variable in the style-object.
-This is essentially what happens in the [createTheme](./200-createTheme.md) API.
+This is essentially what happens in the [createTheme](./createTheme.md) API.
 
 ```tsx compile
 // set-variable.ts

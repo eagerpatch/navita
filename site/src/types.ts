@@ -1,1 +1,1 @@
-export type { Item } from "../contentlayer/generateToc";
+export type { Item } from "@/mdx/generateToc";

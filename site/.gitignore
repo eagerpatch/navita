@@ -34,8 +34,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# contentlayer
-.contentlayer
+# qino
+qino/_generated/
 
 # Documentation symlink
-documentation
+content/documentation

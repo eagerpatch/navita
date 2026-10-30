@@ -1,4 +1,3 @@
 ---
 title: API
-display: false
 ---

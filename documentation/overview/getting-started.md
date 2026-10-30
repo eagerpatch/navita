@@ -43,6 +43,6 @@ The bundler will then emit the styles during the build.
 
 > Navita doesn't require special file extensions to work — You can co-locate your styles with your components!
 
-[webpack]: /documentation/200-integrations/100-webpack.md
-[vite]: /documentation/200-integrations/200-vite.md
-[next]: /documentation/200-integrations/300-next.md
+[webpack]: /documentation/integrations/webpack.md
+[vite]: /documentation/integrations/vite.md
+[next]: /documentation/integrations/next.md
