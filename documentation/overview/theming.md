@@ -10,7 +10,7 @@ brand or style. You can customize the appearance of your entire application, or 
 different sections of your product.
 
 Theming in Navita is just a set of helpers on top of the scoped CSS variable creation provided
-by [createVar](../300-api/600-createVar.md).
+by [createVar](../api/createVar.md).
 
 To understand how it works, let's start with a simple example:
 

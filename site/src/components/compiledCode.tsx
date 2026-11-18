@@ -50,7 +50,7 @@ const tabActive = style({
   background: `hsla(${vars.colors.accent}, 0.4)`,
 });
 
-type Button = JSX.IntrinsicElements['button'];
+type Button = React.JSX.IntrinsicElements['button'];
 
 interface TabProps extends Button {
   children: React.ReactNode;

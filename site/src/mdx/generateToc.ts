@@ -95,7 +95,7 @@ function getItems(node: Node, current: Item = {}): Item {
   return current;
 }
 
-export async function generateToc(doc: { body: { raw: string } }) {
+export async function generateToc(markdown: string) {
   return remark()
     .use(() => (node: Root, VFile) => {
       const result = getItems(
@@ -112,6 +112,6 @@ export async function generateToc(doc: { body: { raw: string } }) {
 
       VFile.data.toc = tocWithoutFirst;
     })
-    .process(doc.body.raw)
-    .then((x) => x.data.toc);
+    .process(markdown)
+    .then((x) => x.data.toc as Item[]);
 }

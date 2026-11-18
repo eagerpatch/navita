@@ -3,13 +3,11 @@ import { Inter, Nunito } from 'next/font/google';
 import { Container } from '@/components/container';
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
-import { Hero } from "@/components/layout/hero";
 import { Main } from "@/components/layout/main";
 import { Responsive } from '@/components/layout/responsive';
 import { SidebarNav } from '@/components/layout/sidebarNav';
 import { Theme } from "@/components/layout/theme";
-import { buildDocumentationTree } from "@/utils/buildDocumentationTree";
-import { allDocs } from "contentlayer/generated";
+import { getNavigation } from "@/utils/docs";
 
 const fontSans = Inter({
   subsets: ['latin'],
@@ -29,10 +27,11 @@ export const metadata: Metadata = {
 
 interface Props {
   children: React.ReactNode;
+  hero: React.ReactNode;
 }
 
-export default function RootLayout({ children }: Props) {
-  const tree = buildDocumentationTree(allDocs);
+export default async function RootLayout({ children, hero }: Props) {
+  const navigation = await getNavigation();
 
   return (
     <Theme>
@@ -45,13 +44,10 @@ export default function RootLayout({ children }: Props) {
       >
         <body>
           <Header />
-          <Hero
-            title="CSS-in-JS with zero runtime"
-            description="Type-safe compile time Atomic CSS-in-JS with zero runtime."
-          />
+          {hero}
           <Container>
             <Responsive>
-              <SidebarNav tree={tree} />
+              <SidebarNav navigation={navigation} />
               <Main>{children}</Main>
             </Responsive>
           </Container>

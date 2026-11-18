@@ -6,7 +6,7 @@ import { Hamburger } from "@/components/buttons/hamburger";
 import { Menu } from "@/components/layout/menu";
 import { vars } from "@/components/layout/theme";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import type { DocTree } from "@/utils/buildDocumentationTree";
+import type { Navigation } from "@/utils/docs";
 
 const aside = style({
   zIndex: vars.zIndex.header,
@@ -64,10 +64,10 @@ const openContainer = style({
 });
 
 interface Props {
-  tree: DocTree[];
+  navigation: Navigation;
 }
 
-export const SidebarNav = ({ tree }: Props) => {
+export const SidebarNav = ({ navigation }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOnMenuClick = useCallback(() => {
@@ -97,9 +97,9 @@ export const SidebarNav = ({ tree }: Props) => {
           className={merge(nav, isOpen && openContainer)}
           aria-label="Main menu"
         >
-          {tree.map((x) => (
+          {navigation.map((x) => (
             <Menu
-              key={x.id}
+              key={x.title}
               {...x}
               onClick={handleOnMenuClick}
             >{x.children}</Menu>

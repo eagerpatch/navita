@@ -1,9 +1,11 @@
+import { evaluate } from "@mdx-js/mdx";
 import { merge, style } from "@navita/css";
 import type { MDXComponents } from 'mdx/types';
 import Image from "next/image";
-import { useMDXComponent } from "next-contentlayer/hooks";
+import * as runtime from "react/jsx-runtime";
 import { CompiledCode } from "@/components/compiledCode";
 import { vars } from "@/components/layout/theme";
+import { getRehypePlugins } from "@/mdx/rehypePlugins";
 
 const h1 = style({
   fontSize: '2.25rem',
@@ -333,11 +335,15 @@ const components: MDXComponents = {
 }
 
 interface MdxProps {
-  code: string;
+  source: string;
+  flattenedPath: string;
 }
 
-export function Mdx({ code }: MdxProps) {
-  const Component = useMDXComponent(code);
+export async function Mdx({ source, flattenedPath }: MdxProps) {
+  const { default: Component } = await evaluate(source, {
+    ...runtime,
+    rehypePlugins: getRehypePlugins(flattenedPath),
+  });
 
   return (
     <Component components={components} />

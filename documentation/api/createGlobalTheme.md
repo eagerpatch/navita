@@ -7,7 +7,7 @@ description: Public API
 
 Creates a theme attached to a global selector, but with locally scoped variable names.
 
-> 🎨 New to theming in Navita? Make sure you've read the [theming overview](../100-overview/400-theming.md) first.
+> 🎨 New to theming in Navita? Make sure you've read the [theming overview](../overview/theming.md) first.
 
 ```ts compile
 // theme.ts

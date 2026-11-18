@@ -4,7 +4,7 @@ import { merge, style } from "@navita/css";
 import Link from "next/link";
 import { ghost } from "@/components/buttonVariants";
 import { Chevron } from "@/components/icons/chevron";
-import type { Pager as PagerProps } from "@/utils/getPagerForDoc";
+import type { Pager as PagerProps } from "@/utils/docs";
 
 const container = style({
   display: 'flex',
@@ -33,7 +33,7 @@ const chevronLeft = style({
 export const Pager = ({ next, prev }: PagerProps) => (
   <div className={container}>
     {prev && (
-      <Link className={ghost} href={prev.slug}>
+      <Link className={ghost} href={prev.url}>
         <Chevron side="left" className={merge(chevron, chevronLeft)} />
         {prev.title}
       </Link>
@@ -41,7 +41,7 @@ export const Pager = ({ next, prev }: PagerProps) => (
 
     {next && (
       <Link
-        href={next.slug}
+        href={next.url}
         className={[ghost, ml].join(' ')}
       >
         {next.title}

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from 'next/navigation';
 import { useCallback } from "react";
 import { vars } from "@/components/layout/theme";
-import type { DocTree } from "@/utils/buildDocumentationTree";
+import type { Navigation } from "@/utils/docs";
 
 const h4 = style({
   fontWeight: 500,
@@ -41,9 +41,9 @@ const active = style({
 const mergedLink = merge(item, link);
 const mergedH4 = merge(item, h4);
 
-interface Props extends DocTree {
+type Props = Navigation[number] & {
   onClick?: () => void;
-}
+};
 
 export const Menu = ({ title, children, onClick = undefined }: Props) => {
   const pathname = usePathname();
@@ -55,9 +55,9 @@ export const Menu = ({ title, children, onClick = undefined }: Props) => {
       <div className={sub}>
         {children.map((child) => (
           <Link
-            key={child.id}
-            className={merge(mergedLink, pathname === child.slug && active)}
-            href={child.slug}
+            key={child.url}
+            className={merge(mergedLink, pathname === child.url && active)}
+            href={child.url}
             onClick={handleOnClick}
           >
             {child.title}

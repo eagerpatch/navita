@@ -1,11 +1,6 @@
-"use client";
-
 import { merge, style } from "@navita/css";
-import { usePathname } from "next/navigation";
 import { Container } from "@/components/container";
 import { vars } from "@/components/layout/theme";
-import { Mdx } from "@/components/mdx";
-import { allExamples } from "contentlayer/generated";
 
 const section = style({
   paddingTop: '2.5rem',
@@ -64,20 +59,10 @@ const p = style({
 interface Props {
   title: string;
   description?: string;
+  children: React.ReactNode;
 }
 
-export const Hero = ({ title, description }: Props) => {
-  // If someone has a better idea for this, please let me know.
-  // Maybe parallell routing?
-  // I couldn't get it to work.
-  const pathname = usePathname();
-
-  if (pathname !== '/') {
-    return null;
-  }
-
-  const randomExample = allExamples[Math.floor(Math.random() * allExamples.length)];
-
+export const Hero = ({ title, description, children }: Props) => {
   return (
     <section className={section}>
       <Container className={container}>
@@ -86,7 +71,7 @@ export const Hero = ({ title, description }: Props) => {
           {description && (<p className={p}>{description}</p>)}
         </div>
         <div className={column}>
-          <Mdx code={randomExample.body.code} />
+          {children}
         </div>
       </Container>
     </section>

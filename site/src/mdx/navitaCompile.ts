@@ -7,9 +7,8 @@ import type { Element, Root, Text } from "hast";
 import prettier from "prettier";
 import { visit } from "unist-util-visit";
 
-export function navitaCompile() {
-  return async (tree: Root, vFile: { data: Record<string, any> }) => {
-    const { rawDocumentData: { flattenedPath } } = vFile.data as { rawDocumentData: { flattenedPath: string } };
+export function navitaCompile({ flattenedPath }: { flattenedPath: string }) {
+  return async (tree: Root) => {
     const currentDir = dirname(fileURLToPath(import.meta.url));
     const files: Record<string, string> = {};
     const nodes: {

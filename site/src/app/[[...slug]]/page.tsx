@@ -1,56 +1,60 @@
 import { notFound } from "next/navigation";
 import { Article } from "@/components/article";
 import { Toc } from "@/components/toc";
-import { getDocumentFromParams } from "@/utils/getDocumentFromParams";
-import { allDocs } from "contentlayer/generated";
+import { generateToc } from "@/mdx/generateToc";
+import { getDoc, getDocPages } from "@/utils/docs";
 
 type Props = {
-  params: {
-    slug: string[];
-  };
+  params: Promise<{
+    slug?: Array<string>;
+  }>;
 };
 
+const toUrl = (slug?: Array<string>) => `/${slug?.join('/') ?? ''}`;
+
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
-  return allDocs.filter((x) => x.display).map((doc) => ({
-    slug: doc.slugAsParams.split('/')
+  const pages = await getDocPages();
+
+  return pages.map((page) => ({
+    slug: page.url.split('/').filter(Boolean),
   }));
 }
 
 export async function generateMetadata({ params }: Props) {
-  const result = getDocumentFromParams(params);
+  const doc = await getDoc(toUrl((await params).slug));
 
-  if (!result) {
+  if (!doc) {
     return {};
   }
 
-  const { doc } = result;
-  const { title } = doc;
-
   return {
-    title: `Navita - ${title}`
+    title: `Navita - ${doc.title}`
   };
 }
 
-export default function DocumentPage({ params }: Props) {
-  const result = getDocumentFromParams(params);
+export default async function DocumentPage({ params }: Props) {
+  const doc = await getDoc(toUrl((await params).slug));
 
-  if (!result) {
+  if (!doc) {
     notFound();
   }
 
-  const { doc, pager } = result;
+  const toc = await generateToc(doc.markdown);
 
   return (
     <>
       <Article
         title={doc.title}
-        code={doc.body.code}
+        source={doc.markdown}
+        flattenedPath={doc.flattenedPath}
         description={doc.description}
-        length={doc.body.raw.length}
-        pager={pager}
+        length={doc.markdown.length}
+        pager={doc.pager}
       />
       <div>
-        <Toc items={doc.toc} />
+        <Toc items={toc} />
       </div>
     </>
   );

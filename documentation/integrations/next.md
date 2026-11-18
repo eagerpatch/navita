@@ -42,7 +42,7 @@ You don't need to do anything else to get started!
 
 ## Configuration
 
-The plugin accepts everything from the [Webpack](100-webpack.md#configuration)-integration plus the following:
+The plugin accepts everything from the [Webpack](webpack.md#configuration)-integration plus the following:
 
 #### `singleCssFile?: boolean`
 
@@ -54,4 +54,4 @@ you can use this option to output a single CSS file instead.
 Multiple CSS files will produce a faster first paint,
 since they are generally smaller for the specific page, but it will transfer more content over the network. 
 
-The [Webpack documentation for Navita](100-webpack.md#opinionated-layers) explains a bit more about the opinionated layers.
+The [Webpack documentation for Navita](webpack.md#opinionated-layers) explains a bit more about the opinionated layers.

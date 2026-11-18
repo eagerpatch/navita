@@ -9,7 +9,7 @@ Creates a contract of globally scoped variable names for themes to implement.
 
 This is useful if you want to make your theme contract available to non-JavaScript environments.
 
-> 🎨 New to theming in Navita? Make sure you've read the [theming overview](../100-overview/400-theming.md) first.
+> 🎨 New to theming in Navita? Make sure you've read the [theming overview](../overview/theming.md) first.
 
 ```ts compile
 // theme.ts
