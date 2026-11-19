@@ -19,6 +19,7 @@
   "changesets": [
     "audit-bug-fixes",
     "css-ts-resolve",
+    "esm-shims-only-where-used",
     "navita-v3",
     "navita-vitest-package",
     "oxc-rewrite-and-rwsdk-linker",
