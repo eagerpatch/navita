@@ -1,5 +1,11 @@
 # @navita/types
 
+## 3.0.0-next.6
+
+### Patch Changes
+
+- 4af00ce: The ESM build no longer starts every module of these packages with `import "node:path"; import "node:url"; import.meta.url;`. That was the `__dirname` shim tsdown adds with `shims: true`, stamped onto each file of a file-per-module build whether it used `__dirname` or not. The shim is now on only for a package whose sources use `__dirname` or `__filename` (core, extraction, webpack-plugin). A client build that bundles `@navita/css` (`style`, `globalStyle`, … left in a browser module) no longer has to externalize `node:path` and `node:url` once per module — Vite warned about each.
+
 ## 3.0.0-next.5
 
 ## 3.0.0-next.4

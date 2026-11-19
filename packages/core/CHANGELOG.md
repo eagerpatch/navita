@@ -1,5 +1,15 @@
 # @navita/core
 
+## 3.0.0-next.6
+
+### Patch Changes
+
+- Updated dependencies [4af00ce]
+  - @navita/adapter@3.0.0-next.6
+  - @navita/engine@3.0.0-next.6
+  - @navita/types@3.0.0-next.6
+  - @navita/extraction@3.0.0-next.6
+
 ## 3.0.0-next.5
 
 ### Patch Changes
