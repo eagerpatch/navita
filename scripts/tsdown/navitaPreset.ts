@@ -30,6 +30,18 @@ function externalsFromPackageJson(cwd: string): RegExp[] {
   );
 }
 
+/** Whether a package's sources use `__dirname` or `__filename` (what the ESM shim provides). */
+function usesDirname(cwd: string): boolean {
+  const walk = (dir: string): boolean =>
+    fs.readdirSync(dir, { withFileTypes: true }).some((entry) => {
+      const file = path.join(dir, entry.name);
+      if (entry.isDirectory()) return walk(file);
+      return /\.tsx?$/.test(entry.name) && /\b__(dirname|filename)\b/.test(fs.readFileSync(file, "utf8"));
+    });
+  const src = path.resolve(cwd, "src");
+  return fs.existsSync(src) && walk(src);
+}
+
 export interface NavitaPresetOptions {
   /** Output formats. Default ['esm','cjs']. Use ['cjs'] for cjs-only packages. */
   format?: ("esm" | "cjs")[];
@@ -82,7 +94,13 @@ export function navitaPreset(opts: NavitaPresetOptions): Options[] {
     passes.push({
       ...jsBase,
       format: ["esm"],
-      shims: true, // __dirname/__filename shim (ESM only)
+      // The __dirname/__filename shim (ESM only), for a package whose sources
+      // use them. With unbundle, the shim's `import "node:path"; import
+      // "node:url"; import.meta.url;` lands at the top of EVERY module, used
+      // or not — so a browser-side package (@navita/css, @navita/adapter)
+      // shipped node: imports a client build has to externalize (Vite warns,
+      // once per module).
+      shims: usesDirname(process.cwd()),
     });
   }
   if (format.includes("cjs")) {
